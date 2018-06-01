@@ -13,6 +13,7 @@
     "nodemon": "^1.17.4"
   },
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "pdf2json": "^1.1.7"
   }
 }

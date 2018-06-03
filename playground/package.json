@@ -4,6 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "pdf2json": "^1.1.7"
+    "crawler": "^1.1.4",
+    "pdf2json": "^1.1.7",
+    "puppeteer": "^1.4.0"
   }
 }

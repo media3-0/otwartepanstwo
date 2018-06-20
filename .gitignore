@@ -1,5 +1,11 @@
 .DS_Store
+
+.env
+.envrc
+
+docker/data/*/
 node_modules/
+playground/temp/
+
 yarn-error.log
 npm-error.log
-playground/temp/

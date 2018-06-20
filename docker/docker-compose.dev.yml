@@ -1,0 +1,78 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: ../.
+      dockerfile: docker/server/Dockerfile
+    image: otwartepanstwo-server
+    restart: on-failure
+    ports:
+      - "8080:80"
+    depends_on:
+      - frontend
+      - api
+
+  frontend:
+    build:
+      context: ../.
+      dockerfile: docker/frontend/Dockerfile.dev
+    image: otwartepanstwo-frontend-dev
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./../frontend:/app
+      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
+    ports:
+      - "3000:3000"
+
+  api:
+    build:
+      context: ../.
+      dockerfile: docker/api/Dockerfile.dev
+    image: otwartepanstwo-api-dev
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_PASSWORD # env passed from shell
+      - POSTGRES_USER # env passed from shell
+    volumes:
+      - ./../api:/app
+      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
+      - ./data/files:/data/files # persisted downloads
+    depends_on:
+      - db
+      - elasticsearch
+    ports:
+      - "4000:4000"
+
+  # fetcher runs in cron, probably should be ran only in prod
+  fetcher:
+    build:
+      context: ../.
+      dockerfile: docker/fetcher/Dockerfile
+    image: otwartepanstwo-fetcher-dev
+    volumes:
+      - ./../fetcher:/app
+      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
+      - ./data/files:/data/files # persisted downloads
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD # env passed from shell
+      - POSTGRES_USER # env passed from shell
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+      - ./../db/init.sh:/docker-entrypoint-initdb.d/init.sh
+    ports:
+      - "5432:5432"
+
+  elasticsearch:
+    image: elasticsearch
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"

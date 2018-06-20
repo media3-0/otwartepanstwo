@@ -1,0 +1,18 @@
+FROM ubuntu:latest
+FROM node:latest
+
+RUN apt-get update
+RUN apt-get -y upgrade
+RUN apt-get -y install cron rsyslog
+
+# setup cron
+COPY fetcher/crontab /tmp/crontab
+RUN touch /var/log/cron.log
+RUN cat /tmp/crontab | crontab -
+RUN crontab -l
+
+# set up script
+WORKDIR /app
+
+CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
+

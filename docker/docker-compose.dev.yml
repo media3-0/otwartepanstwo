@@ -47,11 +47,10 @@ services:
     ports:
       - "4000:4000"
 
-  # fetcher runs in cron, probably should be ran only in prod
   fetcher:
     build:
       context: ../.
-      dockerfile: docker/fetcher/Dockerfile
+      dockerfile: docker/fetcher/Dockerfile.dev
     image: otwartepanstwo-fetcher-dev
     volumes:
       - ./../fetcher:/app

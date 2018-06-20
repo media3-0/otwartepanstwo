@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start:dev": "./scripts/start.dev.sh",
+    "stop:dev": "./scripts/stop.dev.sh",
     "build:dev": "./scripts/build.dev.sh"
   },
   "lint-staged": {

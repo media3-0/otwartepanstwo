@@ -11,5 +11,9 @@
   "license": "MIT",
   "devDependencies": {
     "nodemon": "^1.17.5"
+  },
+  "dependencies": {
+    "knex": "^0.15.1",
+    "pg": "^7.4.3"
   }
 }

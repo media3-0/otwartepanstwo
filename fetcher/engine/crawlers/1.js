@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
+const fs = require("fs");
 
 const getYearsUrls = async page => {
   await page.goto("http://www.dziennikustaw.gov.pl/");
@@ -36,6 +37,11 @@ const getPdfsFromPage = async (page, id) => {
       const date = $(tds.get(3))
         .children("span")
         .text();
+
+      if (!date || !url) {
+        console.log("AAAAA", title);
+      }
+
       result.push({
         title,
         url,
@@ -58,7 +64,7 @@ const getAllPdfsUrls = async (browser, page) => {
 };
 
 const crawl = async () => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   const years = await getYearsUrls(page);
   await page.goto(years[0].url);
@@ -66,7 +72,8 @@ const crawl = async () => {
   return flatten(pdf);
 };
 
-module.exports = async () => {
+(async () => {
   const listOfPdfs = await crawl();
+  fs.writeFileSync("./log", JSON.stringify(listOfPdfs, null, 2));
   return listOfPdfs.map(item => ({ ...item, url: `http://www.dziennikustaw.gov.pl${item.url}` }));
-};
+})();

@@ -38,14 +38,11 @@ const getPdfsFromPage = async (page, id) => {
         .children("span")
         .text();
 
-      if (!date || !url) {
-        console.log("AAAAA", title);
-      }
-
       result.push({
         title,
         url,
-        date
+        date,
+        sourceName: "dziennikiustaw"
       });
     }
   });
@@ -64,15 +61,20 @@ const getAllPdfsUrls = async (browser, page) => {
 };
 
 const crawl = async () => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+  });
   const page = await browser.newPage();
   const years = await getYearsUrls(page);
   await page.goto(years[0].url);
   const pdf = await getAllPdfsUrls(browser, page);
+  browser.close();
   return flatten(pdf);
 };
 
 module.exports = async () => {
   const listOfPdfs = await crawl();
+  console.log("LIST OF PDFS");
   return listOfPdfs.map(item => ({ ...item, url: `http://www.dziennikustaw.gov.pl${item.url}` }));
-}
+};

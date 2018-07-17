@@ -14,13 +14,6 @@ const pdfExtractor = require("pdf-text-extract");
       } else {
         callback(content);
       }
-      // const pdfParser = new PDFParser(null, 1);
-      // pdfParser.on("pdfParser_dataReady", pdfData => {
-      //   console.log(pdfData.formImage.Pages.length);
-      //   const text = pdfParser.getRawTextContent();
-      //   callback(text);
-      // });
-      // pdfParser.loadPDF(path);
     });
   };
 

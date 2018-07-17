@@ -13,7 +13,14 @@
     "nodemon": "^1.17.5"
   },
   "dependencies": {
+    "async": "^2.6.1",
+    "cheerio": "^1.0.0-rc.2",
+    "crypto": "^1.0.1",
     "knex": "^0.15.1",
-    "pg": "^7.4.3"
+    "lodash.flatten": "^4.4.0",
+    "pdf-text-extract": "^1.5.0",
+    "pg": "^7.4.3",
+    "puppeteer": "^1.6.0",
+    "sqlite3": "^4.0.2"
   }
 }

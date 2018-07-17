@@ -16,6 +16,6 @@ const crawler = require(crawlerPath);
   );
 
   if (process.send) {
-    process.send(data);
+    process.send(filteredData);
   }
 })();

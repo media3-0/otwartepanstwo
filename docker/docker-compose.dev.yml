@@ -60,6 +60,8 @@ services:
       - ./../fetcher:/app
       - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
       - ./data/files:/data/files # persisted downloads
+    depends_on:
+      - db
 
   db:
     image: postgres
@@ -79,3 +81,5 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    depends_on:
+      - db

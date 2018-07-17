@@ -1,14 +1,14 @@
 const IS_DEV = process.env.NODE_ENV === "development";
+const PDFS_TABLE_NAME = "documents";
 
 const fs = require("fs");
+const http = require("http");
 const async = require("async");
 const crypto = require("crypto");
 const knex = require("knex");
 const pdfExtractor = require("pdf-text-extract");
 
 const runCrawlers = require("./run-crawlers");
-
-const PDFS_TABLE_NAME = "documents";
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -26,49 +26,75 @@ const createDB = () =>
       .catch(e => reject(e));
   });
 
-const addToDb = () => {
-  const file = fs.createWriteStream(`./files/${current.hash}.pdf`);
-  http.get(current.url, response => {
-    response.pipe(file);
-    file.on("finish", () => {
-      file.close(() => {
-        readOneFile(`./files/${current.hash}.pdf`, parsedText => {});
+let shown = false;
+
+const readOneFile = path => {
+  return new Promise((resolve, reject) => {
+    pdfExtractor(path, { splitPages: false, layout: "raw" }, (err, content) => {
+      if (err) {
+        reject(err);
+      } else {
+        // callback(content);
+        if (!shown) {
+          console.log(content);
+          shown = true;
+        }
+        resolve(content);
+      }
+    });
+  });
+};
+
+const fetchAndParse = ({ url, hash }) => {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(`/data/files/${hash}.pdf`);
+    http.get(url, response => {
+      response.pipe(file);
+      file.on("finish", () => {
+        file.close(() => {
+          readOneFile(`/data/files/${hash}.pdf`).then(parsedText => resolve(parsedText));
+        });
       });
     });
   });
 };
 
 (async () => {
+  console.log("FETCHER STARTED");
   const [db, crawledData] = await Promise.all([createDB(), runCrawlers()]);
-  console.log('data!', crawledData);
 
-  async.eachLimit(crawledData, 10, current => {
+  async.eachLimit(crawledData, 10, (current, next) => {
     const hash = crypto
       .createHash("md5")
       .update(current.url)
       .digest("hex");
-    const isNew = knex(PDFS_TABLE_NAME).where({ hash }).then(rows => console.log(rows));
+
+    console.log("PROCESSING " + hash);
+    const updateDate = Math.floor(new Date().getTime() / 1000);
+
+    db(PDFS_TABLE_NAME)
+      .where({ hash })
+      .then(rows => {
+        const isNew = rows.length === 0;
+        if (isNew) {
+          console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
+          fetchAndParse({ url: current.url, hash }).then(parsedText => {
+            console.log("#" + hash + " DOWNLOADED");
+            db(PDFS_TABLE_NAME)
+              .insert({ hash, url: current.url, last_download: updateDate, content: parsedText })
+              .then(() => {
+                next(null);
+              });
+          });
+        } else {
+          console.log("#" + hash + " EXISTS, UPDATING");
+          db(PDFS_TABLE_NAME)
+            .where({ hash })
+            .update({ last_download: updateDate })
+            .then(() => {
+              next(null);
+            });
+        }
+      });
   });
 })();
-
-// createDB((err, db) => {
-//   console.log("!!!!");
-
-//   db("exports")
-//     .insert({ hash: "IOJJIHIHI" })
-//     .returning("hash")
-//     .then(d => console.log("D", d, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD));
-
-//   db("exports")
-//     .select()
-//     .then(d => console.log("all d", d));
-
-//   pdfExtractor("/data/files/1.pdf", { splitPages: false, layout: "raw" }, (err, content) => {
-//     if (err) {
-//       console.log("error from PDF PARSER", err);
-//     } else {
-//       console.log("done");
-//       fs.writeFileSync("/data/files/1.txt", content);
-//     }
-//   });
-// });

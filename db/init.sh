@@ -7,6 +7,6 @@ psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/postgres" <<-E
     hash TEXT,
     url TEXT,
     content TEXT,
-    last_download: TIMESTAMP,
+    last_download TEXT
   );
 EOSQL

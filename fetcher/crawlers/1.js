@@ -63,7 +63,7 @@ const getAllPdfsUrls = async (browser, page) => {
 const crawl = async () => {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
   });
   const page = await browser.newPage();
   const years = await getYearsUrls(page);
@@ -75,6 +75,5 @@ const crawl = async () => {
 
 module.exports = async () => {
   const listOfPdfs = await crawl();
-  console.log("LIST OF PDFS");
   return listOfPdfs.map(item => ({ ...item, url: `http://www.dziennikustaw.gov.pl${item.url}` }));
 };

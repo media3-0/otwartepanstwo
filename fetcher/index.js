@@ -26,19 +26,12 @@ const createDB = () =>
       .catch(e => reject(e));
   });
 
-let shown = false;
-
 const readOneFile = path => {
   return new Promise((resolve, reject) => {
     pdfExtractor(path, { splitPages: false, layout: "raw" }, (err, content) => {
       if (err) {
         reject(err);
       } else {
-        // callback(content);
-        if (!shown) {
-          console.log(content);
-          shown = true;
-        }
         resolve(content);
       }
     });
@@ -61,40 +54,48 @@ const fetchAndParse = ({ url, hash }) => {
 
 (async () => {
   console.log("FETCHER STARTED");
-  const [db, crawledData] = await Promise.all([createDB(), runCrawlers()]);
+  const db = await createDB();
+  const crawledData = await runCrawlers();
 
-  async.eachLimit(crawledData, 10, (current, next) => {
-    const hash = crypto
-      .createHash("md5")
-      .update(current.url)
-      .digest("hex");
+  async.eachLimit(
+    crawledData,
+    10,
+    (current, next) => {
+      const hash = crypto
+        .createHash("md5")
+        .update(current.url)
+        .digest("hex");
 
-    console.log("PROCESSING " + hash);
-    const updateDate = Math.floor(new Date().getTime() / 1000);
+      console.log("PROCESSING " + hash);
+      const updateDate = Math.floor(new Date().getTime() / 1000);
 
-    db(PDFS_TABLE_NAME)
-      .where({ hash })
-      .then(rows => {
-        const isNew = rows.length === 0;
-        if (isNew) {
-          console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
-          fetchAndParse({ url: current.url, hash }).then(parsedText => {
-            console.log("#" + hash + " DOWNLOADED");
+      db(PDFS_TABLE_NAME)
+        .where({ hash })
+        .then(rows => {
+          const isNew = rows.length === 0;
+          if (isNew) {
+            console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
+            fetchAndParse({ url: current.url, hash }).then(parsedText => {
+              console.log("#" + hash + " DOWNLOADED AND PARSED");
+              db(PDFS_TABLE_NAME)
+                .insert({ hash, url: current.url, last_download: updateDate, content: parsedText })
+                .then(() => {
+                  next(null);
+                });
+            });
+          } else {
+            console.log("#" + hash + " EXISTS, UPDATING");
             db(PDFS_TABLE_NAME)
-              .insert({ hash, url: current.url, last_download: updateDate, content: parsedText })
+              .where({ hash })
+              .update({ last_download: updateDate })
               .then(() => {
                 next(null);
               });
-          });
-        } else {
-          console.log("#" + hash + " EXISTS, UPDATING");
-          db(PDFS_TABLE_NAME)
-            .where({ hash })
-            .update({ last_download: updateDate })
-            .then(() => {
-              next(null);
-            });
-        }
-      });
-  });
+          }
+        });
+    },
+    () => {
+      console.log("FINISHED");
+    }
+  );
 })();

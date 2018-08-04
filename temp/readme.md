@@ -10,6 +10,7 @@
 - e-dziennik.men.gov.pl - done
 - www.dziennikurzedowy.me.gov.pl - not working
 - https://www.mf.gov.pl/ministerstwo-finansow/minister-finansow/dziennik-urzedowy - undone
+- mgm.gov.pl/du - done
 
 3. dzienniki urzędowe urzędów centralnych
 - abw.gov.pl/ - done

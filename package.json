@@ -7,11 +7,7 @@
     "build:dev": "./scripts/build.dev.sh"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
-      "prettier --config ./.prettierrc --write",
-      "eslint --config ./.eslintrc --max-warnings=0",
-      "git add"
-    ],
+    "*.{js,jsx}": ["prettier --config ./.prettierrc --write", "eslint --config ./.eslintrc", "git add"],
     "*.{json,css}": ["prettier --config ./.prettierrc --write", "git add"]
   },
   "husky": {

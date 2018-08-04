@@ -1,0 +1,31 @@
+1. dzienniki urzędowe Prezesa Rady Ministrów 
+- dziennikustaw.gov.pl/ - done
+- monitorpolski.gov.pl/ - done
+- ppiop.rcl.gov.pl/ - undone ***
+- dziennikustawnauchodzstwie.gov.pl/ - done
+- monitorpolskinauchodzstwie.gov.pl/ - done
+
+2. dzienniki urzędowe urzędów centralnych
+- abw.gov.pl/ - done
+- gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/ - undone - easy
+- www.gdos.gov.pl/dziennik-urzedowy-gdos/ - undone - easy
+- edziennik.gios.gov.pl/ - undone
+- http://bip.gitd.gov.pl/ - undone - easy
+- dziennikurzedowy.gum.gov.pl/dziennik-urzedowy/dzienniki-urzedowe-gum/ - undone - not working
+- http://dziennikigus.stat.gov.pl/dzienniki-urzedowe-gus/ - undone - easy
+- http://edziennik.policja.gov.pl/ - done
+- http://e-dziennik.strazgraniczna.pl/ - done
+- http://dziennikurzedowy.knf.gov.pl/ - done
+- dzu.nbp.pl - done
+- edziennik.uke.gov.pl - done
+- http://edziennik.ulc.gov.pl/ - done
+- http://www.uokik.gov.pl/ - undone - supereasy
+- https://www.uprp.pl/dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/ - undone - supereasy
+- https://dziennikurzedowy.utk.gov.pl/ - undone - supereasy
+- http://edzienniki.wug.gov.pl/ - undone - supereasy
+
+3. wojewódzkie
+wszystkie pójdą na jednym silniku który już mam
+
+4. dziennik urzędowy Unii Europejskiej
+undone ***

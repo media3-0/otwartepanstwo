@@ -1,7 +1,7 @@
 1. dzienniki urzędowe Prezesa Rady Ministrów 
 - dziennikustaw.gov.pl/ - done
 - monitorpolski.gov.pl/ - done
-- ppiop.rcl.gov.pl/ - undone ***
+- ppiop.rcl.gov.pl/ - done
 - dziennikustawnauchodzstwie.gov.pl/ - done
 - monitorpolskinauchodzstwie.gov.pl/ - done
 

@@ -1,47 +1,92 @@
-const puppeteer = require("puppeteer");
+const async = require("async");
 const cheerio = require("cheerio");
+const puppeteer = require("puppeteer");
+const flatten = require("lodash.flatten");
+const logger = require("../logger");
 
-const MAIN_URL = "http://ppiop.rcl.gov.pl/?r=skorowidz/index";
+const BASE_URL = "http://ppiop.rcl.gov.pl";
+const MAIN_URL = `${BASE_URL}/?r=orzeczenia/index`;
 const SOURCE_NAME = "ppiop.rcl.gov.pl";
 
 const crawl = async () => {
   const browserOpts = {
-    headless: false,
+    // headless: false,
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   };
 
   const browser = await puppeteer.launch(browserOpts);
   const page = await browser.newPage();
   await page.goto(MAIN_URL, { waitUntil: "networkidle0" });
-  // await page.waitForNavigation();
-  console.log("!");
+
   const content = await page.content();
   const $ = cheerio.load(content);
-  // $(".expandable-hitarea").click()
-  // await page.waitForSelector("");
 
-  // await Promise.all([$(".expandable-hitarea").click(), page.waitForNavigation(["networkidle2"])]);
+  const pagesList = $(".yiiPager .page a")
+    .map((i, d) => $(d).attr("href"))
+    .get();
 
-  console.log($(".expandable-hitarea").length);
+  return new Promise((resolve, reject) => {
+    async.mapLimit(
+      pagesList,
+      5,
+      async url => {
+        const newPage = await browser.newPage();
+        await newPage.goto(`${BASE_URL}/url`, { waitUntil: "networkidle0" });
+        await page.waitForSelector(".grid_table");
 
-  await page.click(".expandable-hitarea");
-  await page.waitForFunction("document.body.className !== 'loading'");
-  // await Promise.all([page.waitForFunction("document.body.className !== 'loading'"), ]);
+        const content = await page.content();
+        const $ = cheerio.load(content);
 
-  console.log($(".expandable-hitarea").length);
+        const data = $("tr")
+          .map((i, d) => {
+            const $d = $(d);
 
-  await Promise.all([
-    await page.click(".expandable-hitarea"),
-    page.waitForFunction("document.body.className !== 'loading'")
-  ]);
-  console.log($(".expandable-hitarea").length);
+            const dataStr = $d
+              .find(".orzeczenie_col01")
+              .text()
+              .trim();
 
-  await page.click(".expandable-hitarea");
-  await page.waitForFunction("document.body.className !== 'loading'");
-  console.log($(".expandable-hitarea").length);
+            const maybeDates = dataStr.match(/(\d{4})-(\d{2})-(\d{2})/g);
+            const date = maybeDates && maybeDates.length > 0 ? maybeDates[0] : undefined;
 
-  // const expendAll = () => {
-  // };
+            if (!date) {
+              logger.debug(`can't find date for: ${url} (${dataStr})`);
+            }
+
+            const urls = $d.find(".orzeczenie_col04 a").map((i, d) => {
+              const title = $(d)
+                .text()
+                .trim();
+
+              const url = $(d).attr("href");
+
+              return {
+                title,
+                url,
+                date,
+                source: SOURCE_NAME,
+                ocr: false
+              };
+            });
+
+            return flatten(urls);
+          })
+          .get();
+
+        await newPage.close();
+
+        return data;
+      },
+      (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+
+        resolve(flatten(results));
+      }
+    );
+  });
 };
 
 module.exports = async () => {

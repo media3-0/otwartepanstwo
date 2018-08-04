@@ -1,3 +1,5 @@
+const cheerio = require("cheerio");
+
 const simpleDOMListParser = async (browser, url, path, parse) => {
   const page = await browser.newPage();
   await page.goto(url);

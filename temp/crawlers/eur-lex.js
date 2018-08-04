@@ -171,7 +171,8 @@ const crawl = async () => {
 
         return crawled;
       },
-      (err, res) => {
+      async (err, res) => {
+        await browser.close();
         resolve(flatten(res));
       }
     )

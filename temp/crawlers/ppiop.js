@@ -78,7 +78,9 @@ const crawl = async () => {
 
         return data;
       },
-      (err, results) => {
+      async (err, results) => {
+        await browser.close();
+
         if (err) {
           return reject(err);
         }

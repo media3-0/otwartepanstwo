@@ -56,7 +56,8 @@ const crawl = async () => {
 
         return list;
       },
-      (err, results) => {
+      async (err, results) => {
+        await browser.close();
         if (err) {
           console.log(err);
         }

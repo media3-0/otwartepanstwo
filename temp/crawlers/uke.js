@@ -107,7 +107,8 @@ const crawl = async () => {
             .get()
         );
       },
-      (err, results) => {
+      async (err, results) => {
+        await browser.close();
         if (err) {
           console.log("err", err);
         }

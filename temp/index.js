@@ -13,7 +13,8 @@
 // const crawler = require("./crawlers/cp.js");
 // const crawler = require("./crawlers/ppiop.js");
 // const crawler = require("./crawlers/men.js");
-const crawler = require("./crawlers/mgm.js");
+// const crawler = require("./crawlers/mgm.js");
+const crawler = require("./crawlers/eur-lex.js");
 
 const fs = require("fs");
 

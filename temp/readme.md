@@ -1,4 +1,4 @@
-1. dzienniki urzędowe Prezesa Rady Ministrów 
+1. dzienniki urzędowe Prezesa Rady Ministrów
 - dziennikustaw.gov.pl/ - done
 - monitorpolski.gov.pl/ - done
 - ppiop.rcl.gov.pl/ - done
@@ -35,4 +35,4 @@
 wszystkie pójdą na jednym silniku który już mam
 
 5. dziennik urzędowy Unii Europejskiej
-undone ***
+- https://eur-lex.europa.eu/oj/direct-access.html?locale=pl - done

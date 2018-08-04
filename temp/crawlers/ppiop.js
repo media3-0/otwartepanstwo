@@ -32,7 +32,7 @@ const crawl = async () => {
       5,
       async url => {
         const newPage = await browser.newPage();
-        await newPage.goto(`${BASE_URL}/url`, { waitUntil: "networkidle0" });
+        await newPage.goto(`${BASE_URL}/${url}`, { waitUntil: "networkidle0" });
         await page.waitForSelector(".grid_table");
 
         const content = await page.content();

@@ -8,6 +8,8 @@
 2. dzienniki urzędowe ministrów
 - Dziennik Urzędowy Ministra Cyfryzacji - done
 - e-dziennik.men.gov.pl - done
+- www.dziennikurzedowy.me.gov.pl - not working
+- https://www.mf.gov.pl/ministerstwo-finansow/minister-finansow/dziennik-urzedowy - undone
 
 3. dzienniki urzędowe urzędów centralnych
 - abw.gov.pl/ - done

@@ -1,6 +1,6 @@
 const cheerio = require("cheerio");
 
-const simpleDOMListParser = async (browser, url, path, parse) => {
+const simpleDOMListParser = async (browser, url, path, parse, missIndex) => {
   const page = await browser.newPage();
   await page.goto(url);
 
@@ -8,7 +8,12 @@ const simpleDOMListParser = async (browser, url, path, parse) => {
   const $ = cheerio.load(content);
 
   const results = $(path)
-    .map((i, link) => parse($(link)))
+    .map((i, link) => {
+      if (!!missIndex && i === missIndex) {
+        return;
+      }
+      return parse($(link));
+    })
     .get();
 
   await page.close();

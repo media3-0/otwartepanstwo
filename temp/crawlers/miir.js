@@ -44,7 +44,12 @@ const crawl = async () => {
               .find("td:nth-child(3) a")
               .first()
               .attr("href"),
-          date: node.find("td:nth-child(4)").text(),
+          date: node
+            .find("td:nth-child(4)")
+            .text()
+            .split("-")
+            .reverse()
+            .join("-"),
           source: SOURCE_NAME
         }));
       },

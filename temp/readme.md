@@ -15,10 +15,9 @@
 3. dzienniki urzędowe urzędów centralnych
 - abw.gov.pl/ - done
 - gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/ - done
-- www.gdos.gov.pl/dziennik-urzedowy-gdos/ - TODO - easy
+- www.gdos.gov.pl/dziennik-urzedowy-gdos/ - done
 - edziennik.gios.gov.pl/ - TODO
 - http://bip.gitd.gov.pl/ - TODO - easy
-- dziennikurzedowy.gum.gov.pl/dziennik-urzedowy/dzienniki-urzedowe-gum/ - TODO - not working
 - http://dziennikigus.stat.gov.pl/dzienniki-urzedowe-gus/ - TODO - easy
 - http://edziennik.policja.gov.pl/ - done
 - http://e-dziennik.strazgraniczna.pl/ - done
@@ -30,6 +29,7 @@
 - https://www.uprp.pl/dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/ - TODO - supereasy
 - https://dziennikurzedowy.utk.gov.pl/ - TODO - supereasy
 - http://edzienniki.wug.gov.pl/ - TODO - supereasy
+- dziennikurzedowy.gum.gov.pl/dziennik-urzedowy/dzienniki-urzedowe-gum/ - TODO - broken website?
 
 4. wojewódzkie
 wszystkie pójdą na jednym silniku który już mam

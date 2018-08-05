@@ -16,7 +16,8 @@
 // const crawler = require("./crawlers/mgm.js");
 // const crawler = require("./crawlers/eur-lex.js");
 // const crawler = require("./crawlers/mfgov.js");
-const crawler = require("./crawlers/gddkia.js");
+// const crawler = require("./crawlers/gddkia.js");
+const crawler = require("./crawlers/gdos.js");
 
 const fs = require("fs");
 

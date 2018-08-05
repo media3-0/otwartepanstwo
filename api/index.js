@@ -1,6 +1,6 @@
 const express = require("express");
 const knex = require("knex");
-const app = express();
+const morgan = require("morgan");
 
 const DOCUMENTS_TABLE = "documents";
 const PORT = process.env.PORT || 4000;
@@ -24,8 +24,10 @@ const createDB = () =>
   });
 
 const init = async () => {
+  const app = express();
   const db = await createDB();
 
+  app.use(morgan("combined"));
   app.use(express.json());
 
   app.get("/health-check", (req, res) => {

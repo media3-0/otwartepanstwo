@@ -29,7 +29,8 @@
 // const crawler = require("./crawlers/mfgov-2.js");
 // const crawler = require("./crawlers/msp.js");
 // const crawler = require("./crawlers/msport.js");
-const crawler = require("./crawlers/mswia.js");
+// const crawler = require("./crawlers/mswia.js");
+const crawler = require("./crawlers/msz.js");
 
 const fs = require("fs");
 

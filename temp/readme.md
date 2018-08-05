@@ -21,10 +21,10 @@
 - https://edziennik.minrol.gov.pl/ - done
 - https://dziennikurzedowy.mr.gov.pl/ - done
 - https://www.mf.gov.pl/ministerstwo-finansow/minister/dziennik-urzedowy-ministra-rozwoju-i-finansow - done
-- http://dziennik.msp.gov.pl/du/dzienniki?page=9 - WIP
-- http://e-dziennik.msport.gov.pl/#/actbymonths - WIP engine1
+- http://dziennik.msp.gov.pl/du/dzienniki?page=9 - done
+- http://e-dziennik.msport.gov.pl/#/actbymonths - done
 - https://www.bip.ms.gov.pl/pl/ministerstwo/dziennik-urzedowy-ministra-sprawiedliwosci/ - undone
-- http://edziennik.mswia.gov.pl/#/actbymonths - WIP engine1
+- http://edziennik.mswia.gov.pl/#/actbymonths - done
 - https://www.msz.gov.pl/pl/ministerstwo/dziennik_urzedowy/__rp0x2Content!304312@16575_pageNo/1? WIP
 - http://dziennikurzedowy.mos.gov.pl/ - undone
 - http://dziennikmz.mz.gov.pl/#/actbymonths - WIP engine1

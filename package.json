@@ -12,7 +12,10 @@
       "eslint --config ./.eslintrc --max-warnings=0",
       "git add"
     ],
-    "*.{json,css}": ["prettier --config ./.prettierrc --write", "git add"]
+    "*.{json,css}": [
+      "prettier --config ./.prettierrc --write",
+      "git add"
+    ]
   },
   "husky": {
     "hooks": {
@@ -29,6 +32,7 @@
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.6.1",
     "husky": "^0.15.0-rc.8",
-    "lint-staged": "^6.1.0"
+    "lint-staged": "^6.1.0",
+    "prettier": "^1.14.0"
   }
 }

@@ -42,7 +42,7 @@
 - dzu.nbp.pl - done
 - edziennik.uke.gov.pl - done
 - http://edziennik.ulc.gov.pl/ - done
-- http://www.uokik.gov.pl/ - TODO - supereasy
+- http://www.uokik.gov.pl/ - done
 - https://www.uprp.pl/dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/ - done
 - https://dziennikurzedowy.utk.gov.pl/ - TODO - supereasy
 - http://edzienniki.wug.gov.pl/ - TODO - supereasy

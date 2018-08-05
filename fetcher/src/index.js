@@ -1,5 +1,5 @@
 // const IS_DEV = process.env.NODE_ENV === "development";
-const PDFS_TABLE_NAME = "documents";
+const DOCUMENTS_TABLE = "documents";
 
 const fs = require("fs");
 const http = require("http");
@@ -12,11 +12,14 @@ const runCrawlers = require("./run-crawlers");
 
 const createDB = () =>
   new Promise((resolve, reject) => {
-    const connection = `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@db:5432/postgres`;
-
     const db = knex({
       client: "pg",
-      connection
+      connection: {
+        host: "db",
+        database: process.env.POSTGRES_DB,
+        user: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD
+      }
     });
 
     // test connection and callback if ok
@@ -68,7 +71,7 @@ const fetchAndParse = ({ url, hash }) => {
       console.log("PROCESSING " + hash);
       const updateDate = Math.floor(new Date().getTime() / 1000);
 
-      db(PDFS_TABLE_NAME)
+      db(DOCUMENTS_TABLE)
         .where({ hash })
         .then(rows => {
           const isNew = rows.length === 0;
@@ -76,15 +79,23 @@ const fetchAndParse = ({ url, hash }) => {
             console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
             fetchAndParse({ url: current.url, hash }).then(parsedText => {
               console.log("#" + hash + " DOWNLOADED AND PARSED");
-              db(PDFS_TABLE_NAME)
-                .insert({ hash, url: current.url, ["last_download"]: updateDate, content: parsedText })
+              db(DOCUMENTS_TABLE)
+                .insert({
+                  hash,
+                  url: current.url,
+                  ["last_download"]: updateDate,
+                  content: parsedText,
+                  title: current.title,
+                  date: current.date,
+                  ["source_name"]: current.sourceName
+                })
                 .then(() => {
                   next(null);
                 });
             });
           } else {
             console.log("#" + hash + " EXISTS, UPDATING");
-            db(PDFS_TABLE_NAME)
+            db(DOCUMENTS_TABLE)
               .where({ hash })
               .update({ ["last_download"]: updateDate })
               .then(() => {

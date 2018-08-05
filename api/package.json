@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "express": "^4.16.3",
-    "pdf2json": "^1.1.7"
+    "knex": "^0.15.2",
+    "pdf2json": "^1.1.7",
+    "pg": "^7.4.3"
   }
 }

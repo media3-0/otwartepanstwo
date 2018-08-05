@@ -9,12 +9,12 @@ const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../u
 
 const BASE_URL = "https://www.msz.gov.pl";
 const MAIN_URL = `${BASE_URL}/pl/ministerstwo/dziennik_urzedowy/`;
-const SOURCE_NAME = "msp";
+const SOURCE_NAME = "msz";
 const getPaginationHref = num => `${MAIN_URL}__rp0x2Content!304312@16575_pageNo/${num}?`;
 
 const crawl = async () => {
   const browserOpts = {
-    headless: false,
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   };
 
@@ -27,9 +27,7 @@ const crawl = async () => {
 
   // const PAGINATION_SELECTOR = "#wyborStron";
 
-  const PAGE_SELECTOR = "#content > section > div.subRight > table > tbody > tr > td:nth-child(2) > a";
-
-  const ITEM_SELECTOR = "#content > section > div.subRight > article";
+  const ITEM_SELECTOR = "#PContentP304312P16575 > div.bodyPortlet > div > div:nth-child(2) > div > table > tbody > tr";
 
   const maxPagination = parseInt(
     $("#PContentP304312P16575 > div.bodyPortlet > div > div.contentPaginator > a")
@@ -39,29 +37,27 @@ const crawl = async () => {
 
   const pagination = range(1, maxPagination + 1);
 
-  console.log(pagination);
-
-  // const pages = await new Promise((resolve, reject) => {
-  //   async.mapLimit(
-  //     pagination,
-  //     1,
-  //     async pageNumber => {
-  //       const list = await simpleDOMListParser(
-  //         browser,
-  //         `${MAIN_URL}?page=${pageNumber}`,
-  //         PAGE_SELECTOR,
-  //         node => BASE_URL + node.attr("href")
-  //       );
-  //       return list;
-  //     },
-  //     async (err, results) => {
-  //       if (err) {
-  //         console.log(err);
-  //       }
-  //       resolve(flatten(results));
-  //     }
-  //   );
-  // });
+  return new Promise((resolve, reject) => {
+    async.mapLimit(
+      pagination,
+      1,
+      async pageNumber => {
+        const list = await simpleDOMListParser(browser, getPaginationHref(pageNumber), ITEM_SELECTOR, node => ({
+          title: node.find("td:nth-child(1) a").text(),
+          url: BASE_URL + node.find("td:nth-child(1) a").attr("href"),
+          date: formatFromDotToDash(node.find("td:nth-child(2) > p").text()),
+          source: SOURCE_NAME
+        }));
+        return list;
+      },
+      async (err, results) => {
+        if (err) {
+          console.log(err);
+        }
+        resolve(flatten(results));
+      }
+    );
+  });
 };
 
 module.exports = async () => {

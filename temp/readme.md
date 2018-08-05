@@ -14,18 +14,18 @@
 - dziennikurzedowy.mi.gov.pl - done
 - http://dziennikurzedowy.miir.gov.pl/ - done
 - http://bip.mkidn.gov.pl/pages/dzienniki-urzedowe-mkidn/dziennik-urzedowy-2018.php - TODO - ??? which files to download ??
-- www.nauka.gov.pl/dzienniki-urzedowe/ - TODO - scabby
+- www.nauka.gov.pl/dzienniki-urzedowe/ - TODO - looks bad
 - http://www.dz.urz.mon.gov.pl/ - done - FIX
 - http://dziennikurzedowy.mpit.gov.pl/rok-2018/ - done
-- https://www.mpips.gov.pl/bip/dzienniki-urzedowe/ - undone
+- https://www.mpips.gov.pl/bip/dzienniki-urzedowe/ - TODO
 - https://edziennik.minrol.gov.pl/ - done
 - https://dziennikurzedowy.mr.gov.pl/ - done
 - https://www.mf.gov.pl/ministerstwo-finansow/minister/dziennik-urzedowy-ministra-rozwoju-i-finansow - done
 - http://dziennik.msp.gov.pl/du/dzienniki?page=9 - done
 - http://e-dziennik.msport.gov.pl/#/actbymonths - done
-- https://www.bip.ms.gov.pl/pl/ministerstwo/dziennik-urzedowy-ministra-sprawiedliwosci/ - undone
+- https://www.bip.ms.gov.pl/pl/ministerstwo/dziennik-urzedowy-ministra-sprawiedliwosci/ - TODO 
 - http://edziennik.mswia.gov.pl/#/actbymonths - done
-- https://www.msz.gov.pl/pl/ministerstwo/dziennik_urzedowy/__rp0x2Content!304312@16575_pageNo/1? WIP
+- https://www.msz.gov.pl/pl/ministerstwo/dziennik_urzedowy/__rp0x2Content!304312@16575_pageNo/1? - done
 - http://dziennikurzedowy.mos.gov.pl/ - undone
 - http://dziennikmz.mz.gov.pl/#/actbymonths - WIP engine1
 

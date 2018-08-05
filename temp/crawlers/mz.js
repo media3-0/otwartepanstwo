@@ -7,8 +7,8 @@ const fs = require("fs");
 
 const logger = require("../logger");
 
-const MAIN_URL = "http://edu.cba.gov.pl";
-const SOURCE_NAME = "cba";
+const MAIN_URL = "http://dziennikmz.mz.gov.pl/";
+const SOURCE_NAME = "mz";
 
 const { formatFromDotToDash } = require("../utils");
 
@@ -61,7 +61,6 @@ const crawl = async () => {
 
         if (currentlySelected !== toSelect.value) {
           const watcherForResponse = newPage.waitForResponse(resp => {
-            console.log(resp.url());
             return true;
           });
 
@@ -95,7 +94,7 @@ const crawl = async () => {
                   .text()
                   .trim()
               );
-              const source = SOURCE_NAME;
+              const source = "cba";
               const url =
                 MAIN_URL +
                 $(d)

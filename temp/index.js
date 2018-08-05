@@ -33,7 +33,8 @@
 // const crawler = require("./crawlers/msz.js");
 // const crawler = require("./crawlers/gitd.js");
 // const crawler = require("./crawlers/gus.js");
-const crawler = require("./crawlers/uokik.js");
+// const crawler = require("./crawlers/uokik.js");
+const crawler = require("./crawlers/mz.js");
 
 const fs = require("fs");
 

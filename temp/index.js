@@ -24,7 +24,8 @@
 // const crawler = require("./crawlers/miir.js");
 // const crawler = require("./crawlers/mon.js");
 // const crawler = require("./crawlers/mpit.js");
-const crawler = require("./crawlers/minrol.js");
+// const crawler = require("./crawlers/minrol.js");
+const crawler = require("./crawlers/mr.js");
 
 const fs = require("fs");
 

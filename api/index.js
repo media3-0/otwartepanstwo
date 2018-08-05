@@ -36,7 +36,7 @@ const init = async () => {
 
   app.get("/documents", (req, res) => {
     const { query } = req.body;
-    const fields = ["title", "date", "last_download", "source_name"];
+    const fields = ["title", "date", "last_download", "source_name", "hash"];
 
     const callback = data => res.json(data);
 

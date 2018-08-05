@@ -1,6 +1,8 @@
 const React = require("react");
 const ReactDOM = require("react-dom");
 
+require("tachyons");
+
 class App extends React.Component {
   constructor() {
     super();
@@ -18,14 +20,14 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="w-60 p5 center sans-serif">
         <h1>OtwartePaństwo</h1>
 
         <ul>
           {this.state.documents.map(doc => {
             return (
-              <li>
-                {doc.title} {doc.date} ({doc.source_name})
+              <li key={doc.hash} className="pb3">
+                {doc.date} {doc.source_name}: {doc.title}
               </li>
             );
           })}

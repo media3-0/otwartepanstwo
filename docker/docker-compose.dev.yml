@@ -9,6 +9,8 @@ services:
     restart: on-failure
     ports:
       - "8080:80"
+    volumes:
+      - ./data/files:/data/files # persisted downloads
     depends_on:
       - frontend
       - api

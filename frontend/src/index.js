@@ -51,6 +51,9 @@ class App extends React.Component {
             return (
               <li key={doc.hash} className="pb3">
                 {doc.date} {doc.source_name}: {doc.title}
+                <a className="ml1" href={`/files/${doc.hash}.pdf`}>
+                  download
+                </a>
               </li>
             );
           })}

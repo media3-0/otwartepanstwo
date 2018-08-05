@@ -41,8 +41,6 @@ const init = async () => {
 
     const callback = data => res.json(data);
 
-    console.log(req.params);
-
     if (search) {
       db(DOCUMENTS_TABLE)
         .select(...fields)

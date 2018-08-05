@@ -27,15 +27,15 @@
 - http://edziennik.mswia.gov.pl/#/actbymonths - done
 - https://www.msz.gov.pl/pl/ministerstwo/dziennik_urzedowy/__rp0x2Content!304312@16575_pageNo/1? - done
 - http://dziennikurzedowy.mos.gov.pl/ - TODO
-- http://dziennikmz.mz.gov.pl/#/actbymonths - WIP engine1
+- http://dziennikmz.mz.gov.pl/#/actbymonths - TODO - WIP engine1
 
 3. dzienniki urzędowe urzędów centralnych
 - abw.gov.pl/ - done
 - gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/ - done
 - www.gdos.gov.pl/dziennik-urzedowy-gdos/ - done
 - edziennik.gios.gov.pl/ - done
-- http://bip.gitd.gov.pl/ - TODO - easy
-- http://dziennikigus.stat.gov.pl/dzienniki-urzedowe-gus/ - TODO - easy
+- http://bip.gitd.gov.pl/ - done
+- http://dziennikigus.stat.gov.pl/dzienniki-urzedowe-gus/ - done
 - http://edziennik.policja.gov.pl/ - done
 - http://e-dziennik.strazgraniczna.pl/ - done
 - http://dziennikurzedowy.knf.gov.pl/ - done

@@ -31,7 +31,8 @@
 // const crawler = require("./crawlers/msport.js");
 // const crawler = require("./crawlers/mswia.js");
 // const crawler = require("./crawlers/msz.js");
-const crawler = require("./crawlers/gitd.js");
+// const crawler = require("./crawlers/gitd.js");
+const crawler = require("./crawlers/gus.js");
 
 const fs = require("fs");
 

@@ -7,8 +7,11 @@ const fs = require("fs");
 
 const logger = require("../logger");
 
-const MAIN_URL = "http://edu.cba.gov.pl";
-const SOURCE_NAME = "cba";
+const MAIN_URL = "http://e-dziennik.msport.gov.pl";
+const SOURCE_NAME = "e-dziennik.msport.gov.pl";
+const APPEND_SUFFIX = "pdf";
+
+const { formatFromDotToDash } = require("../utils");
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -95,7 +98,15 @@ const crawl = async () => {
                 $(d)
                   .find("td.acts__pdf.text-right > a")
                   .attr("href");
-              return { title, date, update_date: updatedate, source, url, source: SOURCE_NAME, ocr: false };
+              return {
+                title,
+                date: formatFromDotToDash(date),
+                update_date: formatFromDotToDash(updatedate),
+                source,
+                url,
+                source: SOURCE_NAME,
+                ocr: false
+              };
             })
             .get()
         );

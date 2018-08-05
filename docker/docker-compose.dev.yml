@@ -43,7 +43,7 @@ services:
       - ./data/files:/data/files # persisted downloads
     depends_on:
       - db
-      - elasticsearch
+      # - elasticsearch
     ports:
       - "4000:4000"
 
@@ -74,12 +74,12 @@ services:
     ports:
       - "5432:5432"
 
-  elasticsearch:
-    image: elasticsearch
-    volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    depends_on:
-      - db
+#   elasticsearch:
+#     image: elasticsearch
+#     volumes:
+#       - ./data/elasticsearch:/usr/share/elasticsearch/data
+#     ports:
+#       - "9200:9200"
+#       - "9300:9300"
+#     depends_on:
+#       - db

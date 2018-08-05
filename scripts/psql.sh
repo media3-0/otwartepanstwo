@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/postgres"
+PGPASSWORD=$POSTGRES_PASSWORD psql --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -h "localhost" -p 5432

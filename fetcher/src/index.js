@@ -1,4 +1,4 @@
-const IS_DEV = process.env.NODE_ENV === "development";
+// const IS_DEV = process.env.NODE_ENV === "development";
 const PDFS_TABLE_NAME = "documents";
 
 const fs = require("fs");
@@ -20,8 +20,7 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db
-      .raw("select 1 + 1 as result")
+    db.raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -39,7 +38,7 @@ const readOneFile = path => {
 };
 
 const fetchAndParse = ({ url, hash }) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const file = fs.createWriteStream(`/data/files/${hash}.pdf`);
     http.get(url, response => {
       response.pipe(file);
@@ -78,7 +77,7 @@ const fetchAndParse = ({ url, hash }) => {
             fetchAndParse({ url: current.url, hash }).then(parsedText => {
               console.log("#" + hash + " DOWNLOADED AND PARSED");
               db(PDFS_TABLE_NAME)
-                .insert({ hash, url: current.url, last_download: updateDate, content: parsedText })
+                .insert({ hash, url: current.url, ["last_download"]: updateDate, content: parsedText })
                 .then(() => {
                   next(null);
                 });
@@ -87,7 +86,7 @@ const fetchAndParse = ({ url, hash }) => {
             console.log("#" + hash + " EXISTS, UPDATING");
             db(PDFS_TABLE_NAME)
               .where({ hash })
-              .update({ last_download: updateDate })
+              .update({ ["last_download"]: updateDate })
               .then(() => {
                 next(null);
               });

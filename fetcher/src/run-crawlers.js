@@ -15,10 +15,13 @@ module.exports = async list => {
     async.mapSeries(
       crawlersList,
       (crawlerFileName, callback) => {
-        const child = fork("./spawn-crawler", [`${crawlersDir}/${crawlerFileName}`]);
+        console.log(`running ${crawlersDir}/${crawlerFileName}`);
+        const child = fork("./src/spawn-crawler", [`${crawlersDir}/${crawlerFileName}`]);
+
         child.on("error", err => {
           callback(err);
         });
+
         child.on("message", data => {
           callback(null, data);
         });
@@ -27,12 +30,13 @@ module.exports = async list => {
         setTimeout(() => {
           child.kill("SIGINT");
         }, CHILD_MAX_LIFETIME);
-
       },
       (err, results) => {
         if (err) {
           console.error("Error in runCrawlers ", err);
+          return reject(err);
         }
+
         resolve(flatten(results));
       }
     );

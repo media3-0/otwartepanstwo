@@ -5,10 +5,10 @@ const async = require("async");
 const fs = require("fs");
 
 const logger = require("../logger");
-const { simpleDOMListParser, simpleDOMGet } = require("../utils");
+const { simpleDOMListParser, simpleDOMGet, removeEscapesFromString } = require("../utils");
 
-const MAIN_URL = "http://dziennikurzedowy.miir.gov.pl";
-const SOURCE_NAME = "dziennikurzedowy.miir.gov.pl";
+const MAIN_URL = "http://dziennikurzedowy.mpit.gov.pl/";
+const SOURCE_NAME = "dziennikurzedowy.mpit.gov.pl";
 
 const crawl = async () => {
   const browserOpts = {
@@ -37,14 +37,18 @@ const crawl = async () => {
       1,
       async currentYear => {
         return await simpleDOMListParser(browser, MAIN_URL + currentYear, ITEM_SELECTOR, node => ({
-          title: node.find("td:nth-child(2)").text(),
+          title: removeEscapesFromString(node.find("td:nth-child(2)").text()),
           url:
             MAIN_URL +
             node
               .find("td:nth-child(3) a")
               .first()
               .attr("href"),
-          date: node.find("td:nth-child(4)").text(),
+          date: node
+            .find("td:nth-child(4)")
+            .text()
+            .trim()
+            .replace(/\./g, "-"),
           source: SOURCE_NAME
         }));
       },

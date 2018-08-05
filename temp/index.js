@@ -21,7 +21,10 @@
 // const crawler = require("./crawlers/uprp.js");
 // const crawler = require("./crawlers/gios.js");
 // const crawler = require("./crawlers/mi.js");
-const crawler = require("./crawlers/miir.js");
+// const crawler = require("./crawlers/miir.js");
+// const crawler = require("./crawlers/mon.js");
+// const crawler = require("./crawlers/mpit.js");
+const crawler = require("./crawlers/minrol.js");
 
 const fs = require("fs");
 

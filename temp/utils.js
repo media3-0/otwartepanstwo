@@ -2,7 +2,7 @@ const cheerio = require("cheerio");
 
 const simpleDOMListParser = async (browser, url, path, parse, missIndex) => {
   const page = await browser.newPage();
-  await page.goto(url);
+  await page.goto(url, { waitUntil: "networkidle0" });
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -23,7 +23,7 @@ const simpleDOMListParser = async (browser, url, path, parse, missIndex) => {
 
 const simpleDOMGet = async (browser, url, path, parse) => {
   const page = await browser.newPage();
-  await page.goto(url);
+  await page.goto(url, { waitUntil: "networkidle0" });
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -35,4 +35,6 @@ const simpleDOMGet = async (browser, url, path, parse) => {
   return result;
 };
 
-module.exports = { simpleDOMListParser, simpleDOMGet };
+const removeEscapesFromString = str => str.replace(/\\"/g, '"');
+
+module.exports = { simpleDOMListParser, simpleDOMGet, removeEscapesFromString };

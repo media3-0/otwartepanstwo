@@ -5,8 +5,9 @@ const DIST = path.resolve(__dirname, "dist");
 const IS_DEV = process.env.NODE_ENV === "development";
 
 module.exports = {
-  entry: "./src/index",
   mode: IS_DEV ? "development" : "production",
+
+  entry: "./src/index",
 
   output: {
     path: DIST,

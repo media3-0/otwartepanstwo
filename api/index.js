@@ -34,7 +34,7 @@ const init = async () => {
     res.send("ok");
   });
 
-  app.get("/api/documents", (req, res) => {
+  app.get("/documents", (req, res) => {
     const { query } = req.body;
     const fields = ["title", "date", "last_download", "source_name"];
 

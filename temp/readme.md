@@ -27,7 +27,7 @@
 - http://edziennik.mswia.gov.pl/#/actbymonths - done
 - https://www.msz.gov.pl/pl/ministerstwo/dziennik_urzedowy/__rp0x2Content!304312@16575_pageNo/1? - done
 - http://dziennikurzedowy.mos.gov.pl/ - TODO
-- http://dziennikmz.mz.gov.pl/#/actbymonths - TODO - WIP engine1
+- http://dziennikmz.mz.gov.pl/#/actbymonths - done
 
 3. dzienniki urzędowe urzędów centralnych
 - abw.gov.pl/ - done

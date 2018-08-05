@@ -18,7 +18,8 @@
 // const crawler = require("./crawlers/mfgov.js");
 // const crawler = require("./crawlers/gddkia.js");
 // const crawler = require("./crawlers/gdos.js");
-const crawler = require("./crawlers/uprp.js");
+// const crawler = require("./crawlers/uprp.js");
+const crawler = require("./crawlers/gios.js");
 
 const fs = require("fs");
 

@@ -20,7 +20,7 @@ const crawl = async () => {
   const $ = cheerio.load(content);
 
   const links = flatten(
-    $("div > table").map((i, table) =>
+    $("div.eoPG_1 > div > table").map((i, table) =>
       $(table)
         .find("tr")
         .map((i, d) => {

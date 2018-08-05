@@ -16,7 +16,7 @@
 - abw.gov.pl/ - done
 - gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/ - done
 - www.gdos.gov.pl/dziennik-urzedowy-gdos/ - done
-- edziennik.gios.gov.pl/ - TODO
+- edziennik.gios.gov.pl/ - done
 - http://bip.gitd.gov.pl/ - TODO - easy
 - http://dziennikigus.stat.gov.pl/dzienniki-urzedowe-gus/ - TODO - easy
 - http://edziennik.policja.gov.pl/ - done

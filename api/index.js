@@ -34,16 +34,19 @@ const init = async () => {
     res.send("ok");
   });
 
-  app.get("/documents", (req, res) => {
-    const { query } = req.body;
+  // TODO: this should be query string but I can't figure out nginx for that
+  app.get("/documents/:search?", (req, res) => {
+    const { search } = req.params;
     const fields = ["title", "date", "last_download", "source_name", "hash"];
 
     const callback = data => res.json(data);
 
-    if (query) {
+    console.log(req.params);
+
+    if (search) {
       db(DOCUMENTS_TABLE)
         .select(...fields)
-        .where("content", "like", `%${query}%`) // TODO: search title as well
+        .where("content", "like", `%${search}%`) // TODO: search title as well
         .then(callback);
     } else {
       db(DOCUMENTS_TABLE)

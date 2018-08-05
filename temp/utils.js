@@ -37,4 +37,11 @@ const simpleDOMGet = async (browser, url, path, parse) => {
 
 const removeEscapesFromString = str => str.replace(/\\"/g, '"');
 
-module.exports = { simpleDOMListParser, simpleDOMGet, removeEscapesFromString };
+const formatFromDotToDash = str => str.replace(/\./g, "-");
+
+module.exports = {
+  simpleDOMListParser,
+  simpleDOMGet,
+  removeEscapesFromString,
+  formatFromDotToDash
+};

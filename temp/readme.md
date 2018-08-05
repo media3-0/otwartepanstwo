@@ -14,7 +14,7 @@
 
 3. dzienniki urzędowe urzędów centralnych
 - abw.gov.pl/ - done
-- gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/ - TODO - easy
+- gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/ - done
 - www.gdos.gov.pl/dziennik-urzedowy-gdos/ - TODO - easy
 - edziennik.gios.gov.pl/ - TODO
 - http://bip.gitd.gov.pl/ - TODO - easy

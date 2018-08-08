@@ -4,7 +4,10 @@
   "scripts": {
     "start:dev": "./scripts/start.dev.sh",
     "stop:dev": "./scripts/stop.dev.sh",
-    "build:dev": "./scripts/build.dev.sh"
+    "build:dev": "./scripts/build.dev.sh",
+    "start:prod": "./scripts/start.prod.sh",
+    "stop:prod": "./scripts/stop.prod.sh",
+    "build:prod": "./scripts/build.prod.sh"
   },
   "lint-staged": {
     "*.{js,jsx}": [
@@ -12,7 +15,10 @@
       "eslint --config ./.eslintrc --max-warnings=0",
       "git add"
     ],
-    "*.{json,css}": ["prettier --config ./.prettierrc --write", "git add"]
+    "*.{json,css}": [
+      "prettier --config ./.prettierrc --write",
+      "git add"
+    ]
   },
   "husky": {
     "hooks": {
@@ -29,6 +35,7 @@
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.6.1",
     "husky": "^0.15.0-rc.8",
-    "lint-staged": "^6.1.0"
+    "lint-staged": "^6.1.0",
+    "prettier": "^1.14.0"
   }
 }

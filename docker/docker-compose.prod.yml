@@ -18,30 +18,30 @@ services:
   frontend:
     build:
       context: ../.
-      dockerfile: docker/frontend/Dockerfile.dev
-    image: otwartepanstwo-frontend-dev
+      dockerfile: docker/frontend/Dockerfile.prod
+      args:
+        - NODE_ENV=production
+    image: otwartepanstwo-frontend-prod
     restart: on-failure
     environment:
-      - NODE_ENV=development
-    volumes:
-      - ./../frontend:/app
-      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
+      - NODE_ENV=production
     ports:
       - "3000:3000"
 
   api:
     build:
       context: ../.
-      dockerfile: docker/api/Dockerfile.dev
-    image: otwartepanstwo-api-dev
+      dockerfile: docker/api/Dockerfile.prod
+      args:
+        - NODE_ENV=production
+    image: otwartepanstwo-api-prod
     restart: on-failure
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - POSTGRES_PASSWORD # env passed from shell
       - POSTGRES_USER # env passed from shell
+      - POSTGRES_DB # env passed from shell
     volumes:
-      - ./../api:/app
-      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
       - ./data/files:/data/files # persisted downloads
     depends_on:
       - db
@@ -52,16 +52,19 @@ services:
   fetcher:
     build:
       context: ../.
-      dockerfile: docker/fetcher/Dockerfile.dev
-    image: otwartepanstwo-fetcher-dev
+      dockerfile: docker/fetcher/Dockerfile.prod
+      args:
+        - NODE_ENV=production
+        - POSTGRES_PASSWORD # env passed from shell
+        - POSTGRES_USER # env passed from shell
+        - POSTGRES_DB # env passed from shell
+    image: otwartepanstwo-fetcher-prod
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - POSTGRES_PASSWORD # env passed from shell
       - POSTGRES_USER # env passed from shell
       - POSTGRES_DB # env passed from shell
     volumes:
-      - ./../fetcher:/app
-      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
       - ./data/files:/data/files # persisted downloads
     depends_on:
       - db

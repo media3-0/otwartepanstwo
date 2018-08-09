@@ -29,4 +29,5 @@ RUN crontab -l
 # set up script
 WORKDIR /app
 
-CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
+# CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
+CMD node index.js

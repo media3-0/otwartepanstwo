@@ -30,4 +30,4 @@ RUN crontab -l
 WORKDIR /app
 
 # CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
-CMD node index.js
+CMD yarn start

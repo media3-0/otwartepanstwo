@@ -31,5 +31,7 @@ RUN touch /var/log/cron.log
 RUN cat /tmp/crontab | crontab -
 RUN crontab -l
 
+RUN yarn install
+
 # CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
 CMD yarn start

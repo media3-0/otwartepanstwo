@@ -31,7 +31,7 @@ RUN touch /var/log/cron.log
 RUN cat /tmp/crontab | crontab -
 RUN crontab -l
 
-RUN yarn install
+RUN yarn global add wait-on
 
 # CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
-CMD yarn start
+CMD wait-on -l tcp:db:5432 && yarn install && yarn dev

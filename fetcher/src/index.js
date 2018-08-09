@@ -23,7 +23,8 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db.raw("select 1 + 1 as result")
+    db
+      .raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -55,57 +56,58 @@ const fetchAndParse = ({ url, hash }) => {
 };
 
 (async () => {
-  console.log("FETCHER STARTED");
   const db = await createDB();
-  const crawledData = await runCrawlers();
+  const crawledData = await runCrawlers({
+    onEach: list => {
+      async.eachLimit(
+        list,
+        10,
+        (current, next) => {
+          const hash = crypto
+            .createHash("md5")
+            .update(current.url)
+            .digest("hex");
 
-  async.eachLimit(
-    crawledData,
-    10,
-    (current, next) => {
-      const hash = crypto
-        .createHash("md5")
-        .update(current.url)
-        .digest("hex");
+          console.log("PROCESSING " + hash);
+          const updateDate = Math.floor(new Date().getTime() / 1000);
 
-      console.log("PROCESSING " + hash);
-      const updateDate = Math.floor(new Date().getTime() / 1000);
-
-      db(DOCUMENTS_TABLE)
-        .where({ hash })
-        .then(rows => {
-          const isNew = rows.length === 0;
-          if (isNew) {
-            console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
-            fetchAndParse({ url: current.url, hash }).then(parsedText => {
-              console.log("#" + hash + " DOWNLOADED AND PARSED");
-              db(DOCUMENTS_TABLE)
-                .insert({
-                  hash,
-                  url: current.url,
-                  ["last_download"]: updateDate,
-                  content: parsedText,
-                  title: current.title,
-                  date: current.date,
-                  ["source_name"]: current.sourceName
-                })
-                .then(() => {
-                  next(null);
+          db(DOCUMENTS_TABLE)
+            .where({ hash })
+            .then(rows => {
+              const isNew = rows.length === 0;
+              if (isNew) {
+                console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
+                fetchAndParse({ url: current.url, hash }).then(parsedText => {
+                  console.log("#" + hash + " DOWNLOADED AND PARSED");
+                  db(DOCUMENTS_TABLE)
+                    .insert({
+                      hash,
+                      url: current.url,
+                      ["last_download"]: updateDate,
+                      content: parsedText,
+                      title: current.title,
+                      date: current.date,
+                      ["source_name"]: current.sourceName
+                    })
+                    .then(() => {
+                      next(null);
+                    });
                 });
+              } else {
+                console.log("#" + hash + " EXISTS, UPDATING");
+                db(DOCUMENTS_TABLE)
+                  .where({ hash })
+                  .update({ ["last_download"]: updateDate })
+                  .then(() => {
+                    next(null);
+                  });
+              }
             });
-          } else {
-            console.log("#" + hash + " EXISTS, UPDATING");
-            db(DOCUMENTS_TABLE)
-              .where({ hash })
-              .update({ ["last_download"]: updateDate })
-              .then(() => {
-                next(null);
-              });
-          }
-        });
-    },
-    () => {
-      console.log("FINISHED");
+        },
+        () => {
+          console.log("FINISHED");
+        }
+      );
     }
-  );
+  });
 })();

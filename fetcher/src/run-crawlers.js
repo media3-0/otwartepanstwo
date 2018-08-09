@@ -8,7 +8,7 @@ const flatten = require("lodash.flatten");
 const crawlersDir = `${__dirname}/crawlers`;
 
 // TODO: Test error handling
-module.exports = async list => {
+module.exports = async ({ onEach, list }) => {
   const crawlersList = list || fs.readdirSync(crawlersDir);
 
   return new Promise((resolve, reject) => {
@@ -23,6 +23,7 @@ module.exports = async list => {
         });
 
         child.on("message", data => {
+          onEach(data);
           callback(null, data);
         });
 

@@ -34,4 +34,4 @@ RUN crontab -l
 RUN yarn global add wait-on
 
 # CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
-CMD wait-on -l tcp:db:5432 && yarn install && yarn dev
+CMD wait-on -l tcp:db:5432 && yarn install && yarn start

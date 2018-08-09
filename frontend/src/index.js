@@ -1,8 +1,41 @@
 const React = require("react");
 const ReactDOM = require("react-dom");
+const ReactTable = require("react-table").default;
 const autoBind = require("react-autobind");
 
+require("react-table/react-table.css");
+
 require("tachyons");
+require("./styles.css");
+
+const columns = [
+  {
+    Header: "Tytuł",
+    accessor: "title",
+    width: 500
+  },
+  {
+    Header: "Źródło",
+    accessor: "source_name"
+  },
+  {
+    Header: "Data",
+    accessor: "date",
+    Cell: props => <span className="number">{props.value}</span>
+  },
+  {
+    Header: "PDF",
+    accessor: "hash",
+    Cell: props => (
+      <a
+        className="link w-100 h-100 flex items-center justify-center items-center justify-center red"
+        href={`/files/${props.value}.pdf`}
+      >
+        <i className="material-icons">attachment</i>
+      </a>
+    )
+  }
+];
 
 class App extends React.Component {
   constructor() {
@@ -15,6 +48,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.fetchDocuments();
+    console.log(ReactTable);
   }
 
   fetchDocuments(search) {
@@ -26,38 +60,52 @@ class App extends React.Component {
       .then(documents => this.setState({ documents }));
   }
 
-  handleSearch(event) {
-    event.preventDefault();
-
+  handleSearch() {
     this.fetchDocuments(this.state.search);
   }
 
   render() {
     return (
-      <div className="w-60 p5 center sans-serif">
-        <h1>OtwartePaństwo</h1>
+      <div className="app sans-serif">
+        <div className="topbar">
+          <div className="center w-80 flex justify-between items-center">
+            <h2 className="red">OtwartePaństwo</h2>
 
-        <form onSubmit={this.handleSearch}>
-          <input
-            type="text"
-            value={this.state.search}
-            onChange={event => this.setState({ search: event.target.value })}
+            <div className="flex">
+              <input
+                type="text"
+                value={this.state.search}
+                onChange={event => this.setState({ search: event.target.value })}
+                onKeyPress={event => {
+                  if (event.key === "Enter") {
+                    this.handleSearch();
+                  }
+                }}
+              />
+              <button className="br2 bg-red white bn" onClick={this.handleSearch}>
+                Szukaj
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="content w-60 p5 center">
+          <ReactTable
+            data={this.state.documents}
+            columns={columns}
+            showPageSizeOptions={false}
+            sortable={false}
+            multiSort={false}
+            resizable={false}
+            filterable={false}
+            previousText="Wstecz"
+            nextText="Dalej"
+            loadingText="Wczytuję..."
+            noDataText="Brak wyników"
+            pageText="Strona"
+            ofText="z"
+            rowsText="wierszy"
           />
-          <input type="submit" value="search" />
-        </form>
-
-        <ul>
-          {this.state.documents.map(doc => {
-            return (
-              <li key={doc.hash} className="pb3">
-                {doc.date} {doc.source_name}: {doc.title}
-                <a className="ml1" href={`/files/${doc.hash}.pdf`}>
-                  download
-                </a>
-              </li>
-            );
-          })}
-        </ul>
+        </div>
       </div>
     );
   }

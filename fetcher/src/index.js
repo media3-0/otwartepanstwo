@@ -1,7 +1,6 @@
 // const IS_DEV = process.env.NODE_ENV === "development";
 const DOCUMENTS_TABLE = "documents";
 
-const async = require("async");
 const crypto = require("crypto");
 const fs = require("fs");
 const knex = require("knex");
@@ -67,52 +66,46 @@ const fetchAndParse = ({ url, hash }) => {
 };
 
 const processCrawlers = async ({ db }) => {
-  runCrawlers({
-    onEach: list => {
-      async.eachLimit(list, 10, (current, next) => {
-        const hash = crypto
-          .createHash("md5")
-          .update(current.url)
-          .digest("hex");
+  const updateDate = moment(new Date()).format("YYYY-MM-DD");
 
-        const updateDate = moment(new Date()).format("YYYY-MM-DD");
+  runCrawlers().on("data", item => {
+    const hash = crypto
+      .createHash("md5")
+      .update(item.url)
+      .digest("hex");
 
-        db(DOCUMENTS_TABLE)
-          .where({ hash })
-          .then(rows => {
-            const isNew = rows.length === 0;
-            if (isNew) {
-              logger.info(`${current.sourceName} - #${hash} is new - fetching & parsing`);
-              fetchAndParse({ url: current.url, hash }).then(parsedText => {
-                logger.info(`${current.sourceName} - #${hash} downloaded & parsed `);
-                db(DOCUMENTS_TABLE)
-                  .insert({
-                    hash,
-                    url: current.url,
-                    ["last_download"]: updateDate,
-                    content: parsedText,
-                    title: current.title,
-                    date: current.date,
-                    ["source_name"]: current.sourceName
-                  })
-                  .then(() => {
-                    logger.info(`${current.sourceName} - #${hash} put into db`);
-                    next(null);
-                  });
+    db(DOCUMENTS_TABLE)
+      .where({ hash })
+      .then(rows => {
+        const isNew = rows.length === 0;
+        if (isNew) {
+          logger.info(`${item.sourceName} - #${hash} is new - fetching & parsing`);
+          fetchAndParse({ url: item.url, hash }).then(parsedText => {
+            logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
+            db(DOCUMENTS_TABLE)
+              .insert({
+                hash,
+                url: item.url,
+                ["last_download"]: updateDate,
+                content: parsedText,
+                title: item.title,
+                date: item.date,
+                ["source_name"]: item.sourceName
+              })
+              .then(() => {
+                logger.info(`${item.sourceName} - #${hash} put into db`);
               });
-            } else {
-              logger.info(`#${hash} exists - updating`);
-              db(DOCUMENTS_TABLE)
-                .where({ hash })
-                .update({ ["last_download"]: updateDate })
-                .then(() => {
-                  logger.info(`${current.sourceName} - #${hash} updated in db`);
-                  next(null);
-                });
-            }
           });
+        } else {
+          logger.info(`#${hash} exists - updating`);
+          db(DOCUMENTS_TABLE)
+            .where({ hash })
+            .update({ ["last_download"]: updateDate })
+            .then(() => {
+              logger.info(`${item.sourceName} - #${hash} updated in db`);
+            });
+        }
       });
-    }
   });
 };
 

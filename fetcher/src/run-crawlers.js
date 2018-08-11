@@ -3,6 +3,7 @@ const { fork } = require("child_process");
 const async = require("async");
 const path = require("path");
 const j = require("joi");
+const { EventEmitter } = require("events");
 
 const logger = require("./logger");
 const { parseEnvArray } = require("./utils");
@@ -21,10 +22,10 @@ const ENTITY_SCHEMA = j.object().keys({
   ocr: j.boolean()
 });
 
-const ENTITIES_SCHEMA = j.array().items(ENTITY_SCHEMA);
-
 // TODO: Test error handling
-module.exports = async ({ onEach }) => {
+module.exports = async () => {
+  const emitter = new EventEmitter();
+
   const crawlersList = process.env.DEV_CRAWLERS ? parseEnvArray(process.env.DEV_CRAWLERS) : fs.readdirSync(crawlersDir);
 
   let timer;
@@ -63,12 +64,15 @@ module.exports = async ({ onEach }) => {
 
     child.on("message", data => {
       setNewTimer(child);
-      j.validate(data, ENTITIES_SCHEMA, err => {
-        if (err) {
-          logger.warn(`The crawled entity is not valid with the schema. Error: ${err}`, data);
-        } else {
-          onEach(data);
-        }
+
+      data.forEach(d => {
+        j.validate(d, ENTITY_SCHEMA, err => {
+          if (err) {
+            logger.warn(`The crawled entity is not valid with the schema. Error: ${err}`, d);
+          } else {
+            emitter.emit("data", d);
+          }
+        });
       });
     });
 
@@ -78,4 +82,6 @@ module.exports = async ({ onEach }) => {
       callback(null);
     });
   });
+
+  return emitter;
 };

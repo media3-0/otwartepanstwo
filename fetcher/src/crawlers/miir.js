@@ -2,15 +2,14 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
-const logger = require("../logger");
-const { simpleDOMListParser, simpleDOMGet } = require("../utils");
+const { simpleDOMListParser } = require("../utils");
 
 const MAIN_URL = "http://dziennikurzedowy.miir.gov.pl";
 const SOURCE_NAME = "dziennikurzedowy.miir.gov.pl";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -25,7 +24,7 @@ const crawl = async () => {
 
   const YEARS_SELECTOR = "#boxes-standard > div > div > ul > li > a";
 
-  const ITEM_SELECTOR = "#viev-message > article > table > tbody > tr";
+  const ITEM_SELECTOR = "#viev-message > article > table > tbody > tr:not(:first-child)";
 
   const yearsData = $(YEARS_SELECTOR)
     .map((i, d) => $(d).attr("href"))
@@ -36,7 +35,7 @@ const crawl = async () => {
       yearsData,
       1,
       async currentYear => {
-        return await simpleDOMListParser(browser, MAIN_URL + currentYear, ITEM_SELECTOR, node => ({
+        const result = await simpleDOMListParser(browser, MAIN_URL + currentYear, ITEM_SELECTOR, node => ({
           title: node.find("td:nth-child(2)").text(),
           url:
             MAIN_URL +
@@ -44,14 +43,13 @@ const crawl = async () => {
               .find("td:nth-child(3) a")
               .first()
               .attr("href"),
-          date: node
-            .find("td:nth-child(4)")
-            .text()
-            .split("-")
-            .reverse()
-            .join("-"),
-          source: SOURCE_NAME
+          date: node.find("td:nth-child(4)").text(),
+          sourceName: SOURCE_NAME
         }));
+
+        emitter.emit("entity", result);
+
+        return result;
       },
       async (err, results) => {
         if (err) {
@@ -64,7 +62,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

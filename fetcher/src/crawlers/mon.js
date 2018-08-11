@@ -3,15 +3,14 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
-const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "http://www.dz.urz.mon.gov.pl";
-const SOURCE_NAME = "mon.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Ministerstwa Obrony Narodowej";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -64,9 +63,17 @@ const crawl = async () => {
       async pageUrl => {
         const data = await simpleDOMGet(browser, pageUrl, ITEM_SELECTOR, node => ({
           title: node.find("table:nth-child(2) > tbody > tr.t-pozycja-a > td:nth-child(2) > div > span").text(),
-          date: node.find("table:nth-child(2) > tbody > tr.t-pozycja-a > td:nth-child(4)").text(),
-          url: MAIN_URL + node.find("#pozycja-zalaczniki > li > a").attr("href")
+          date: node
+            .find("table:nth-child(2) > tbody > tr.t-pozycja-a > td:nth-child(4)")
+            .text()
+            .split(".")
+            .join("-"),
+          url: MAIN_URL + node.find("#pozycja-zalaczniki > li > a").attr("href"),
+          sourceName: SOURCE_NAME
         }));
+
+        emitter.emit("entity", [data]);
+
         return data;
       },
       async (err, results) => {
@@ -80,7 +87,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

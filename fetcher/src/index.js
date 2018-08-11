@@ -82,7 +82,7 @@ const fetchAndParse = ({ url, hash }) => {
           .where({ hash })
           .then(rows => {
             const isNew = rows.length === 0;
-            if (!isNew) {
+            if (isNew) {
               logger.info(`${current.sourceName} - #${hash} is new - fetching & parsing`);
               fetchAndParse({ url: current.url, hash }).then(parsedText => {
                 logger.info(`${current.sourceName} - #${hash} downloaded & parsed `);

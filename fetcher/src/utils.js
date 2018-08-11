@@ -1,5 +1,7 @@
 const cheerio = require("cheerio");
 
+const parseEnvArray = str => str.split("|");
+
 const simpleDOMListParser = async (browser, url, path, parse, missIndex) => {
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: "networkidle0" });
@@ -40,6 +42,7 @@ const removeEscapesFromString = str => str.replace(/\\"/g, '"');
 const formatFromDotToDash = str => str.replace(/\./g, "-");
 
 module.exports = {
+  parseEnvArray,
   simpleDOMListParser,
   simpleDOMGet,
   removeEscapesFromString,

@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
@@ -11,7 +11,7 @@ const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 const MAIN_URL = "https://mgm.gov.pl";
 const SOURCE_NAME = "mgm";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -48,11 +48,13 @@ const crawl = async () => {
             .attr("datetime")
             .substring(0, 10),
           url: node.find("td:nth-child(3) a").attr("href"),
-          source: SOURCE_NAME,
+          sourceName: SOURCE_NAME,
           ocr: false
         }));
 
         await newPage.close();
+
+        emitter.emit("entity", list);
 
         return list;
       },
@@ -67,7 +69,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

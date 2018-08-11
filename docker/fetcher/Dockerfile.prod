@@ -20,13 +20,18 @@ apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
 
+# set up script
+WORKDIR /app
+
 # setup cron
+COPY fetcher .
 COPY fetcher/etc/crontab /tmp/crontab
+
 RUN touch /var/log/cron.log
 RUN cat /tmp/crontab | crontab -
 RUN crontab -l
 
-# set up script
-WORKDIR /app
+RUN yarn global add wait-on
 
-CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
+# CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
+CMD wait-on -l tcp:db:5432 && yarn install && yarn start

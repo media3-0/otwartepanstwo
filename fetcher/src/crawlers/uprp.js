@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const async = require("async");
 
 const MAIN_URL = "https://www.uprp.pl/dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/";

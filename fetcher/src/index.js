@@ -2,6 +2,7 @@
 const DOCUMENTS_TABLE = "documents";
 
 const fs = require("fs");
+const moment = require("moment");
 const http = require("http");
 const async = require("async");
 const crypto = require("crypto");
@@ -9,6 +10,7 @@ const knex = require("knex");
 const pdfExtractor = require("pdf-text-extract");
 
 const runCrawlers = require("./run-crawlers");
+const updateSubscriptions = require("./update-subscriptions");
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -23,8 +25,7 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db
-      .raw("select 1 + 1 as result")
+    db.raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -55,9 +56,8 @@ const fetchAndParse = ({ url, hash }) => {
   });
 };
 
-(async () => {
-  const db = await createDB();
-  const crawledData = await runCrawlers({
+const processCrawlers = async ({ db }) => {
+  await runCrawlers({
     onEach: list => {
       async.eachLimit(
         list,
@@ -69,7 +69,7 @@ const fetchAndParse = ({ url, hash }) => {
             .digest("hex");
 
           console.log("PROCESSING " + hash);
-          const updateDate = Math.floor(new Date().getTime() / 1000);
+          const updateDate = moment(new Date()).format("YYYY-MM-DD");
 
           db(DOCUMENTS_TABLE)
             .where({ hash })
@@ -79,6 +79,7 @@ const fetchAndParse = ({ url, hash }) => {
                 console.log("#" + hash + " IS NEW, FETCHING AND PARSING");
                 fetchAndParse({ url: current.url, hash }).then(parsedText => {
                   console.log("#" + hash + " DOWNLOADED AND PARSED");
+
                   db(DOCUMENTS_TABLE)
                     .insert({
                       hash,
@@ -110,4 +111,12 @@ const fetchAndParse = ({ url, hash }) => {
       );
     }
   });
+};
+
+(async () => {
+  const db = await createDB();
+
+  await processCrawlers({ db });
+
+  await updateSubscriptions({ db });
 })();

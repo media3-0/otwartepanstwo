@@ -44,7 +44,7 @@ const init = async () => {
     if (search) {
       db(DOCUMENTS_TABLE)
         .select(...fields)
-        .where("content", "like", `%${search}%`) // TODO: search title as well
+        .where("content", "ilike", `%${search}%`) // TODO: search title as well
         .then(callback);
     } else {
       db(DOCUMENTS_TABLE)

@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const async = require("async");
 
 const MAIN_URL = "http://www.gdos.gov.pl/dziennik-urzedowy-gdos/";

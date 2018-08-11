@@ -3,7 +3,7 @@ const CHILD_MAX_LIFETIME = 30 * 1000 * 60;
 const fs = require("fs");
 const { fork } = require("child_process");
 const async = require("async");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const path = require("path");
 
 const logger = require("./logger");

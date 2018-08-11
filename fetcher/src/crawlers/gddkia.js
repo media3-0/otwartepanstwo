@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const async = require("async");
 
 const MAIN_URL = "https://www.gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/";

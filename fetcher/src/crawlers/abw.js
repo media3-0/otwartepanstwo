@@ -1,10 +1,11 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const async = require("async");
 
 const logger = require("../logger");
 
+const IS_DEV = process.env.NODE_ENV !== "production";
 const MAIN_URL = "http://www.abw.gov.pl/";
 const SOURCE_NAME = "abw";
 const NEEDS_OCR_BEFORE = false;
@@ -77,20 +78,27 @@ const crawl = async () => {
 
   return await new Promise((resolve, reject) =>
     async.mapLimit(
-      links,
+      IS_DEV ? links.slice(0, 5) : links,
       10,
       async current => {
         logger.debug(`PROCESSING, ${current}`);
-        return await simpleDOMGet(browser, current, "#content", node => ({
-          title: node.find("#content_roczniki > div:nth-child(2) > ins:nth-child(3)").text(),
-          url: MAIN_URL + node.find("#zalaczniki > ul > li:nth-child(1) > a").attr("href"),
-          date: node
+
+        return await simpleDOMGet(browser, current, "#content", node => {
+          const date = node
             .find("#content_roczniki > div:nth-child(1) > ins:nth-child(4) > div.form_text")
             .text()
-            .replace(/\./g, "-"),
-          sourceName: SOURCE_NAME,
-          ocr: false
-        }));
+            .split(".")
+            .reverse()
+            .join("-");
+
+          return {
+            title: node.find("#content_roczniki > div:nth-child(2) > ins:nth-child(3)").text(),
+            url: MAIN_URL + node.find("#zalaczniki > ul > li:nth-child(1) > a").attr("href"),
+            date,
+            sourceName: SOURCE_NAME,
+            ocr: false
+          };
+        });
       },
       async (err, results) => {
         if (err) {

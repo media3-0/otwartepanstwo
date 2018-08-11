@@ -2,12 +2,12 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
 const MAIN_URL = "http://www.monitorpolski.gov.pl/";
-const SOURCE_NAME = "monitorpolski.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Rzeczypospolitej Polskiej";
 
 const getYearsUrls = async browser => {
   const page = await browser.newPage();
@@ -35,7 +35,7 @@ const getPdfsFromPage = async (page, id) => {
   const $ = cheerio.load(content);
   let result = [];
 
-  logger.debug(`   Processing ${id} `);
+  logger.debug(`Processing ${id}`);
 
   $("#dnn_ctr490_ViewJournal_wholeTable table tbody tr").each((i, element) => {
     if (i !== 0) {
@@ -114,12 +114,10 @@ const getAllPdfsUrlsFromOlderPage = async (browser, url) => {
 
   return new Promise((resolve, reject) => {
     async.mapLimit(
-      pageUrls, //.slice(-5, -1),
+      pageUrls,
       3,
       async current => {
-        logger.debug(`   Processing ${current} `);
-
-        console.log("!!!!", current);
+        logger.debug(`Processing ${current}`);
 
         const newPage = await browser.newPage();
         await newPage.goto(MAIN_URL + current);
@@ -152,7 +150,7 @@ const getAllPdfsUrlsFromOlderPage = async (browser, url) => {
   });
 };
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -165,35 +163,29 @@ const crawl = async () => {
 
   await browser.close();
 
-  const pdfs = async.mapSeries(
-    filteredYears,
-    async current => {
-      logger.debug(`Processing Start >>> ${SOURCE_NAME} - ${current.year} - ${current.url}`);
+  const pdfs = async.eachSeries(filteredYears, async current => {
+    logger.debug(`Processing started ${SOURCE_NAME} - ${current.year} - ${current.url}`);
 
-      const browser = await puppeteer.launch(browserOpts);
-      const result =
-        current.year <= 2011
-          ? await getAllPdfsUrlsFromOlderPage(browser, current.url)
-          : await getAllPdfsUrlsFromNewerPage(browser, current.url);
+    const browser = await puppeteer.launch(browserOpts);
+    const result =
+      current.year <= 2011
+        ? await getAllPdfsUrlsFromOlderPage(browser, current.url)
+        : await getAllPdfsUrlsFromNewerPage(browser, current.url);
 
-      await browser.close();
+    await browser.close();
 
-      logger.debug(`Processing Finished >>> ${current.year} - ${current.url}`);
+    logger.debug(`Processing finished ${current.year} - ${current.url}`);
 
-      return flatten(result);
-    },
-    async (err, result) => {
-      if (err) logger.error("!", err);
-      const res = await result;
-      fs.writeFileSync("./result-004.json", JSON.stringify(res, null, 2), "utf-8");
-      logger.debug(`All ${SOURCE_NAME} urls acquired`);
-    }
-  );
+    emitter.emit("entity", flatten(result));
+
+    return flatten(list);
+  });
 
   return flatten(pdfs);
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

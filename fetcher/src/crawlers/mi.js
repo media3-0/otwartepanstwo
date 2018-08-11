@@ -5,7 +5,7 @@ const { EventEmitter } = require("events");
 const { simpleDOMListParser } = require("../utils");
 
 const MAIN_URL = "https://dziennikurzedowy.mi.gov.pl/";
-const SOURCE_NAME = "mi";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Infrastruktury";
 
 const crawl = async emitter => {
   const browserOpts = {

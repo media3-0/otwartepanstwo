@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { fork } = require("child_process");
 const async = require("async");
+const { flatten } = require("lodash");
 const path = require("path");
 const j = require("joi");
 

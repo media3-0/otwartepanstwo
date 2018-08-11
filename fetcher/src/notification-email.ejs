@@ -1,0 +1,11 @@
+Witaj,
+
+pojawiły się nowe dokumenty na Twoje zasubskrybowane wyszukiwania:
+
+<% data.forEach(({ searchPhrase, lastNotifyFormatted }) => { %>
+* <%= searchPhrase %>: <%= mainUrl %>?search="<%= searchPhrase %>"&dateFrom="<%= lastNotifyFormatted %>"
+<% }) %>
+
+Pozdrawiamy,
+zespół Otwarte Państwo
+

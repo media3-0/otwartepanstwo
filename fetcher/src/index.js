@@ -1,15 +1,17 @@
 // const IS_DEV = process.env.NODE_ENV === "development";
 const DOCUMENTS_TABLE = "documents";
 
-const fs = require("fs");
-const request = require("request-promise");
 const async = require("async");
 const crypto = require("crypto");
+const fs = require("fs");
 const knex = require("knex");
+const moment = require("moment");
 const pdfExtractor = require("pdf-text-extract");
+const request = require("request-promise");
 
-const runCrawlers = require("./run-crawlers");
 const logger = require("./logger");
+const runCrawlers = require("./run-crawlers");
+const updateSubscriptions = require("./update-subscriptions");
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -24,8 +26,7 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db
-      .raw("select 1 + 1 as result")
+    db.raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -65,9 +66,7 @@ const fetchAndParse = ({ url, hash }) => {
   });
 };
 
-(async () => {
-  const db = await createDB();
-  logger.info(`Fetcher started at ${new Date()}`);
+const processCrawlers = async ({ db }) => {
   runCrawlers({
     onEach: list => {
       async.eachLimit(list, 10, (current, next) => {
@@ -76,7 +75,7 @@ const fetchAndParse = ({ url, hash }) => {
           .update(current.url)
           .digest("hex");
 
-        const updateDate = Math.floor(new Date().getTime() / 1000);
+        const updateDate = moment(new Date()).format("YYYY-MM-DD");
 
         db(DOCUMENTS_TABLE)
           .where({ hash })
@@ -115,4 +114,14 @@ const fetchAndParse = ({ url, hash }) => {
       });
     }
   });
+};
+
+(async () => {
+  logger.info(`Fetcher started at ${new Date()}`);
+
+  const db = await createDB();
+
+  await processCrawlers({ db });
+
+  await updateSubscriptions({ db });
 })();

@@ -2,7 +2,7 @@
 // BUT THIS DIFFERS - TAKE SELECTORS AS PARAMETER
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const async = require("async");
 const fs = require("fs");
 

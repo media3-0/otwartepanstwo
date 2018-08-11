@@ -1,7 +1,7 @@
 const async = require("async");
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
-const flatten = require("lodash.flatten");
+const { flatten } = require("lodash");
 const logger = require("../logger");
 const leftPad = require("left-pad");
 

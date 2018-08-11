@@ -4,6 +4,7 @@ const puppeteer = require("puppeteer");
 const { flatten } = require("lodash");
 const logger = require("../logger");
 const leftPad = require("left-pad");
+const { EventEmitter } = require("events");
 
 const IS_DEV = false;
 
@@ -64,7 +65,7 @@ const crawlTable = $ => {
         date,
         url,
         title,
-        source: SOURCE_NAME,
+        sourceName: SOURCE_NAME,
         ocr: false
       };
     })
@@ -73,14 +74,17 @@ const crawlTable = $ => {
   return urlsOnPage;
 };
 
-const crawlYear = async (browser, year) => {
+const crawlYear = async (browser, year, emitter) => {
   const newPage = await browser.newPage();
   await newPage.goto(year, { waitUntil: "networkidle0" });
+  await newPage.waitForSelector(".taglib-search-iterator");
 
   const content = await newPage.content();
   let $ = cheerio.load(content);
 
   let urls = crawlTable($);
+
+  emitter.emit("entity", urls);
 
   const hasNext = () => $(".page-links a.next").length > 0;
 
@@ -93,20 +97,21 @@ const crawlYear = async (browser, year) => {
     async.whilst(
       hasNext,
       callback => {
-        newPage
-          .click(".page-links a.next")
-          .then(newPage.waitForSelector("#main-content"))
-          .then(() =>
+        newPage.click(".page-links a.next").then(() =>
+          newPage.waitForSelector(".taglib-search-iterator").then(() => {
             newPage.content().then(content => {
               $ = cheerio.load(content);
 
               const pageUrls = crawlTable($);
 
+              emitter.emit("entity", pageUrls);
+
               urls = [...urls, ...pageUrls];
 
               callback();
-            })
-          );
+            });
+          })
+        );
       },
       err => {
         newPage.close().then(() => {
@@ -121,7 +126,7 @@ const crawlYear = async (browser, year) => {
   );
 };
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     // headless: false,
     headless: true,
@@ -144,7 +149,8 @@ const crawl = async () => {
       IS_DEV ? yearLinks.slice(0, 1) : yearLinks,
       3,
       async yearLink => {
-        const urls = await crawlYear(browser, yearLink);
+        logger.info(`Opening ${yearLink}`);
+        const urls = await crawlYear(browser, yearLink, emitter);
         return urls;
       },
       async (err, data) => {
@@ -161,7 +167,8 @@ const crawl = async () => {
   );
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

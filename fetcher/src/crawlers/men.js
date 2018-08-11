@@ -3,10 +3,8 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
 const { EventEmitter } = require("events");
 
-const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "https://e-dziennik.men.gov.pl";

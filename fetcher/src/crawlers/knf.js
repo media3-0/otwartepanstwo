@@ -1,23 +1,19 @@
-// Generic 2
-// BUT THIS DIFFERS - TAKE SELECTORS AS PARAMETER
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
 const MAIN_URL = "https://dziennikurzedowy.knf.gov.pl/";
 const SOURCE_NAME = "knf";
-// TODO: Remmember to append
-const APPEND_SUFFIX = "pdf";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -32,7 +28,7 @@ const crawl = async () => {
 
   const YEARS_SELECTOR = "#year";
 
-  const ITEM_SELECTOR = "#main-content > div > div > abc-act-grid > div > table > tbody";
+  const ITEM_SELECTOR = "#main-content > div > div > abc-act-grid > div > table > tbody > tr";
 
   const yearsData = $(YEARS_SELECTOR + " option")
     .map((i, d) => $(d).text())
@@ -59,10 +55,7 @@ const crawl = async () => {
         const currentlySelected = $(YEARS_SELECTOR).val();
 
         if (currentlySelected !== toSelect.value) {
-          const watcherForResponse = newPage.waitForResponse(resp => {
-            console.log(resp.url());
-            return true;
-          });
+          const watcherForResponse = newPage.waitForResponse(() => true);
 
           await newPage.select(YEARS_SELECTOR, toSelect.value);
 
@@ -73,8 +66,8 @@ const crawl = async () => {
           content = await newPage.content();
           $ = cheerio.load(content);
         }
-        return flatten(
-          // THIS DIFFERS
+
+        const list = flatten(
           $(ITEM_SELECTOR)
             .map((i, d) => {
               const title = $(d)
@@ -84,40 +77,52 @@ const crawl = async () => {
               const date = $(d)
                 .find("td.acts__publish-date.ng-binding")
                 .text()
-                .trim();
-              const updatedate = $(d)
-                .find("#td.acts__publish-date.ng-binding")
+                .trim()
+                .split(".")
+                .reverse()
+                .join("-");
+              const updateDate = $(d)
+                .find("td.acts__publish-date.ng-binding")
                 .text()
-                .trim();
-              const source = "cba";
+                .trim()
+                .split(".")
+                .reverse()
+                .join("-");
               const url = $(d)
                 .find("td.acts__pdf.text-right > a")
                 .attr("href");
+
               return {
                 title,
                 date,
-                update_date: updatedate,
-                source,
+                updateDate,
                 url: `${MAIN_URL}${url}`,
-                source: SOURCE_NAME,
+                sourceName: SOURCE_NAME,
                 ocr: false
               };
             })
             .get()
         );
+
+        emitter.emit("entity", list);
+
+        return list;
       },
       async (err, results) => {
         await browser.close();
+
         if (err) {
-          console.log("err", err);
+          return reject(err);
         }
+
         resolve(flatten(results));
       }
     );
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

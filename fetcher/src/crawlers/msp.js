@@ -2,16 +2,15 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
-const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../utils");
 
 const BASE_URL = "http://dziennik.msp.gov.pl/";
 const MAIN_URL = `${BASE_URL}/du/dzienniki`;
-const SOURCE_NAME = "msp";
+const SOURCE_NAME = "Dziennik Urzędowy Ministerstwa Skarbu Państwa";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -39,13 +38,13 @@ const crawl = async () => {
       pagination,
       1,
       async pageNumber => {
-        const list = await simpleDOMListParser(
+        const item = await simpleDOMListParser(
           browser,
           `${MAIN_URL}?page=${pageNumber}`,
           PAGE_SELECTOR,
           node => BASE_URL + node.attr("href")
         );
-        return list;
+        return item;
       },
       async (err, results) => {
         if (err) {
@@ -61,32 +60,37 @@ const crawl = async () => {
       pages,
       5,
       async pageUrl => {
-        const list = await simpleDOMGet(browser, pageUrl, ITEM_SELECTOR, node => ({
+        const item = await simpleDOMGet(browser, pageUrl, ITEM_SELECTOR, node => ({
           title: node
             .find("div.head > h2")
             .text()
             .trim(),
-          date: formatFromDotToDash(
-            node
-              .find("div:nth-child(3)")
-              .text()
-              .slice(17, 27)
-          ),
-          update_date: formatFromDotToDash(
-            node
-              .find("div:nth-child(4)")
-              .text()
-              .slice(20, 30)
-          ),
+          date: node
+            .find("div:nth-child(3)")
+            .text()
+            .slice(17, 27)
+            .split(".")
+            .reverse()
+            .join("-"),
+          updateDate: node
+            .find("div:nth-child(4)")
+            .text()
+            .slice(20, 30)
+            .split(".")
+            .reverse()
+            .join("-"),
           url:
             BASE_URL +
             node
               .find("div.zalaczniki > ul > li > a")
               .first()
               .attr("href"),
-          source: SOURCE_NAME
+          sourceName: SOURCE_NAME
         }));
-        return list;
+
+        emitter.emit("entity", [item]);
+
+        return item;
       },
       async (err, results) => {
         await browser.close();
@@ -99,7 +103,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

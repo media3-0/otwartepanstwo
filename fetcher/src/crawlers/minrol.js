@@ -4,21 +4,20 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
 const { simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "https://edziennik.minrol.gov.pl";
-const SOURCE_NAME = "minrol";
-const APPEND_SUFFIX = "pdf";
+const SOURCE_NAME = "Dziennik Urzędowy Ministerstwa Rolnictwa i Rozwoju Wsi";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -47,7 +46,7 @@ const crawl = async () => {
       yearsData,
       1,
       async current => {
-        logger.debug(`Processing page of ${current}`);
+        logger.debug(`Processing year ${current}`);
 
         const newPage = await browser.newPage();
         await newPage.goto(MAIN_URL, { waitUntil: "networkidle0" });
@@ -63,10 +62,7 @@ const crawl = async () => {
         const currentlySelected = $(YEARS_SELECTOR).val();
 
         if (currentlySelected !== toSelect.value) {
-          const watcherForResponse = newPage.waitForResponse(resp => {
-            console.log(resp.url());
-            return true;
-          });
+          const watcherForResponse = newPage.waitForResponse(() => true);
 
           await newPage.select(YEARS_SELECTOR, toSelect.value);
 
@@ -100,9 +96,14 @@ const crawl = async () => {
           date: node
             .find("#positionSidePanel > div:nth-child(1) > ul > li:nth-child(4) > span")
             .text()
-            .replace(/\./g, "-"),
-          url: MAIN_URL + "/" + node.find("#notHtmlVersionOfAct > div > div > abc-download-pdf > div > a").attr("href")
+            .split(".")
+            .reverse()
+            .join("-"),
+          url: MAIN_URL + "/" + node.find("#notHtmlVersionOfAct > div > div > abc-download-pdf > div > a").attr("href"),
+          sourceName: SOURCE_NAME
         }));
+
+        emitter.emit("entity", [result]);
 
         return result;
       },
@@ -117,7 +118,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

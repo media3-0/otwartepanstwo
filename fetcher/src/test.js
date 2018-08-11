@@ -1,7 +1,3 @@
 const runCrawlers = require("./run-crawlers");
 
-runCrawlers({
-  onEach: list => {
-    console.log(list);
-  }
-});
+runCrawlers().on("data", item => console.log(item));

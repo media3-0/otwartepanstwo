@@ -23,7 +23,7 @@ const ENTITY_SCHEMA = j.object().keys({
 });
 
 // TODO: Test error handling
-module.exports = async () => {
+module.exports = () => {
   const emitter = new EventEmitter();
 
   const crawlersList = process.env.DEV_CRAWLERS ? parseEnvArray(process.env.DEV_CRAWLERS) : fs.readdirSync(crawlersDir);

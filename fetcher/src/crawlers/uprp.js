@@ -1,12 +1,12 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
-const async = require("async");
+const { EventEmitter } = require("events");
 
 const MAIN_URL = "https://www.uprp.pl/dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/";
 const SOURCE_NAME = "Dziennik Urzędowy Urzędu Patentowego Rzeczypospolitej Polskiej";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -49,19 +49,22 @@ const crawl = async () => {
             title,
             url,
             date,
-            source: SOURCE_NAME
+            sourceName: SOURCE_NAME
           };
         })
         .get()
     )
   ).filter(_ => !!_);
 
+  emitter.emit("entity", links);
+
   await browser.close();
 
   return new Promise(resolve => resolve(links));
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

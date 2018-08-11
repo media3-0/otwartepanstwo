@@ -3,14 +3,14 @@ const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 const { flatten } = require("lodash");
 const logger = require("../logger");
+const { EventEmitter } = require("events");
 
 const BASE_URL = "http://ppiop.rcl.gov.pl";
 const MAIN_URL = `${BASE_URL}/?r=orzeczenia/index`;
-const SOURCE_NAME = "ppiop.rcl.gov.pl";
+const SOURCE_NAME = "Orzeczenia Trybunału Konstytucyjnego";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
-    // headless: false,
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   };
@@ -65,7 +65,7 @@ const crawl = async () => {
                 title,
                 url,
                 date,
-                source: SOURCE_NAME,
+                sourceName: SOURCE_NAME,
                 ocr: false
               };
             });
@@ -75,6 +75,8 @@ const crawl = async () => {
           .get();
 
         await newPage.close();
+
+        emitter.emit("entity", data);
 
         return data;
       },
@@ -91,7 +93,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

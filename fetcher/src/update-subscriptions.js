@@ -86,8 +86,12 @@ module.exports = async ({ db }) => {
               return reject(err);
             }
 
+            if (!results || results.length === 0) {
+              return resolve();
+            }
+
             // TODO: actuall email the emails
-            const notificationEmails = results.map(data => ({
+            const notificationEmails = results.filter(data => data && data.length > 0).map(data => ({
               email: data[0].email,
               text: createNotificationEmail(data)
             }));

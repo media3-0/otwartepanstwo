@@ -4,6 +4,7 @@ const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
 const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
@@ -11,7 +12,7 @@ const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 const MAIN_URL = "https://e-dziennik.men.gov.pl";
 const SOURCE_NAME = "men";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -43,7 +44,7 @@ const crawl = async () => {
       async currentYearUrl => {
         const newPage = await browser.newPage();
         await newPage.goto(currentYearUrl);
-        const list = await simpleDOMListParser(
+        const entity = await simpleDOMListParser(
           browser,
           currentYearUrl,
           PAGES_SELECTOR,
@@ -52,11 +53,11 @@ const crawl = async () => {
 
         await newPage.close();
 
-        return list;
+        return entity;
       },
       (err, results) => {
         if (err) {
-          console.log(err);
+          return reject(err);
         }
         resolve(flatten(results));
       }
@@ -68,33 +69,47 @@ const crawl = async () => {
       pages,
       5,
       async currentPageUrl => {
-        return simpleDOMGet(browser, currentPageUrl, ITEM_SELECTOR, node => ({
+        const entity = await simpleDOMGet(browser, currentPageUrl, ITEM_SELECTOR, node => ({
           title: node
             .find("tr:nth-child(9) > td:nth-child(2)")
             .text()
             .trim(),
-          date: node.find("tr:nth-child(4) > td:nth-child(2)").text(),
-          update_date: node
+          date: node
+            .find("tr:nth-child(4) > td:nth-child(2)")
+            .text()
+            .trim()
+            .split(".")
+            .reverse()
+            .join("-"),
+          updateDate: node
             .find("tr:nth-child(5) > td:nth-child(2)")
             .text()
-            .trim(),
+            .trim()
+            .split(".")
+            .reverse()
+            .join("-"),
           url: MAIN_URL + node.find("tr:nth-child(10) > td:nth-child(2) > a").attr("href"),
-          source: SOURCE_NAME,
+          sourceName: SOURCE_NAME,
           ocr: false
         }));
+
+        emitter.emit("entity", [entity]);
+
+        return entity;
       },
       (err, results) => {
+        browser.close();
         if (err) {
-          console.log(err);
+          return reject(err);
         }
         resolve(flatten(results));
-        browser.close();
       }
     );
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

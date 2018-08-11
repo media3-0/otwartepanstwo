@@ -65,7 +65,7 @@ module.exports = async ({ onEach }) => {
       setNewTimer(child);
       j.validate(data, ENTITIES_SCHEMA, err => {
         if (err) {
-          logger.warn(`The crawled entity is not valid with the schema. Error: ${err}`);
+          logger.warn(`The crawled entity is not valid with the schema. Error: ${err}`, data);
         } else {
           onEach(data);
         }

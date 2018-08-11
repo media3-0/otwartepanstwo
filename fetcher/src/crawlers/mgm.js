@@ -9,7 +9,7 @@ const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "https://mgm.gov.pl";
-const SOURCE_NAME = "mgm";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Gospodarki Morskiej i Żeglugi Śródlądowej";
 
 const crawl = async emitter => {
   const browserOpts = {

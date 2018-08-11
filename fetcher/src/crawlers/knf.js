@@ -7,7 +7,7 @@ const { EventEmitter } = require("events");
 const logger = require("../logger");
 
 const MAIN_URL = "https://dziennikurzedowy.knf.gov.pl/";
-const SOURCE_NAME = "knf";
+const SOURCE_NAME = "Dziennik Urzędowy Komisji Nadzoru Finansowego";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

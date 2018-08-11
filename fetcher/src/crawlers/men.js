@@ -8,7 +8,7 @@ const { EventEmitter } = require("events");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "https://e-dziennik.men.gov.pl";
-const SOURCE_NAME = "men";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Edukacji Narodowej";
 
 const crawl = async emitter => {
   const browserOpts = {

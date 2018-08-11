@@ -9,7 +9,7 @@ const { EventEmitter } = require("events");
 const IS_DEV = false;
 
 const MAIN_URL = "https://www.mf.gov.pl/ministerstwo-finansow/minister/dziennik-urzedowy-ministra-rozwoju-i-finansow";
-const SOURCE_NAME = "mf.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Rozwoju i Finansów";
 
 const PL_MONTHS = [
   "stycznia",

@@ -5,7 +5,7 @@ const async = require("async");
 const { EventEmitter } = require("events");
 
 const MAIN_URL = "https://www.gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/";
-const SOURCE_NAME = "GDDKiA";
+const SOURCE_NAME = "Dziennik Urzędowy GDDKiA";
 
 const crawl = async emitter => {
   const browserOpts = {

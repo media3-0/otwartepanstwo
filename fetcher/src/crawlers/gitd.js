@@ -7,7 +7,7 @@ const { EventEmitter } = require("events");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "http://bip.gitd.gov.pl/dziennik-urzedowy-gitd";
-const SOURCE_NAME = "bip.gitd.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Głównego Inspektoratu Transportu Drogowego";
 
 const crawl = async emitter => {
   const browserOpts = {

@@ -8,7 +8,7 @@ const { EventEmitter } = require("events");
 const logger = require("../logger");
 
 const MAIN_URL = "http://e-dziennik.mc.gov.pl/";
-const SOURCE_NAME = "ministerstwo cyfryzacji";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Cyfryzacji";
 // TODO: Remmember to append
 const APPEND_SUFFIX = "pdf";
 

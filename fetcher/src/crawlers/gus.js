@@ -9,7 +9,7 @@ const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../u
 
 const BASE_URL = "http://dziennikigus.stat.gov.pl";
 const MAIN_URL = `${BASE_URL}/dzienniki-urzedowe-gus`;
-const SOURCE_NAME = "bip.gitd.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Głównego Urzędu Statystycznego";
 
 const crawl = async emitter => {
   const browserOpts = {

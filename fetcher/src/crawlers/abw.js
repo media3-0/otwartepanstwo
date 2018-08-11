@@ -2,13 +2,12 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
 const MAIN_URL = "http://www.abw.gov.pl/";
-const SOURCE_NAME = "abw";
-
-const { EventEmitter } = require("events");
+const SOURCE_NAME = "Dzienniki Urzędowe Agencji Bezpieczeństwa Wewnętrznego";
 
 const simpleDOMListParser = async (browser, url, path, parse) => {
   const page = await browser.newPage();

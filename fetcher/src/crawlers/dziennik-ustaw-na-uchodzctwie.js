@@ -6,10 +6,8 @@ const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
-// const MAIN_URL = "http://dziennikustawnauchodzstwie.gov.pl";
-// const SOURCE_NAME = "dziennikustawnauchodzstwie.gov.pl";
 const MAIN_URL = "http://monitorpolskinauchodzstwie.gov.pl";
-const SOURCE_NAME = "monitorpolskinauchodzstwie.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Rzeczypospolitej Polski";
 
 const simpleDOMListParser = async (browser, url, path, parse) => {
   const page = await browser.newPage();

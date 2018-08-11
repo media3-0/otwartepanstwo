@@ -6,7 +6,7 @@ const logger = require("../logger");
 const { EventEmitter } = require("events");
 
 const BASE_URL = "https://eur-lex.europa.eu";
-const SOURCE_NAME = "eur-lex.europa.eu";
+const SOURCE_NAME = "Dziennik Urzędowy Unii Europejskiej";
 
 const makeUrl = (year = "2018") => `${BASE_URL}/oj/${year}/direct-access.html?locale=pl`;
 

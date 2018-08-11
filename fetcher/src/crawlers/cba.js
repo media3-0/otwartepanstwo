@@ -8,7 +8,7 @@ const { EventEmitter } = require("events");
 const logger = require("../logger");
 
 const MAIN_URL = "http://edu.cba.gov.pl/";
-const SOURCE_NAME = "cba";
+const SOURCE_NAME = "Dziennik Urzędowy Centralnego Biura Antykorupcyjnego";
 
 const { formatFromDotToDash } = require("../utils");
 

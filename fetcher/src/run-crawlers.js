@@ -4,6 +4,7 @@ const async = require("async");
 const path = require("path");
 const j = require("joi");
 const { EventEmitter } = require("events");
+const moment = require("moment");
 
 const logger = require("./logger");
 const { parseEnvArray } = require("./utils");
@@ -78,7 +79,9 @@ module.exports = () => {
 
     child.on("exit", () => {
       clearInterval(timer);
-      logger.info(`Finished: ${crawlersDir}/${crawlerFileName} at ${new Date()} in ${(Date.now() - startDate) / 1000}`);
+      logger.info(
+        `Finished: ${crawlersDir}/${crawlerFileName} at ${moment().toISOString()} in ${(Date.now() - startDate) / 1000}`
+      );
       callback(null);
     });
   });

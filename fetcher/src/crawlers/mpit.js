@@ -2,15 +2,15 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
+const leftPad = require("left-pad");
 
-const logger = require("../logger");
-const { simpleDOMListParser, simpleDOMGet, removeEscapesFromString } = require("../utils");
+const { simpleDOMListParser, removeEscapesFromString } = require("../utils");
 
 const MAIN_URL = "http://dziennikurzedowy.mpit.gov.pl/";
-const SOURCE_NAME = "dziennikurzedowy.mpit.gov.pl";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Przedsiębiorczości i Technologii";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -36,7 +36,7 @@ const crawl = async () => {
       yearsData,
       1,
       async currentYear => {
-        return await simpleDOMListParser(browser, MAIN_URL + currentYear, ITEM_SELECTOR, node => ({
+        const result = await simpleDOMListParser(browser, MAIN_URL + currentYear, ITEM_SELECTOR, node => ({
           title: removeEscapesFromString(node.find("td:nth-child(2)").text()),
           url:
             MAIN_URL +
@@ -48,9 +48,16 @@ const crawl = async () => {
             .find("td:nth-child(4)")
             .text()
             .trim()
-            .replace(/\./g, "-"),
-          source: SOURCE_NAME
+            .split(".")
+            .map(n => (n.length < 2 ? leftPad(n, 2, "0") : n))
+            .reverse()
+            .join("-"),
+          sourceName: SOURCE_NAME
         }));
+
+        emitter.emit("entity", result);
+
+        return result;
       },
       async (err, results) => {
         if (err) {
@@ -63,7 +70,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

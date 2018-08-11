@@ -1,18 +1,17 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const { flatten } = require("lodash");
+const { flatten, range } = require("lodash");
 const async = require("async");
-const range = require("lodash.range");
+const { EventEmitter } = require("events");
 
-const logger = require("../logger");
-const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../utils");
+const { simpleDOMListParser, formatFromDotToDash } = require("../utils");
 
 const BASE_URL = "https://www.msz.gov.pl";
 const MAIN_URL = `${BASE_URL}/pl/ministerstwo/dziennik_urzedowy/`;
-const SOURCE_NAME = "msz";
+const SOURCE_NAME = "Dziennik Urzędowy Ministra Spraw Zagranicznych";
 const getPaginationHref = num => `${MAIN_URL}__rp0x2Content!304312@16575_pageNo/${num}?`;
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -46,8 +45,11 @@ const crawl = async () => {
           title: node.find("td:nth-child(1) a").text(),
           url: BASE_URL + node.find("td:nth-child(1) a").attr("href"),
           date: formatFromDotToDash(node.find("td:nth-child(2) > p").text()),
-          source: SOURCE_NAME
+          sourceName: SOURCE_NAME
         }));
+
+        emitter.emit("entity", list);
+
         return list;
       },
       async (err, results) => {
@@ -60,7 +62,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

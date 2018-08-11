@@ -16,7 +16,9 @@
     "nodemon": "^1.18.3"
   },
   "dependencies": {
+    "request-promise": "^4.2.2",
     "async": "^2.6.1",
+    "joi": "^13.6.0",
     "cheerio": "^1.0.0-rc.2",
     "crypto": "^1.0.1",
     "knex": "^0.15.1",

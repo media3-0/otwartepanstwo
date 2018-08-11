@@ -3,11 +3,11 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
-const MAIN_URL = "http://edu.cba.gov.pl";
+const MAIN_URL = "http://edu.cba.gov.pl/";
 const SOURCE_NAME = "cba";
 
 const { formatFromDotToDash } = require("../utils");
@@ -16,7 +16,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -74,7 +74,7 @@ const crawl = async () => {
           content = await newPage.content();
           $ = cheerio.load(content);
         }
-        return flatten(
+        const entity = flatten(
           $(ITEM_SELECTOR)
             .map((i, d) => {
               const title =
@@ -88,23 +88,30 @@ const crawl = async () => {
                   .find("td.acts__publish-date.ng-binding")
                   .text()
                   .trim()
-              );
-              const updatedate = formatFromDotToDash(
+              )
+                .split("-")
+                .reverse()
+                .join("-");
+              const updateDate = formatFromDotToDash(
                 $(d)
                   .find("td.acts__date > div > div:nth-child(1) > span")
                   .text()
                   .trim()
-              );
-              const source = SOURCE_NAME;
+              )
+                .split("-")
+                .reverse()
+                .join("-");
               const url =
                 MAIN_URL +
                 $(d)
                   .find("td.acts__pdf.text-right > a")
                   .attr("href");
-              return { title, date, update_date: updatedate, source, url, source: SOURCE_NAME, ocr: false };
+              return { title, date, updateDate: updateDate || date, url, sourceName: SOURCE_NAME, ocr: false };
             })
             .get()
         );
+        emitter.emit("entity", entity);
+        return entity;
       },
       async (err, results) => {
         await browser.close();
@@ -117,7 +124,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

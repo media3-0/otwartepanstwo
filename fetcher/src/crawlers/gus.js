@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../utils");
@@ -11,7 +11,7 @@ const BASE_URL = "http://dziennikigus.stat.gov.pl";
 const MAIN_URL = `${BASE_URL}/dzienniki-urzedowe-gus`;
 const SOURCE_NAME = "bip.gitd.gov.pl";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -48,10 +48,16 @@ const crawl = async () => {
               .find("td:nth-child(1)")
               .text()
               .trim()
-          ),
-          source: SOURCE_NAME
+          )
+            .split("-")
+            .reverse()
+            .join("-"),
+          sourceName: SOURCE_NAME
         }));
-        console.log(list);
+
+        emitter.emit("entity", list);
+
+        return list;
       },
       async (err, results) => {
         if (err) {
@@ -64,7 +70,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

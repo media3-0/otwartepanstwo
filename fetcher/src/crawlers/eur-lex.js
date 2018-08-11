@@ -3,6 +3,7 @@ const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 const flatten = require("lodash.flatten");
 const logger = require("../logger");
+const { EventEmitter } = require("events");
 
 const BASE_URL = "https://eur-lex.europa.eu";
 const SOURCE_NAME = "eur-lex.europa.eu";
@@ -35,7 +36,7 @@ const crawlLink = async (browser, link) => {
   return {
     url: `${BASE_URL}/${plLink}`.replace("./../../../", ""),
     title,
-    source: SOURCE_NAME,
+    sourceName: SOURCE_NAME,
     ocr: false
   };
 };
@@ -140,7 +141,7 @@ const crawlPagination = async (url, browser) => {
   });
 };
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     // headless: false,
     headless: true,
@@ -162,12 +163,14 @@ const crawl = async () => {
 
   return new Promise((resolve, reject) =>
     async.mapLimit(
-      IS_DEV ? years.slice(0, 2) : years,
+      years,
       1,
       async year => {
         const url = makeUrl(year);
 
         const crawled = await crawlPagination(url, browser);
+
+        emitter.emit("entity", crawled);
 
         return crawled;
       },
@@ -179,7 +182,8 @@ const crawl = async () => {
   );
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

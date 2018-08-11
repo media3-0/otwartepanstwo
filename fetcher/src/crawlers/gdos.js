@@ -1,12 +1,11 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const flatten = require("lodash.flatten");
-const async = require("async");
+const { EventEmitter } = require("events");
 
 const MAIN_URL = "http://www.gdos.gov.pl/dziennik-urzedowy-gdos/";
 const SOURCE_NAME = "Dziennik Urzędowy Generalnej Dyrekcji Ochrony Środowiska";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -39,7 +38,6 @@ const crawl = async () => {
         .text()
         .trim()
         .split(".")
-        .reverse()
         .join("-");
 
       return {
@@ -52,12 +50,15 @@ const crawl = async () => {
     .get()
     .filter(_ => !!_);
 
+  emitter.emit("entity", links);
+
   await browser.close();
 
   return new Promise(resolve => resolve(links));
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

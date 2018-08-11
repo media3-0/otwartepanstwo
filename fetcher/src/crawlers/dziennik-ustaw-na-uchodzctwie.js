@@ -2,6 +2,7 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
 const async = require("async");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
@@ -9,7 +10,6 @@ const logger = require("../logger");
 // const SOURCE_NAME = "dziennikustawnauchodzstwie.gov.pl";
 const MAIN_URL = "http://monitorpolskinauchodzstwie.gov.pl";
 const SOURCE_NAME = "monitorpolskinauchodzstwie.gov.pl";
-const NEEDS_OCR_BEFORE = "ALL";
 
 const simpleDOMListParser = async (browser, url, path, parse) => {
   const page = await browser.newPage();
@@ -27,7 +27,7 @@ const simpleDOMListParser = async (browser, url, path, parse) => {
   return results;
 };
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -40,7 +40,7 @@ const crawl = async () => {
     year: parseInt(data.text())
   }));
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       years,
       1,
@@ -52,12 +52,13 @@ const crawl = async () => {
           data => ({
             title: data.text(),
             url: MAIN_URL + data.attr("href"),
-            date: `01-01-${current.year}`,
+            date: `${current.year}-01-01`,
             sourceName: SOURCE_NAME,
-            ocr: current.year < NEEDS_OCR_BEFORE || NEEDS_OCR_BEFORE === "ALL"
+            ocr: true
           })
         );
 
+        emitter.emit("entity", flatten(data));
         return flatten(data);
       },
       async (err, results) => {
@@ -69,7 +70,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

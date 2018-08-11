@@ -2,6 +2,7 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
 const async = require("async");
+const { EventEmitter } = require("events");
 
 const BASE_URL = "http://edziennik.gios.gov.pl/";
 const MAIN_URL = `${BASE_URL}actbyyearmonth.html`;
@@ -82,7 +83,7 @@ const crawlYear = async (browser, link) => {
   );
 };
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -106,6 +107,7 @@ const crawl = async () => {
       3,
       async yearLink => {
         const urls = await crawlYear(browser, yearLink);
+        emitter.emit("entity", urls);
         return urls;
       },
       async (err, urls) => {
@@ -119,7 +121,8 @@ const crawl = async () => {
   );
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

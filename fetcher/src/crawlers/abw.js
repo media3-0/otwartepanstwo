@@ -7,7 +7,8 @@ const logger = require("../logger");
 
 const MAIN_URL = "http://www.abw.gov.pl/";
 const SOURCE_NAME = "abw";
-const NEEDS_OCR_BEFORE = false;
+
+const { EventEmitter } = require("events");
 
 const simpleDOMListParser = async (browser, url, path, parse) => {
   const page = await browser.newPage();
@@ -39,7 +40,7 @@ const simpleDOMGet = async (browser, url, path, parse) => {
   return result;
 };
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -80,17 +81,22 @@ const crawl = async () => {
       links,
       10,
       async current => {
-        logger.debug(`PROCESSING, ${current}`);
-        return await simpleDOMGet(browser, current, "#content", node => ({
+        const entity = await simpleDOMGet(browser, current, "#content", node => ({
           title: node.find("#content_roczniki > div:nth-child(2) > ins:nth-child(3)").text(),
           url: MAIN_URL + node.find("#zalaczniki > ul > li:nth-child(1) > a").attr("href"),
           date: node
             .find("#content_roczniki > div:nth-child(1) > ins:nth-child(4) > div.form_text")
             .text()
-            .replace(/\./g, "-"),
+            .split(".")
+            .reverse()
+            .join("-"),
           sourceName: SOURCE_NAME,
           ocr: false
         }));
+
+        emitter.emit("entity", [entity]);
+
+        return entity;
       },
       async (err, results) => {
         if (err) {
@@ -98,14 +104,14 @@ const crawl = async () => {
           reject(err);
         }
         await browser.close();
-        logger.debug("FINISHED");
         resolve(flatten(results));
       }
     )
   );
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

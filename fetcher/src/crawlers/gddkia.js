@@ -2,11 +2,12 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
 const async = require("async");
+const { EventEmitter } = require("events");
 
 const MAIN_URL = "https://www.gddkia.gov.pl/pl/2448/Dziennik-Urzedowy-GDDKiA/";
 const SOURCE_NAME = "GDDKiA";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -39,7 +40,6 @@ const crawl = async () => {
         .text()
         .trim()
         .split(".")
-        .reverse()
         .join("-");
 
       return {
@@ -54,10 +54,13 @@ const crawl = async () => {
 
   await browser.close();
 
+  emitter.emit("entity", links);
+
   return new Promise(resolve => resolve(links));
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

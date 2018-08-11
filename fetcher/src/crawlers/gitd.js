@@ -2,15 +2,14 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const flatten = require("lodash.flatten");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
-const logger = require("../logger");
 const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const MAIN_URL = "http://bip.gitd.gov.pl/dziennik-urzedowy-gitd";
 const SOURCE_NAME = "bip.gitd.gov.pl";
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -38,20 +37,19 @@ const crawl = async () => {
       yearsData,
       1,
       async currentYearUrl => {
-        return await simpleDOMListParser(browser, currentYearUrl, ITEM_SELECTOR, node => ({
+        const entity = await simpleDOMListParser(browser, currentYearUrl, ITEM_SELECTOR, node => ({
           title: node.find("td:nth-child(2) a").text(),
           url: node
             .find("td:nth-child(2) a")
             .first()
             .attr("href"),
-          date: node
-            .find("td:nth-child(3)")
-            .text()
-            .split("-")
-            .reverse()
-            .join("-"),
-          source: SOURCE_NAME
+          date: node.find("td:nth-child(3)").text(),
+          sourceName: SOURCE_NAME
         }));
+
+        emitter.emit("entity", entity);
+
+        return entity;
       },
       async (err, results) => {
         if (err) {
@@ -64,7 +62,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

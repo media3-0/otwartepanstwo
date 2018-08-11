@@ -58,7 +58,7 @@ const crawl = async emitter => {
         const currentlySelected = $(YEARS_SELECTOR).val();
 
         if (currentlySelected !== toSelect.value) {
-          const watcherForResponse = newPage.waitForResponse(resp => true);
+          const watcherForResponse = newPage.waitForResponse(() => true);
 
           await newPage.select(YEARS_SELECTOR, toSelect.value);
 

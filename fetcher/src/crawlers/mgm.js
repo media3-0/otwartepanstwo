@@ -60,9 +60,6 @@ const crawl = async emitter => {
       },
       async (err, results) => {
         await browser.close();
-        if (err) {
-          console.log(err);
-        }
         resolve(flatten(results));
       }
     );

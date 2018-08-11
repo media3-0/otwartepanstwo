@@ -60,10 +60,7 @@ const crawl = async emitter => {
         const currentlySelected = $(YEARS_SELECTOR).val();
 
         if (currentlySelected !== toSelect.value) {
-          const watcherForResponse = newPage.waitForResponse(resp => {
-            console.log(resp.url());
-            return true;
-          });
+          const watcherForResponse = newPage.waitForResponse(resp => true);
 
           await newPage.select(YEARS_SELECTOR, toSelect.value);
 
@@ -115,9 +112,6 @@ const crawl = async emitter => {
       },
       async (err, results) => {
         await browser.close();
-        if (err) {
-          console.log("err", err);
-        }
         resolve(flatten(results));
       }
     );

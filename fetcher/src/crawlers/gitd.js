@@ -30,8 +30,6 @@ const crawl = async emitter => {
     .map((i, d) => $(d).attr("href"))
     .get();
 
-  console.log(yearsData);
-
   return new Promise(async (resolve, reject) => {
     async.mapLimit(
       yearsData,

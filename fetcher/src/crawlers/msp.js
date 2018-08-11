@@ -47,9 +47,6 @@ const crawl = async emitter => {
         return item;
       },
       async (err, results) => {
-        if (err) {
-          console.log(err);
-        }
         resolve(flatten(results));
       }
     );
@@ -94,9 +91,6 @@ const crawl = async emitter => {
       },
       async (err, results) => {
         await browser.close();
-        if (err) {
-          console.log(err);
-        }
         resolve(flatten(results));
       }
     );

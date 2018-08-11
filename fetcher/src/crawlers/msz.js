@@ -53,9 +53,6 @@ const crawl = async emitter => {
         return list;
       },
       async (err, results) => {
-        if (err) {
-          console.log(err);
-        }
         resolve(flatten(results));
       }
     );

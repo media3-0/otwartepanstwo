@@ -3,13 +3,12 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const fs = require("fs");
+const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
 const MAIN_URL = "http://e-dziennik.msport.gov.pl";
-const SOURCE_NAME = "e-dziennik.msport.gov.pl";
-const APPEND_SUFFIX = "pdf";
+const SOURCE_NAME = "Elektroniczne Dzienniki Urzędowe Ministra Sportu i Turystyki";
 
 const { formatFromDotToDash } = require("../utils");
 
@@ -17,7 +16,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const crawl = async () => {
+const crawl = async emitter => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -75,7 +74,8 @@ const crawl = async () => {
           content = await newPage.content();
           $ = cheerio.load(content);
         }
-        return flatten(
+
+        const items = flatten(
           $(ITEM_SELECTOR)
             .map((i, d) => {
               const title =
@@ -92,25 +92,35 @@ const crawl = async () => {
                 .find("td.acts__date > div > div:nth-child(1) > span")
                 .text()
                 .trim();
-              const source = "cba";
               const url =
                 MAIN_URL +
                 $(d)
                   .find("td.acts__pdf.text-right > a")
                   .attr("href");
+
               return {
                 title,
-                date: formatFromDotToDash(date),
-                update_date: formatFromDotToDash(updatedate),
-                source,
+                date: formatFromDotToDash(date)
+                  .split("-")
+                  .reverse()
+                  .join("-"),
+                updateDate: formatFromDotToDash(updatedate)
+                  .split("-")
+                  .reverse()
+                  .join("-"),
                 url,
-                source: SOURCE_NAME,
+                sourceName: SOURCE_NAME,
                 ocr: false
               };
             })
             .get()
         );
+
+        emitter.emit("entity", items);
+
+        return items;
       },
+
       async (err, results) => {
         await browser.close();
         if (err) {
@@ -122,7 +132,8 @@ const crawl = async () => {
   });
 };
 
-module.exports = async () => {
-  const listOfPdfs = await crawl();
-  return listOfPdfs;
+module.exports = () => {
+  const emitter = new EventEmitter();
+  crawl(emitter);
+  return emitter;
 };

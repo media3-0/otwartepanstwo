@@ -101,6 +101,7 @@ const crawl = async emitter => {
                 .split("-")
                 .reverse()
                 .join("-");
+
               const url =
                 MAIN_URL +
                 $(d)

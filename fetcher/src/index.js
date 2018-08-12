@@ -1,6 +1,7 @@
 // const IS_DEV = process.env.NODE_ENV === "development";
 const DOCUMENTS_TABLE = "documents";
 
+const async = require("async");
 const crypto = require("crypto");
 const fs = require("fs");
 const knex = require("knex");
@@ -68,7 +69,7 @@ const fetchAndParse = ({ url, hash }) => {
 const processCrawlers = async ({ db }) => {
   const updateDate = moment(new Date()).format("YYYY-MM-DD");
 
-  runCrawlers().on("data", item => {
+  const cargo = async.cargo(([item], callback) => {
     const hash = crypto
       .createHash("md5")
       .update(item.url)
@@ -94,6 +95,7 @@ const processCrawlers = async ({ db }) => {
               })
               .then(() => {
                 logger.info(`${item.sourceName} - #${hash} put into db`);
+                callback();
               });
           });
         } else {
@@ -103,9 +105,14 @@ const processCrawlers = async ({ db }) => {
             .update({ ["last_download"]: updateDate })
             .then(() => {
               logger.info(`${item.sourceName} - #${hash} updated in db`);
+              callback();
             });
         }
       });
+  }, 1);
+
+  runCrawlers().on("data", item => {
+    cargo.push(item);
   });
 };
 

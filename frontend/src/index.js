@@ -52,8 +52,7 @@ class App extends React.Component {
   }
 
   fetchDocuments(search) {
-    // TODO: this should be query string but I can't figure out nginx for that
-    const url = search && search.length > 0 ? `/api/documents/${search}` : "/api/documents/";
+    const url = search && search.length > 0 ? `/api/documents/?search=${search}` : "/api/documents/";
 
     fetch(url)
       .then(res => res.json())

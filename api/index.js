@@ -34,23 +34,31 @@ const init = async () => {
     res.send("ok");
   });
 
-  // TODO: this should be query string but I can't figure out nginx for that
-  app.get("/documents/:search?", (req, res) => {
-    const { search } = req.params;
+  app.get("/documents/", (req, res) => {
+    const { search, dateFrom, dateTo, sourceName } = req.query;
     const fields = ["title", "date", "last_download", "source_name", "hash"];
 
-    const callback = data => res.json(data);
+    let query = db(DOCUMENTS_TABLE);
+
+    if (dateFrom) {
+      query = query.where("date", ">", dateFrom);
+    }
+
+    if (dateTo) {
+      query = query.where("date", "<", dateTo);
+    }
+
+    if (sourceName) {
+      query = query.where("source_name", "=", sourceName);
+    }
 
     if (search) {
-      db(DOCUMENTS_TABLE)
-        .select(...fields)
-        .where("content", "ilike", `%${search}%`) // TODO: search title as well
-        .then(callback);
-    } else {
-      db(DOCUMENTS_TABLE)
-        .select(...fields)
-        .then(callback);
+      query = query.where(function() {
+        this.where("content", "ilike", `%${search}%`).orWhere("title", "ilike", `%${search}%`);
+      });
     }
+
+    query.select(...fields).then(data => res.json(data));
   });
 
   app.listen(PORT, () => {

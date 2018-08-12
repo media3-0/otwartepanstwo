@@ -23,7 +23,9 @@ const processUserSubscriptions = ({ db, subscriptions }, callback) => {
       db(DOCUMENTS_TABLE)
         .select(["date", "title", "source_name"])
         .where("date", ">", lastNotify)
-        .where("content", "ilike", `%${searchPhrase}%`)
+        .where(function() {
+          this.where("content", "ilike", `%${search}%`).orWhere("title", "ilike", `%${search}%`);
+        })
         .then(newDocument => {
           callback(null, {
             newDocument,

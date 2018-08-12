@@ -44,7 +44,7 @@ const crawl = async emitter => {
       yearsData,
       1,
       async current => {
-        logger.debug(`Processing page of ${current}`);
+        logger.debug(`Processing ${current}`);
 
         const newPage = await browser.newPage();
         await newPage.goto(MAIN_URL, { waitUntil: "networkidle0" });

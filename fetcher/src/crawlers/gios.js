@@ -51,7 +51,7 @@ const crawlYear = async (browser, link) => {
         title,
         detailUrl,
         date,
-        source: SOURCE_NAME
+        sourceName: SOURCE_NAME
       };
     })
     .get();

@@ -44,7 +44,7 @@ const crawl = async emitter => {
         title,
         url,
         date,
-        source: SOURCE_NAME
+        sourceName: SOURCE_NAME
       };
     })
     .get()

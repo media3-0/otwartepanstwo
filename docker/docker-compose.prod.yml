@@ -21,10 +21,14 @@ services:
       dockerfile: docker/frontend/Dockerfile.prod
       args:
         - NODE_ENV=production
+        - AUTH0_CLIENTID # env passed from shell
+        - AUTH0_REDIRECT # env passed from shell
     image: otwartepanstwo-frontend-prod
     restart: on-failure
     environment:
       - NODE_ENV=production
+      - AUTH0_CLIENTID # env passed from shell
+      - AUTH0_REDIRECT # env passed from shell
     ports:
       - "3000:3000"
 

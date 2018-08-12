@@ -2,9 +2,12 @@ const React = require("react");
 const ReactDOM = require("react-dom");
 const ReactTable = require("react-table").default;
 const autoBind = require("react-autobind");
+const { Route, Router } = require("react-router-dom");
+
+const history = require("./services/history");
+const Auth = require("./services/auth");
 
 require("react-table/react-table.css");
-
 require("tachyons");
 require("./styles.css");
 
@@ -37,7 +40,7 @@ const columns = [
   }
 ];
 
-class App extends React.Component {
+class Main extends React.Component {
   constructor() {
     super();
 
@@ -48,7 +51,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.fetchDocuments();
-    console.log(ReactTable);
   }
 
   fetchDocuments(search) {
@@ -63,7 +65,17 @@ class App extends React.Component {
     this.fetchDocuments(this.state.search);
   }
 
+  handleLogin() {
+    this.props.auth.login();
+  }
+
+  handleLogout() {
+    this.props.auth.logout();
+  }
+
   render() {
+    const isAuthenticated = this.props.auth.isAuthenticated();
+
     return (
       <div className="app sans-serif">
         <div className="topbar">
@@ -85,8 +97,17 @@ class App extends React.Component {
                 Szukaj
               </button>
             </div>
+
+            <div>
+              {isAuthenticated ? (
+                <button onClick={this.handleLogout}>logout</button>
+              ) : (
+                <button onClick={this.handleLogin}>login</button>
+              )}
+            </div>
           </div>
         </div>
+
         <div className="content w-60 p5 center">
           <ReactTable
             data={this.state.documents}
@@ -106,6 +127,40 @@ class App extends React.Component {
           />
         </div>
       </div>
+    );
+  }
+}
+
+class App extends React.Component {
+  constructor() {
+    super();
+
+    autoBind(this);
+
+    this.auth = new Auth();
+  }
+
+  handleAuthentication(nextState) {
+    if (/access_token|id_token|error/.test(nextState.location.hash)) {
+      this.auth.handleAuthentication();
+    }
+  }
+
+  render() {
+    return (
+      <Router history={history}>
+        <div>
+          <Route path="/" render={props => <Main auth={this.auth} {...props} />} />
+          <Route path="/home" render={() => <div>home</div>} />
+          <Route
+            path="/callback"
+            render={props => {
+              this.handleAuthentication(props);
+              return <div>callback...</div>;
+            }}
+          />
+        </div>
+      </Router>
     );
   }
 }

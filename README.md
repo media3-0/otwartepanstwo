@@ -8,6 +8,9 @@ Some keys are required for app to work properly:
 POSTGRES_PASSWORD=... # password to be used for postgres DB
 POSTGRES_USER=...     # user to be used for postgres DB
 POSTGRES_DB=...       # name to be used for postgres DB
+
+AUTH0_CLIENTID=...    # client id for auth0
+AUTH0_REDIRECT=...    # redirect (callback) for auth0
 ```
 
 For dev, this could be set in `PROJECT_ROOT/.env`, for production use it's preffered to `export` them in the shell.

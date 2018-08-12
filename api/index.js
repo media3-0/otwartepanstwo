@@ -75,9 +75,7 @@ const init = async () => {
     }
 
     if (search) {
-      query = query.where(function() {
-        this.where("content", "ilike", `%${search}%`).orWhere("title", "ilike", `%${search}%`);
-      });
+      query = query.where(knex.raw(`LOWER(title  || ' ' || content) LIKE LOWER('%${search}%')`));
     }
 
     query.select(...fields).then(documents => res.json(toClient(documents)));

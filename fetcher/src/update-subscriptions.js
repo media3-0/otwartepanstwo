@@ -23,9 +23,7 @@ const processUserSubscriptions = ({ db, subscriptions }, callback) => {
       db(DOCUMENTS_TABLE)
         .select(["date", "title", "source_name"])
         .where("date", ">", lastNotify)
-        .where(function() {
-          this.where("content", "ilike", `%${searchPhrase}%`).orWhere("title", "ilike", `%${searchPhrase}%`);
-        })
+        .where(knex.raw(`LOWER(title  || ' ' || content) LIKE LOWER('%${searchPhrase}%')`))
         .then(newDocument => {
           callback(null, {
             newDocument,

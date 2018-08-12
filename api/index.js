@@ -1,9 +1,23 @@
 const express = require("express");
+const jwksRsa = require("jwks-rsa");
+const jwt = require("express-jwt");
 const knex = require("knex");
 const morgan = require("morgan");
 
 const DOCUMENTS_TABLE = "documents";
 const PORT = process.env.PORT || 4000;
+
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+  }),
+  audience: process.env.AUTH0_CLIENTID,
+  issuer: `https://${process.env.AUTH0_DOMAIN}/`,
+  algorithms: ["RS256"]
+});
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -27,6 +41,7 @@ const init = async () => {
   const app = express();
   const db = await createDB();
 
+  // setup
   app.use(morgan("combined"));
   app.use(express.json());
 
@@ -34,6 +49,7 @@ const init = async () => {
     res.send("ok");
   });
 
+  // documents
   app.get("/documents/", (req, res) => {
     const { search, dateFrom, dateTo, sourceName } = req.query;
     const fields = ["title", "date", "last_download", "source_name", "hash"];
@@ -61,6 +77,13 @@ const init = async () => {
     query.select(...fields).then(data => res.json(data));
   });
 
+  // subscriptions
+  app.post("/subscriptions/add", checkJwt, (req, res) => {
+    console.log("CAN DO!");
+    res.send("CAN DO!");
+  });
+
+  // start
   app.listen(PORT, () => {
     console.log(`listening on ${PORT}`);
   });

@@ -73,6 +73,22 @@ class Main extends React.Component {
     this.props.auth.logout();
   }
 
+  handleSearchSubscribe() {
+    const token = this.props.auth.getToken();
+
+    console.log({ token });
+
+    fetch("/api/subscriptions/add", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ search: this.props.search })
+    }).then(res => console.log(res));
+  }
+
   render() {
     const isAuthenticated = this.props.auth.isAuthenticated();
 
@@ -109,6 +125,11 @@ class Main extends React.Component {
         </div>
 
         <div className="content w-60 p5 center">
+          <div>
+            {this.state.search.length > 0 &&
+              isAuthenticated && <button onClick={this.handleSearchSubscribe}>subscribe to this search</button>}
+          </div>
+
           <ReactTable
             data={this.state.documents}
             columns={columns}

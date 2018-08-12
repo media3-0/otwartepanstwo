@@ -9,6 +9,7 @@ POSTGRES_PASSWORD=... # password to be used for postgres DB
 POSTGRES_USER=...     # user to be used for postgres DB
 POSTGRES_DB=...       # name to be used for postgres DB
 
+AUTH0_DOMAIN=...      # auth0 domain without "https://"
 AUTH0_CLIENTID=...    # client id for auth0
 AUTH0_REDIRECT=...    # redirect (callback) for auth0
 ```

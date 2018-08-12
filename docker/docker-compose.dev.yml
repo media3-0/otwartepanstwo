@@ -23,6 +23,7 @@ services:
     restart: on-failure
     environment:
       - NODE_ENV=development
+      - AUTH0_DOMAIN # env passed from shell
       - AUTH0_CLIENTID # env passed from shell
       - AUTH0_REDIRECT # env passed from shell
     volumes:
@@ -41,6 +42,9 @@ services:
       - NODE_ENV=development
       - POSTGRES_PASSWORD # env passed from shell
       - POSTGRES_USER # env passed from shell
+      - AUTH0_DOMAIN # env passed from shell
+      - AUTH0_CLIENTID # env passed from shell
+      - AUTH0_REDIRECT # env passed from shell
     volumes:
       - ./../api:/app
       - /app/node_modules # prefer container's node_modules instead of volume-mounted ones

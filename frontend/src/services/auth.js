@@ -5,10 +5,10 @@ const history = require("./history");
 class Auth {
   constructor() {
     this.auth0 = new auth0.WebAuth({
-      domain: "flow-control.eu.auth0.com",
+      domain: process.env.AUTH0_DOMAIN,
       clientID: process.env.AUTH0_CLIENTID,
       redirectUri: process.env.AUTH0_REDIRECT,
-      audience: "https://flow-control.eu.auth0.com/userinfo",
+      audience: `https://${process.env.AUTH0_DOMAIN}/userinfo`,
       responseType: "token id_token",
       scope: "openid"
     });
@@ -56,6 +56,10 @@ class Auth {
   isAuthenticated() {
     let expiresAt = JSON.parse(localStorage.getItem("expires_at"));
     return new Date().getTime() < expiresAt;
+  }
+
+  getToken() {
+    return localStorage.getItem("id_token");
   }
 }
 

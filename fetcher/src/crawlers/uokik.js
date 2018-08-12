@@ -40,9 +40,9 @@ const crawl = async emitter => {
 
     emitter.emit("entity", list);
 
-    resolve(list);
-
     await browser.close();
+
+    resolve(list);
   });
 };
 

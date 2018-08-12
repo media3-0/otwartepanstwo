@@ -59,11 +59,11 @@ const crawl = async emitter => {
         return list;
       },
       async (err, results) => {
+        await browser.close();
         if (err) {
           return reject(err);
         }
         resolve(flatten(results));
-        await browser.close();
       }
     );
   });

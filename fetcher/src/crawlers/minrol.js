@@ -108,11 +108,11 @@ const crawl = async emitter => {
         return result;
       },
       async (err, results) => {
+        await browser.close();
         if (err) {
           reject(err);
         }
         resolve(flatten(results));
-        await browser.close();
       }
     );
   });

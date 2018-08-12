@@ -28,9 +28,6 @@ services:
     restart: on-failure
     environment:
       - NODE_ENV=production
-      - AUTH0_DOMAIN # env passed from shell
-      - AUTH0_CLIENTID # env passed from shell
-      - AUTH0_REDIRECT # env passed from shell
     ports:
       - "3000:3000"
 
@@ -64,9 +61,6 @@ services:
       dockerfile: docker/fetcher/Dockerfile.prod
       args:
         - NODE_ENV=production
-        - POSTGRES_PASSWORD # env passed from shell
-        - POSTGRES_USER # env passed from shell
-        - POSTGRES_DB # env passed from shell
     image: otwartepanstwo-fetcher-prod
     environment:
       - NODE_ENV=production

@@ -2,7 +2,6 @@ const async = require("async");
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 const { flatten } = require("lodash");
-const logger = require("../logger");
 const { EventEmitter } = require("events");
 
 const BASE_URL = "https://eur-lex.europa.eu";
@@ -75,7 +74,7 @@ const crawlTable = async (browser, $) => {
     }, [])
   );
 
-  return new Promise((resolve, reject) =>
+  return new Promise(resolve =>
     async.mapLimit(
       IS_DEV ? flatList.slice(0, 2) : flatList,
       3,
@@ -161,7 +160,7 @@ const crawl = async emitter => {
     .map((i, d) => $(d).val())
     .get();
 
-  return new Promise((resolve, reject) =>
+  return new Promise(resolve =>
     async.mapLimit(
       years,
       1,

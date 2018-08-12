@@ -4,8 +4,7 @@ const { flatten } = require("lodash");
 const async = require("async");
 const { EventEmitter } = require("events");
 
-const logger = require("../logger");
-const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../utils");
+const { simpleDOMListParser, formatFromDotToDash } = require("../utils");
 
 const BASE_URL = "http://dziennikigus.stat.gov.pl";
 const MAIN_URL = `${BASE_URL}/dzienniki-urzedowe-gus`;

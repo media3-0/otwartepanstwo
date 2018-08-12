@@ -5,8 +5,7 @@ const { flatten } = require("lodash");
 const async = require("async");
 const { EventEmitter } = require("events");
 
-const logger = require("../logger");
-const { simpleDOMListParser, simpleDOMGet } = require("../utils");
+const { simpleDOMListParser } = require("../utils");
 
 const MAIN_URL = "https://mgm.gov.pl";
 const SOURCE_NAME = "Dziennik Urzędowy Ministra Gospodarki Morskiej i Żeglugi Śródlądowej";
@@ -34,7 +33,7 @@ const crawl = async emitter => {
 
   await page.close();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       yearsData,
       1,

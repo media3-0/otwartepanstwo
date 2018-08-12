@@ -4,7 +4,7 @@ const { flatten } = require("lodash");
 const async = require("async");
 const { EventEmitter } = require("events");
 
-const { simpleDOMListParser, simpleDOMGet, formatFromDotToDash } = require("../utils");
+const { simpleDOMListParser, simpleDOMGet } = require("../utils");
 
 const BASE_URL = "http://dziennik.msp.gov.pl/";
 const MAIN_URL = `${BASE_URL}/du/dzienniki`;
@@ -33,7 +33,7 @@ const crawl = async emitter => {
     .map((i, d) => $(d).val())
     .get();
 
-  const pages = await new Promise((resolve, reject) => {
+  const pages = await new Promise(resolve => {
     async.mapLimit(
       pagination,
       1,
@@ -52,7 +52,7 @@ const crawl = async emitter => {
     );
   });
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       pages,
       5,

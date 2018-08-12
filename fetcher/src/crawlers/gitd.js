@@ -4,7 +4,7 @@ const { flatten } = require("lodash");
 const async = require("async");
 const { EventEmitter } = require("events");
 
-const { simpleDOMListParser, simpleDOMGet } = require("../utils");
+const { simpleDOMListParser } = require("../utils");
 
 const MAIN_URL = "http://bip.gitd.gov.pl/dziennik-urzedowy-gitd";
 const SOURCE_NAME = "Dziennik Urzędowy Głównego Inspektoratu Transportu Drogowego";

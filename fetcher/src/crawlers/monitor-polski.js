@@ -68,7 +68,7 @@ const getAllPdfsUrlsFromNewerPage = async (browser, url) => {
   await page.goto(url);
   const pagination = await getPaginationIds(page);
   await page.close();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       pagination,
       5,

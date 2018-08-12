@@ -36,7 +36,7 @@ const crawl = async emitter => {
 
   const pagination = range(1, maxPagination + 1);
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       pagination,
       1,

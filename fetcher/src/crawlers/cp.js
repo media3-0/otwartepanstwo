@@ -9,8 +9,6 @@ const logger = require("../logger");
 
 const MAIN_URL = "http://e-dziennik.mc.gov.pl/";
 const SOURCE_NAME = "Dziennik Urzędowy Ministra Cyfryzacji";
-// TODO: Remmember to append
-const APPEND_SUFFIX = "pdf";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -39,7 +37,7 @@ const crawl = async emitter => {
     .map((i, d) => $(d).text())
     .get();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       yearsData,
       1,
@@ -60,7 +58,7 @@ const crawl = async emitter => {
         const currentlySelected = $(YEARS_SELECTOR).val();
 
         if (currentlySelected !== toSelect.value) {
-          const watcherForResponse = newPage.waitForResponse(resp => true);
+          const watcherForResponse = newPage.waitForResponse(() => true);
 
           await newPage.select(YEARS_SELECTOR, toSelect.value);
 
@@ -87,21 +85,20 @@ const crawl = async emitter => {
                 .split(".")
                 .reverse()
                 .join("-");
-              const updatedate = $(d)
+              const updateDate = $(d)
                 .find("td.acts__publish-date.ng-binding")
                 .text()
                 .trim()
                 .split(".")
                 .reverse()
                 .join("-");
-              const source = "cba";
               const url = $(d)
                 .find("td.acts__pdf.text-right > a")
                 .attr("href");
               return {
                 title,
                 date,
-                updateDate: updatedate || date,
+                updateDate: updateDate || date,
                 url: `${MAIN_URL}${url}`,
                 sourceName: SOURCE_NAME,
                 ocr: false

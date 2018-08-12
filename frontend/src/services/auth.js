@@ -10,7 +10,7 @@ class Auth {
       redirectUri: process.env.AUTH0_REDIRECT,
       audience: `https://${process.env.AUTH0_DOMAIN}/userinfo`,
       responseType: "token id_token",
-      scope: "openid"
+      scope: "openid email"
     });
 
     this.login = this.login.bind(this);

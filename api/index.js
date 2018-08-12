@@ -2,10 +2,16 @@ const express = require("express");
 const jwksRsa = require("jwks-rsa");
 const jwt = require("express-jwt");
 const knex = require("knex");
+const moment = require("moment");
 const morgan = require("morgan");
+const changeCaseKeys = require("change-case-keys");
 
 const DOCUMENTS_TABLE = "documents";
+const SUBSCRIPTIONS_TABLE = "subscriptions";
 const PORT = process.env.PORT || 4000;
+
+const toClient = obj => changeCaseKeys(obj, "camelize");
+const toDB = obj => changeCaseKeys(obj, "underscored");
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -74,13 +80,73 @@ const init = async () => {
       });
     }
 
-    query.select(...fields).then(data => res.json(data));
+    query.select(...fields).then(documents => res.json(toClient(documents)));
   });
 
-  // subscriptions
-  app.post("/subscriptions/add", checkJwt, (req, res) => {
-    console.log("CAN DO!");
-    res.send("CAN DO!");
+  // subscriptions (protected api)
+  app.get("/subscriptions", checkJwt, (req, res) => {
+    const { email } = req.user;
+
+    if (!email) {
+      return res.status(400).send({ reason: "`email` missing" });
+    }
+
+    db(SUBSCRIPTIONS_TABLE)
+      .select()
+      .where({ email })
+      .then(subscriptions => {
+        res.json(toClient(subscriptions));
+      });
+  });
+
+  app.post("/subscriptions", checkJwt, (req, res) => {
+    const { email } = req.user;
+    const { search } = req.body;
+
+    if (!email) {
+      return res.status(400).send({ reason: "`email` missing" });
+    }
+
+    if (!search) {
+      return res.status(400).send({ reason: "`search` missing" });
+    }
+
+    db(SUBSCRIPTIONS_TABLE)
+      .insert(
+        toDB({
+          email,
+          searchPhrase: search,
+          lastNotify: moment().format("YYYY-MM-DD")
+        })
+      )
+      .then(res => {
+        res.send({ ok: true });
+      });
+  });
+
+  app.delete("/subscriptions", checkJwt, (req, res) => {
+    const { email } = req.user;
+    const { search } = req.body;
+
+    if (!email) {
+      return res.status(400).send({ reason: "`email` missing" });
+    }
+
+    if (!search) {
+      return res.status(400).send({ reason: "`search` missing" });
+    }
+
+    db(SUBSCRIPTIONS_TABLE)
+      .where(
+        toDB({
+          email,
+          searchPhrase: search
+        })
+      )
+      .delete()
+      .then(res => {
+        res.send({ ok: true });
+      });
   });
 
   // start

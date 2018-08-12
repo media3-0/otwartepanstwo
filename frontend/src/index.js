@@ -19,7 +19,7 @@ const columns = [
   },
   {
     Header: "Źródło",
-    accessor: "source_name"
+    accessor: "sourceName"
   },
   {
     Header: "Data",
@@ -46,11 +46,19 @@ class Main extends React.Component {
 
     autoBind(this);
 
-    this.state = { documents: [], search: "" };
+    this.state = {
+      subscriptions: [],
+      documents: [],
+      search: ""
+    };
   }
 
   componentDidMount() {
     this.fetchDocuments();
+
+    if (this.props.auth.isAuthenticated()) {
+      this.fetchSubscriptions();
+    }
   }
 
   fetchDocuments(search) {
@@ -58,7 +66,25 @@ class Main extends React.Component {
 
     fetch(url)
       .then(res => res.json())
-      .then(documents => this.setState({ documents }));
+      .then(documents => {
+        console.log({ documents });
+        this.setState({ documents });
+      });
+  }
+
+  fetchSubscriptions() {
+    const token = this.props.auth.getToken();
+
+    fetch("/api/subscriptions", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(subscriptions => {
+        console.log({ subscriptions });
+        this.setState({ subscriptions });
+      });
   }
 
   handleSearch() {
@@ -76,17 +102,17 @@ class Main extends React.Component {
   handleSearchSubscribe() {
     const token = this.props.auth.getToken();
 
-    console.log({ token });
-
-    fetch("/api/subscriptions/add", {
+    fetch("/api/subscriptions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ search: this.props.search })
-    }).then(res => console.log(res));
+      body: JSON.stringify({ search: this.state.search })
+    })
+      .then(res => res.json())
+      .then(res => console.log(res));
   }
 
   render() {

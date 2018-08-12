@@ -1,9 +1,11 @@
-const moment = require("moment");
 const async = require("async");
 const changeCaseKeys = require("change-case-keys");
-const { groupBy, template, flatten, pick } = require("lodash");
 const fs = require("fs");
+const mailgunTransport = require("nodemailer-mailgun-transport");
+const moment = require("moment");
+const nodemailer = require("nodemailer");
 const path = require("path");
+const { groupBy, template, flatten, pick } = require("lodash");
 
 const SUBSCRIPTIONS_TABLE = "subscriptions";
 const DOCUMENTS_TABLE = "documents";
@@ -64,7 +66,30 @@ const updateLastNotifyDates = ({ db, data }, callback) => {
   );
 };
 
+const sendEmails = ({ emails, nodemailer }, callback) => {
+  async.mapLimit(emails, 2, ({ email, text }) => {
+    nodemailer.sendMail(
+      {
+        from: "OtwartePaństwo",
+        to: email,
+        subject: "Powiadomienie",
+        text
+      },
+      callback
+    );
+  });
+};
+
 module.exports = async ({ db }) => {
+  const nodemailerMailgun = nodemailer.createTransport(
+    mailgunTransport({
+      auth: {
+        ["api_key"]: process.env.MAILGUN_API_KEY
+        // domain: process.env.MAILGUN_DOMAIN
+      }
+    })
+  );
+
   return new Promise((reject, resolve) => {
     db(SUBSCRIPTIONS_TABLE)
       .select(["email", "search_phrase", "last_notify"])
@@ -90,13 +115,14 @@ module.exports = async ({ db }) => {
               return resolve();
             }
 
-            // TODO: actuall email the emails
-            const notificationEmails = results.filter(data => data && data.length > 0).map(data => ({
+            const emails = results.filter(data => data && data.length > 0).map(data => ({
               email: data[0].email,
               text: createNotificationEmail(data)
             }));
 
-            updateLastNotifyDates({ db, data: results }, () => resolve());
+            sendEmails({ emails, nodemailer: nodemailerMailgun }, () => {
+              updateLastNotifyDates({ db, data: results }, () => resolve());
+            });
           }
         );
       });

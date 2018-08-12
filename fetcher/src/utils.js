@@ -1,6 +1,6 @@
 const cheerio = require("cheerio");
 
-const parseEnvArray = str => str.split("|");
+const parseEnvArray = str => str.split(",");
 
 const simpleDOMListParser = async (browser, url, path, parse, missIndex) => {
   const page = await browser.newPage();

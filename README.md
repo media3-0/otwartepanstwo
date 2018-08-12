@@ -12,6 +12,8 @@ POSTGRES_DB=...       # name to be used for postgres DB
 AUTH0_DOMAIN=...      # auth0 domain without "https://"
 AUTH0_CLIENTID=...    # client id for auth0
 AUTH0_REDIRECT=...    # redirect (callback) for auth0
+
+MAILGUN_API_KEY=...   # api key for mailgun
 ```
 
 For dev, this could be set in `PROJECT_ROOT/.env`, for production use it's preffered to `export` them in the shell.

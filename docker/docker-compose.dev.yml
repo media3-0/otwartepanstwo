@@ -66,6 +66,7 @@ services:
       - POSTGRES_PASSWORD # env passed from shell
       - POSTGRES_USER # env passed from shell
       - POSTGRES_DB # env passed from shell
+      - MAILGUN_API_KEY # env passed from shell
       - DEV_CRAWLERS # list of crawlers to run in dev mode
     volumes:
       - ./../fetcher:/app

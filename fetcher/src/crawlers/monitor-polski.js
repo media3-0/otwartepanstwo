@@ -156,7 +156,7 @@ const crawl = async emitter => {
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   };
 
-  const browser = await puppeteer.launch({});
+  const browser = await puppeteer.launch(browserOpts);
 
   const years = await getYearsUrls(browser);
   const filteredYears = years; //.filter(d => d.year === 2011);

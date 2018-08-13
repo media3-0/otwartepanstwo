@@ -44,8 +44,9 @@ const readOneFile = path => {
 };
 
 const fetchAndParse = ({ url, hash }) => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(`/data/files/${hash}.pdf`);
+
     request({
       uri: url,
       method: "GET",
@@ -54,13 +55,16 @@ const fetchAndParse = ({ url, hash }) => {
         "Content-type": "applcation/pdf"
       }
     }).then(response => {
-      // response.pipe(file);
       file.write(response, "binary");
+
       file.on("finish", () => {
         file.close(() => {
-          readOneFile(`/data/files/${hash}.pdf`).then(parsedText => resolve(parsedText));
+          readOneFile(`/data/files/${hash}.pdf`)
+            .then(parsedText => resolve(parsedText))
+            .catch(err => reject(err));
         });
       });
+
       file.end();
     });
   });
@@ -83,24 +87,29 @@ const processCrawlers = async ({ db }) => {
         if (isNew) {
           logger.info(`${item.sourceName} - #${hash} is new - fetching & parsing`);
 
-          fetchAndParse({ url: item.url, hash }).then(parsedText => {
-            logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
+          fetchAndParse({ url: item.url, hash })
+            .then(parsedText => {
+              logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
 
-            db(DOCUMENTS_TABLE)
-              .insert({
-                hash,
-                url: item.url,
-                ["last_download"]: updateDate,
-                content: parsedText,
-                title: item.title,
-                date: item.date,
-                ["source_name"]: item.sourceName
-              })
-              .then(() => {
-                logger.info(`${item.sourceName} - #${hash} put into db`);
-                callback();
-              });
-          });
+              db(DOCUMENTS_TABLE)
+                .insert({
+                  hash,
+                  url: item.url,
+                  ["last_download"]: updateDate,
+                  content: parsedText,
+                  title: item.title,
+                  date: item.date,
+                  ["source_name"]: item.sourceName
+                })
+                .then(() => {
+                  logger.info(`${item.sourceName} - #${hash} put into db`);
+                  callback();
+                });
+            })
+            .catch(err => {
+              logger.error(`${item.sourceName} - #${hash} couldn't be parsed as PDF`, err);
+              callback();
+            });
         } else {
           logger.info(`#${hash} exists - updating`);
 

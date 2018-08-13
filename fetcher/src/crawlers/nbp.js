@@ -123,12 +123,10 @@ const crawl = async emitter => {
         );
 
         emitter.emit("entity", items);
-
-        return items;
       },
-      async (err, results) => {
+      async () => {
         await browser.close();
-        resolve(flatten(results));
+        resolve();
       }
     );
   });

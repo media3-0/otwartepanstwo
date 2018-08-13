@@ -3,7 +3,8 @@ const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const { EventEmitter } = require("events");
 
-const MAIN_URL = "https://www.uprp.pl/dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/";
+const BASE_URL = "https://www.uprp.pl/";
+const MAIN_URL = `${BASE_URL}dzienniki-urzedowe-urzedu-patentowego-rp/Lead06,66,1242,3,index,pl,text/`;
 const SOURCE_NAME = "Dziennik Urzędowy Urzędu Patentowego Rzeczypospolitej Polskiej";
 
 const crawl = async emitter => {
@@ -35,7 +36,7 @@ const crawl = async emitter => {
             .text()
             .trim();
 
-          const url = $d.find("td:nth-child(4) a:first-child").attr("href");
+          const url = `${BASE_URL}${$d.find("td:nth-child(4) a:first-child").attr("href")}`;
 
           const date = $d
             .find("td:nth-child(3)")
@@ -59,8 +60,6 @@ const crawl = async emitter => {
   emitter.emit("entity", links);
 
   await browser.close();
-
-  return new Promise(resolve => resolve(links));
 };
 
 module.exports = () => {

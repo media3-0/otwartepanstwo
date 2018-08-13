@@ -1,6 +1,3 @@
-// const IS_DEV = process.env.NODE_ENV === "development";
-const DOCUMENTS_TABLE = "documents";
-
 const async = require("async");
 const crypto = require("crypto");
 const fs = require("fs");
@@ -12,6 +9,9 @@ const request = require("request-promise");
 const logger = require("./logger");
 const runCrawlers = require("./run-crawlers");
 const updateSubscriptions = require("./update-subscriptions");
+
+const IS_DEV = process.env.NODE_ENV === "development";
+const DOCUMENTS_TABLE = "documents";
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -67,7 +67,7 @@ const fetchAndParse = ({ url, hash }) => {
 };
 
 const processCrawlers = async ({ db }) => {
-  const updateDate = moment(new Date()).format("YYYY-MM-DD");
+  const updateDate = moment().format("YYYY-MM-DD");
 
   const cargo = async.cargo(([item], callback) => {
     const hash = crypto
@@ -111,17 +111,32 @@ const processCrawlers = async ({ db }) => {
       });
   }, 1);
 
-  runCrawlers().on("data", item => {
-    cargo.push(item);
+  return new Promise(resolve => {
+    const crawlers = runCrawlers();
+
+    crawlers.on("data", item => {
+      if (IS_DEV) {
+        logger.info(`New item "${item.title}" (${item.url})`);
+      }
+
+      cargo.push(item);
+    });
+
+    crawlers.on("done", () => {
+      logger.info("All crawlers done");
+      resolve();
+    });
   });
 };
 
 (async () => {
-  logger.info(`Fetcher started at ${new Date()}`);
+  logger.info(`Fetcher started at ${moment().toISOString()}`);
 
   const db = await createDB();
 
   await processCrawlers({ db });
 
   await updateSubscriptions({ db });
+
+  logger.info(`Fetcher finished at ${moment().toISOString()}`);
 })();

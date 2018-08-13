@@ -47,44 +47,54 @@ module.exports = () => {
     }, 60 * 1000);
   };
 
-  async.eachLimit(crawlersList, 1, (crawlerFileName, callback) => {
-    const crawlerPath = path.join(crawlersDir, "/", crawlerFileName);
-    logger.info(`Running: ${crawlersDir}/${crawlerFileName}`);
-    const child = fork("./src/spawn-crawler", [crawlerPath]);
+  async.eachLimit(
+    crawlersList,
+    1,
+    (crawlerFileName, callback) => {
+      const crawlerPath = path.join(crawlersDir, "/", crawlerFileName);
+      logger.info(`Running: ${crawlersDir}/${crawlerFileName}`);
+      const child = fork("./src/spawn-crawler", [crawlerPath]);
 
-    const startDate = Date.now();
+      const startDate = Date.now();
 
-    setNewTimer(child);
-
-    child.on("error", err => {
-      setNewTimer(child);
-      logger.error(`Error in ${crawlerPath} - ${err}`);
-
-      callback(null);
-    });
-
-    child.on("message", data => {
       setNewTimer(child);
 
-      data.forEach(d => {
-        j.validate(d, ENTITY_SCHEMA, err => {
-          if (err) {
-            logger.warn(`The crawled entity is not valid with the schema. Error: ${err}`, d);
-          } else {
-            emitter.emit("data", d);
-          }
+      child.on("error", err => {
+        setNewTimer(child);
+        logger.error(`Error in ${crawlerPath} - ${err}`);
+
+        callback(null);
+      });
+
+      child.on("message", data => {
+        setNewTimer(child);
+
+        data.forEach(d => {
+          j.validate(d, ENTITY_SCHEMA, err => {
+            if (err) {
+              logger.warn(`The crawled entity is not valid with the schema. Error: ${err}`, d);
+            } else {
+              emitter.emit("data", d);
+            }
+          });
         });
       });
-    });
 
-    child.on("exit", () => {
-      clearInterval(timer);
-      logger.info(
-        `Finished: ${crawlersDir}/${crawlerFileName} at ${moment().toISOString()} in ${(Date.now() - startDate) / 1000}`
-      );
-      callback(null);
-    });
-  });
+      child.on("exit", () => {
+        clearInterval(timer);
+
+        logger.info(
+          `Finished: ${crawlersDir}/${crawlerFileName} at ${moment().toISOString()} in ${(Date.now() - startDate) /
+            1000}`
+        );
+
+        callback(null);
+      });
+    },
+    () => {
+      emitter.emit("done");
+    }
+  );
 
   return emitter;
 };

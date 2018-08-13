@@ -1,4 +1,3 @@
-const knex = require("knex");
 const async = require("async");
 const changeCaseKeys = require("change-case-keys");
 const fs = require("fs");
@@ -26,7 +25,7 @@ const processUserSubscriptions = ({ db, subscriptions }, callback) => {
       db(DOCUMENTS_TABLE)
         .select(["date", "title", "source_name"])
         .where("date", ">", lastNotify)
-        .where(knex.raw(`LOWER(title  || ' ' || content) LIKE LOWER('%${searchPhrase}%')`))
+        .where(db.raw(`LOWER(title  || ' ' || content) LIKE LOWER('%${searchPhrase}%')`))
         .then(newDocument => {
           callback(null, {
             newDocument,
@@ -91,7 +90,7 @@ module.exports = async ({ db }) => {
     })
   );
 
-  return new Promise((reject, resolve) => {
+  return new Promise((resolve, reject) => {
     db(SUBSCRIPTIONS_TABLE)
       .select(["email", "search_phrase", "last_notify"])
       .then(subscriptions => {
@@ -112,7 +111,7 @@ module.exports = async ({ db }) => {
               return reject(err);
             }
 
-            if (!results || results.length === 0) {
+            if (!results || flatten(results).length === 0) {
               return resolve();
             }
 

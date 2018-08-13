@@ -1,8 +1,10 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { EventEmitter } = require("events");
+const leftPad = require("left-pad");
 
-const MAIN_URL = "http://www.gdos.gov.pl/dziennik-urzedowy-gdos/";
+const BASE_URL = "http://www.gdos.gov.pl/";
+const MAIN_URL = `${BASE_URL}dziennik-urzedowy-gdos/`;
 const SOURCE_NAME = "Dziennik Urzędowy Generalnej Dyrekcji Ochrony Środowiska";
 
 const crawl = async emitter => {
@@ -37,12 +39,15 @@ const crawl = async emitter => {
         .find("td:nth-child(3)")
         .text()
         .trim()
+        .replace(" r.", "")
         .split(".")
+        .map(n => leftPad(n, 2, "0"))
+        .reverse()
         .join("-");
 
       return {
         title,
-        url,
+        url: BASE_URL + url,
         date,
         sourceName: SOURCE_NAME
       };

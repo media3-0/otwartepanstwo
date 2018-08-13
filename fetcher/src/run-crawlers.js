@@ -39,7 +39,7 @@ module.exports = () => {
 
     lastUpdateTime = Date.now();
 
-    setInterval(() => {
+    intervalHandle = setInterval(() => {
       const now = Date.now();
 
       if (now - lastUpdateTime >= MAX_TIME_BETWEEN_MSG) {
@@ -84,7 +84,9 @@ module.exports = () => {
       });
 
       child.on("exit", () => {
-        clearInterval(intervalHandle);
+        if (intervalHandle) {
+          clearInterval(intervalHandle);
+        }
 
         logger.info(
           `Finished: ${crawlersDir}/${crawlerFileName} at ${moment().toISOString()} in ${(Date.now() - startDate) /

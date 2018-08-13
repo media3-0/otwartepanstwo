@@ -79,10 +79,13 @@ const processCrawlers = async ({ db }) => {
       .where({ hash })
       .then(rows => {
         const isNew = rows.length === 0;
+
         if (isNew) {
           logger.info(`${item.sourceName} - #${hash} is new - fetching & parsing`);
+
           fetchAndParse({ url: item.url, hash }).then(parsedText => {
             logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
+
             db(DOCUMENTS_TABLE)
               .insert({
                 hash,
@@ -100,6 +103,7 @@ const processCrawlers = async ({ db }) => {
           });
         } else {
           logger.info(`#${hash} exists - updating`);
+
           db(DOCUMENTS_TABLE)
             .where({ hash })
             .update({ ["last_download"]: updateDate })
@@ -114,6 +118,23 @@ const processCrawlers = async ({ db }) => {
   return new Promise(resolve => {
     const crawlers = runCrawlers();
 
+    let notifyHandle;
+    if (IS_DEV) {
+      notifyHandle = setInterval(() => {
+        logger.info(`Left to process: ${cargo.length()}`);
+      }, 1000);
+    }
+
+    cargo.drain = () => {
+      logger.info("All crawlers processed");
+
+      if (notifyHandle) {
+        clearInterval(notifyHandle);
+      }
+
+      resolve();
+    };
+
     crawlers.on("data", item => {
       if (IS_DEV) {
         logger.info(`New item "${item.title}" (${item.url})`);
@@ -123,8 +144,7 @@ const processCrawlers = async ({ db }) => {
     });
 
     crawlers.on("done", () => {
-      logger.info("All crawlers done");
-      resolve();
+      logger.info("All crawlers finished");
     });
   });
 };

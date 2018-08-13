@@ -2,8 +2,8 @@ const puppeteer = require("puppeteer");
 const { simpleDOMListParser } = require("../utils");
 const { EventEmitter } = require("events");
 
-const BASE_URL = "http://www.uokik.gov.pl";
-const MAIN_URL = `${BASE_URL}/dzienniki_urzedowe_uokik2.php`;
+const BASE_URL = "http://www.uokik.gov.pl/";
+const MAIN_URL = `${BASE_URL}dzienniki_urzedowe_uokik2.php`;
 const SOURCE_NAME = "Dzienniki Urzędowe UOKiK";
 
 const crawl = async emitter => {

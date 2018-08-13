@@ -29,20 +29,23 @@ module.exports = () => {
 
   const crawlersList = process.env.DEV_CRAWLERS ? parseEnvArray(process.env.DEV_CRAWLERS) : fs.readdirSync(crawlersDir);
 
-  let timer;
-
+  let intervalHandle;
   let lastUpdateTime;
 
   const setNewTimer = child => {
-    if (timer) {
-      clearInterval(timer);
+    if (intervalHandle) {
+      clearInterval(intervalHandle);
     }
+
     lastUpdateTime = Date.now();
+
     setInterval(() => {
       const now = Date.now();
+
       if (now - lastUpdateTime >= MAX_TIME_BETWEEN_MSG) {
         logger.error(`Process killed due to long time no response`, child);
         child.kill("SIGINT");
+        clearInterval(intervalHandle);
       }
     }, 60 * 1000);
   };
@@ -81,7 +84,7 @@ module.exports = () => {
       });
 
       child.on("exit", () => {
-        clearInterval(timer);
+        clearInterval(intervalHandle);
 
         logger.info(
           `Finished: ${crawlersDir}/${crawlerFileName} at ${moment().toISOString()} in ${(Date.now() - startDate) /

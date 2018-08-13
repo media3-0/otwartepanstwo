@@ -135,14 +135,14 @@ const processCrawlers = async ({ db }) => {
 
     let isDone = false;
     let isProcessed = false;
-    let notifyHandle;
+    let intervalHandle;
 
     const allDone = () => {
       if (isDone && isProcessed) {
         logger.info("All done");
 
-        if (notifyHandle) {
-          clearInterval(notifyHandle);
+        if (intervalHandle) {
+          clearInterval(intervalHandle);
         }
 
         resolve();
@@ -150,7 +150,7 @@ const processCrawlers = async ({ db }) => {
     };
 
     if (IS_DEV) {
-      notifyHandle = setInterval(() => {
+      intervalHandle = setInterval(() => {
         const len = cargo.length();
 
         if (len > 0) {

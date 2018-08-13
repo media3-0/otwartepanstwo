@@ -7,7 +7,7 @@ const { EventEmitter } = require("events");
 
 const logger = require("../logger");
 
-const MAIN_URL = "http://e-dziennik.msport.gov.pl";
+const MAIN_URL = "http://e-dziennik.msport.gov.pl/";
 const SOURCE_NAME = "Elektroniczne Dzienniki Urzędowe Ministra Sportu i Turystyki";
 
 const { formatFromDotToDash } = require("../utils");

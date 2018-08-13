@@ -54,19 +54,25 @@ const fetchAndParse = ({ url, hash }) => {
       headers: {
         "Content-type": "applcation/pdf"
       }
-    }).then(response => {
-      file.write(response, "binary");
+    })
+      .then(response => {
+        file.write(response, "binary");
 
-      file.on("finish", () => {
-        file.close(() => {
-          readOneFile(`/data/files/${hash}.pdf`)
-            .then(parsedText => resolve(parsedText))
-            .catch(err => reject(err));
+        file.on("finish", () => {
+          file.close(() => {
+            readOneFile(`/data/files/${hash}.pdf`)
+              .then(parsedText => resolve(parsedText))
+              .catch(err => reject(err));
+          });
         });
-      });
 
-      file.end();
-    });
+        file.end();
+      })
+      .catch(err => {
+        reject(err);
+
+        file.end();
+      });
   });
 };
 
@@ -107,7 +113,7 @@ const processCrawlers = async ({ db }) => {
                 });
             })
             .catch(err => {
-              logger.error(`${item.sourceName} - #${hash} couldn't be parsed as PDF`, err);
+              logger.error(`Fetch and parse error: ${err}`);
               callback();
             });
         } else {

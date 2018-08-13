@@ -36,14 +36,20 @@ const crawl = async emitter => {
       1,
       async currentYear => {
         const result = await simpleDOMListParser(browser, MAIN_URL + currentYear, ITEM_SELECTOR, node => ({
-          title: node.find("td:nth-child(2)").text(),
+          title: node
+            .find("td:nth-child(2)")
+            .text()
+            .trim(),
           url:
             MAIN_URL +
             node
               .find("td:nth-child(3) a")
               .first()
               .attr("href"),
-          date: node.find("td:nth-child(4)").text(),
+          date: node
+            .find("td:nth-child(4)")
+            .text()
+            .trim(),
           sourceName: SOURCE_NAME
         }));
 

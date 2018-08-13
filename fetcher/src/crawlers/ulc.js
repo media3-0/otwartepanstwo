@@ -117,11 +117,11 @@ const crawl = async emitter => {
 
         emitter.emit("entity", items);
 
-        return items;
+        return;
       },
-      async (err, results) => {
+      async () => {
         await browser.close();
-        resolve(flatten(results));
+        resolve();
       }
     );
   });

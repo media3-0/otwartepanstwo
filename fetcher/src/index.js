@@ -118,21 +118,37 @@ const processCrawlers = async ({ db }) => {
   return new Promise(resolve => {
     const crawlers = runCrawlers();
 
+    let isDone = false;
+    let isProcessed = false;
     let notifyHandle;
+
+    const allDone = () => {
+      if (isDone && isProcessed) {
+        logger.info("All done");
+
+        if (notifyHandle) {
+          clearInterval(notifyHandle);
+        }
+
+        resolve();
+      }
+    };
+
     if (IS_DEV) {
       notifyHandle = setInterval(() => {
-        logger.info(`Left to process: ${cargo.length()}`);
+        const len = cargo.length();
+
+        if (len > 0) {
+          logger.info(`Cargo left to process: ${len}`);
+        }
       }, 1000);
     }
 
     cargo.drain = () => {
-      logger.info("All crawlers processed");
+      logger.info("Cargo drained");
 
-      if (notifyHandle) {
-        clearInterval(notifyHandle);
-      }
-
-      resolve();
+      isProcessed = true;
+      allDone();
     };
 
     crawlers.on("data", item => {
@@ -140,11 +156,15 @@ const processCrawlers = async ({ db }) => {
         logger.info(`New item "${item.title}" (${item.url})`);
       }
 
+      isProcessed = false;
       cargo.push(item);
     });
 
     crawlers.on("done", () => {
-      logger.info("All crawlers finished");
+      logger.info("Crawlers finished");
+
+      isDone = true;
+      allDone();
     });
   });
 };

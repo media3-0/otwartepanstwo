@@ -17,7 +17,7 @@ const crawlUrl = async (browser, url) => {
 
   await page.close();
 
-  return $(".linkPdf").attr("href");
+  return `${BASE_URL}/${$(".linkPdf").attr("href")}`;
 };
 
 const crawlYear = async (browser, link) => {

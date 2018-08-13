@@ -1,3 +1,4 @@
+const knex = require("knex");
 const async = require("async");
 const changeCaseKeys = require("change-case-keys");
 const fs = require("fs");

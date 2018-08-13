@@ -30,10 +30,12 @@ const crawl = async emitter => {
         .find("td:nth-child(4)")
         .text()
         .trim(),
-      url: node
-        .find("td:nth-child(3) a")
-        .first()
-        .attr("href"),
+      url:
+        MAIN_URL +
+        node
+          .find("td:nth-child(3) a")
+          .first()
+          .attr("href"),
       sourceName: SOURCE_NAME,
       ocr: false
     }));

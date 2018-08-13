@@ -3,6 +3,7 @@ const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 const { flatten } = require("lodash");
 const { EventEmitter } = require("events");
+const logger = require("../logger");
 
 const BASE_URL = "https://eur-lex.europa.eu";
 const SOURCE_NAME = "Dziennik Urzędowy Unii Europejskiej";
@@ -40,7 +41,7 @@ const crawlLink = async (browser, link) => {
   };
 };
 
-const crawlTable = async (browser, $) => {
+const crawlTable = async (browser, $, emitter) => {
   const list = $("tbody tr")
     .map((i, d) => {
       const $d = $(d);
@@ -80,16 +81,19 @@ const crawlTable = async (browser, $) => {
       3,
       async ({ date, link }) => {
         const linkData = await crawlLink(browser, link);
-        return { ...linkData, date };
+
+        emitter.emit("entity", [{ date, ...linkData }]);
+
+        return;
       },
-      (err, res) => {
-        resolve(res);
+      () => {
+        resolve();
       }
     )
   );
 };
 
-const crawlPagination = async (url, browser) => {
+const crawlPagination = async (url, browser, emitter) => {
   const basePage = await browser.newPage();
   await basePage.goto(url, { waitUntil: "networkidle0" });
   await basePage.waitForSelector(".pagination");
@@ -114,6 +118,8 @@ const crawlPagination = async (url, browser) => {
       async pageIdx => {
         const pageUrl = `${url}&page=${pageIdx}`;
 
+        logger.debug(`Opening: ${pageUrl}`);
+
         const newPage = await browser.newPage();
         await newPage.goto(pageUrl, { waitUntil: "networkidle0" });
         await newPage.waitForSelector("tbody");
@@ -121,20 +127,20 @@ const crawlPagination = async (url, browser) => {
         const content = await newPage.content();
         const $ = cheerio.load(content);
 
-        const data = await crawlTable(browser, $);
+        await crawlTable(browser, $, emitter);
 
         await newPage.close();
 
-        return data;
+        return;
       },
-      async (err, data) => {
+      async err => {
         await basePage.close(url);
 
         if (err) {
           return reject(err);
         }
 
-        resolve(flatten(data));
+        resolve();
       }
     );
   });
@@ -142,9 +148,8 @@ const crawlPagination = async (url, browser) => {
 
 const crawl = async emitter => {
   const browserOpts = {
-    // headless: false,
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--proxy-server='direct://'", "--proxy-bypass-list=*"]
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
   };
 
   const browser = await puppeteer.launch(browserOpts);
@@ -167,15 +172,15 @@ const crawl = async emitter => {
       async year => {
         const url = makeUrl(year);
 
-        const crawled = await crawlPagination(url, browser);
+        logger.debug(`Opening: ${url}`);
 
-        emitter.emit("entity", crawled);
+        await crawlPagination(url, browser, emitter);
 
-        return crawled;
+        return;
       },
-      async (err, res) => {
+      async () => {
         await browser.close();
-        resolve(flatten(res));
+        resolve();
       }
     )
   );

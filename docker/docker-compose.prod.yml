@@ -10,11 +10,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - type: bind
-        source: ./data/files
-        target: /data/files
-        volume:
-          nocopy: true
+      - ./data/files:/data/files:nocopy # persisted downloads
     depends_on:
       - frontend
       - api
@@ -52,11 +48,7 @@ services:
       - AUTH0_CLIENTID # env passed from shell
       - AUTH0_REDIRECT # env passed from shell
     volumes:
-      - type: bind
-        source: ./data/files
-        target: /data/files
-        volume:
-          nocopy: true
+      - ./data/files:/data/files:nocopy # persisted downloads
     depends_on:
       - db
       # - elasticsearch
@@ -77,11 +69,7 @@ services:
       - POSTGRES_DB # env passed from shell
       - MAILGUN_API_KEY # env passed from shell
     volumes:
-      - type: bind
-        source: ./data/files
-        target: /data/files
-        volume:
-          nocopy: true
+      - ./data/files:/data/files:nocopy # persisted downloads
     depends_on:
       - db
 

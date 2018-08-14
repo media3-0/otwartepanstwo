@@ -3,7 +3,7 @@
 .env
 .envrc
 
-data/*/
+docker/data/*/
 node_modules/
 playground/temp/
 

@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 
 services:
   server:
@@ -10,7 +10,11 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./data/files:/data/files # persisted downloads
+      - type: bind
+        source: ./data/files
+        target: /data/files
+        volume:
+          nocopy: true
     depends_on:
       - frontend
       - api
@@ -49,7 +53,11 @@ services:
     volumes:
       - ./../api:/app
       - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
-      - ./data/files:/data/files # persisted downloads
+      - type: bind
+        source: ./data/files
+        target: /data/files
+        volume:
+          nocopy: true
     depends_on:
       - db
       # - elasticsearch
@@ -71,7 +79,11 @@ services:
     volumes:
       - ./../fetcher:/app
       - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
-      - ./data/files:/data/files # persisted downloads
+      - type: bind
+        source: ./data/files
+        target: /data/files
+        volume:
+          nocopy: true
     depends_on:
       - db
 
@@ -96,3 +108,4 @@ services:
 #       - "9300:9300"
 #     depends_on:
 #       - db
+

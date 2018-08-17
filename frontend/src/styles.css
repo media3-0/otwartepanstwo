@@ -30,3 +30,11 @@
   white-space: normal;
   color: #242424;
 }
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  opacity: 0.8;
+}

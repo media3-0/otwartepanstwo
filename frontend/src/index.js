@@ -2,11 +2,13 @@ const React = require("react");
 const ReactDOM = require("react-dom");
 const ReactTable = require("react-table").default;
 const autoBind = require("react-autobind");
-const { Route, Router } = require("react-router-dom");
+const { Route, Router, Link } = require("react-router-dom");
 const queryString = require("query-string");
 
 const history = require("./services/history");
 const Auth = require("./services/auth");
+
+const DocumentPreview = require("./document-preview");
 
 require("react-table/react-table.css");
 require("tachyons");
@@ -31,12 +33,12 @@ const columns = [
     Header: "PDF",
     accessor: "hash",
     Cell: props => (
-      <a
-        className="link w-100 h-100 flex items-center justify-center items-center justify-center red"
-        href={`/files/${props.value}.pdf`}
-      >
-        <i className="material-icons">attachment</i>
-      </a>
+      <Link to={`/document/${props.value}`}>Wyświetl</Link>
+      // <a
+      //   className="link w-100 h-100 flex items-center justify-center items-center justify-center red"
+      //   href={buildPdfUrl(props.value)}>
+      //   <i className="material-icons">attachment</i>
+      // </a>
     )
   }
 ];
@@ -55,6 +57,7 @@ class SearchResults extends React.Component {
   }
 
   componentDidMount() {
+    console.log("!");
     this.fetchDocuments(this.props.location);
   }
 
@@ -177,7 +180,9 @@ class Header extends React.Component {
     return (
       <div className="topbar">
         <div className="center w-80 flex justify-between items-center">
-          <h2 className="red">OtwartePaństwo</h2>
+          <Link to="/">
+            <h2 className="red">OtwartePaństwo</h2>
+          </Link>
 
           <div className="flex">
             <input
@@ -245,7 +250,8 @@ class App extends React.Component {
     return (
       <Router history={history}>
         <div>
-          <DefaultLayout path="/" content={<SearchResults {...commonProps} />} />
+          <DefaultLayout exact={true} path="/" content={<SearchResults {...commonProps} />} />
+          <DefaultLayout exact={true} path="/document/:hash" content={<DocumentPreview />} />
           <Route path="/home" exact={true} render={() => <div>home</div>} />
           <Route
             path="/callback"

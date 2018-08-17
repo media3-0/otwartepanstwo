@@ -38,7 +38,8 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db.raw("select 1 + 1 as result")
+    db
+      .raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -57,10 +58,14 @@ const init = async () => {
 
   // documents
   app.get("/documents/", (req, res) => {
-    const { search, dateFrom, dateTo, sourceName } = req.query;
+    const { search, dateFrom, dateTo, sourceName, hash } = req.query;
     const fields = ["title", "date", "last_download", "source_name", "hash"];
 
     let query = db(DOCUMENTS_TABLE);
+
+    if (hash) {
+      query = query.where("hash", "=", hash);
+    }
 
     if (dateFrom) {
       query = query.where("date", ">", dateFrom);

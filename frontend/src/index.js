@@ -197,8 +197,8 @@ class App extends React.Component {
     return (
       <Router history={history}>
         <div>
-          <Route path="/" render={props => <Main auth={this.auth} {...props} />} />
-          <Route path="/home" render={() => <div>home</div>} />
+          <Route path="/" exact={true} render={props => <Main auth={this.auth} {...props} />} />
+          <Route path="/home" exact={true} render={() => <div>home</div>} />
           <Route
             path="/callback"
             render={props => {

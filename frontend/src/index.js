@@ -3,6 +3,7 @@ const ReactDOM = require("react-dom");
 const ReactTable = require("react-table").default;
 const autoBind = require("react-autobind");
 const { Route, Router } = require("react-router-dom");
+const queryString = require("query-string");
 
 const history = require("./services/history");
 const Auth = require("./services/auth");
@@ -40,29 +41,32 @@ const columns = [
   }
 ];
 
-class Main extends React.Component {
+class SearchResults extends React.Component {
   constructor() {
     super();
 
     autoBind(this);
 
     this.state = {
-      subscriptions: [],
+      // subscriptions: [],
       documents: [],
       search: ""
     };
   }
 
   componentDidMount() {
-    this.fetchDocuments();
+    this.fetchDocuments(this.props.location);
+  }
 
-    if (this.props.auth.isAuthenticated()) {
-      this.fetchSubscriptions();
+  componentWillReceiveProps(nextProps) {
+    if (this.props.location.search !== nextProps.location.search) {
+      this.fetchDocuments(nextProps.location);
     }
   }
 
-  fetchDocuments(search) {
-    const url = search && search.length > 0 ? `/api/documents/?search=${search}` : "/api/documents/";
+  fetchDocuments(currentProps) {
+    const search = queryString.parse(currentProps.search);
+    const url = search.query && search.query.length > 0 ? `/api/documents/?search=${search.query}` : "/api/documents/";
 
     fetch(url)
       .then(res => res.json())
@@ -87,18 +91,6 @@ class Main extends React.Component {
       });
   }
 
-  handleSearch() {
-    this.fetchDocuments(this.state.search);
-  }
-
-  handleLogin() {
-    this.props.auth.login();
-  }
-
-  handleLogout() {
-    this.props.auth.logout();
-  }
-
   handleSearchSubscribe() {
     const token = this.props.auth.getToken();
 
@@ -120,36 +112,6 @@ class Main extends React.Component {
 
     return (
       <div className="app sans-serif">
-        <div className="topbar">
-          <div className="center w-80 flex justify-between items-center">
-            <h2 className="red">OtwartePaństwo</h2>
-
-            <div className="flex">
-              <input
-                type="text"
-                value={this.state.search}
-                onChange={event => this.setState({ search: event.target.value })}
-                onKeyPress={event => {
-                  if (event.key === "Enter") {
-                    this.handleSearch();
-                  }
-                }}
-              />
-              <button className="br2 bg-red white bn" onClick={this.handleSearch}>
-                Szukaj
-              </button>
-            </div>
-
-            <div>
-              {isAuthenticated ? (
-                <button onClick={this.handleLogout}>logout</button>
-              ) : (
-                <button onClick={this.handleLogin}>login</button>
-              )}
-            </div>
-          </div>
-        </div>
-
         <div className="content w-60 p5 center">
           <div>
             {this.state.search.length > 0 &&
@@ -178,6 +140,91 @@ class Main extends React.Component {
   }
 }
 
+class Header extends React.Component {
+  constructor() {
+    super();
+
+    autoBind(this);
+
+    this.state = {
+      search: ""
+    };
+  }
+
+  componentDidMount() {
+    this.setState({ search: queryString.parse(this.props.location.search).query || "" });
+  }
+
+  setSearch(ev) {
+    const value = ev.target.value;
+    this.setState({ search: value });
+  }
+
+  handleSearch() {
+    this.props.history.push(`/?query=${this.state.search}`);
+  }
+
+  handleLogin() {
+    this.props.auth.login();
+  }
+
+  handleLogout() {
+    this.props.auth.logout();
+  }
+
+  render() {
+    const { isAuthenticated } = this.props;
+    return (
+      <div className="topbar">
+        <div className="center w-80 flex justify-between items-center">
+          <h2 className="red">OtwartePaństwo</h2>
+
+          <div className="flex">
+            <input
+              type="text"
+              value={this.state.search}
+              onChange={this.setSearch}
+              onKeyPress={event => {
+                if (event.key === "Enter") {
+                  this.handleSearch();
+                }
+              }}
+            />
+            <button className="br2 bg-red white bn" onClick={this.handleSearch}>
+              Szukaj
+            </button>
+          </div>
+
+          <div>
+            {isAuthenticated ? (
+              <button onClick={this.handleLogout}>logout</button>
+            ) : (
+              <button onClick={this.handleLogin}>login</button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+const DefaultLayout = props => {
+  const { content } = props;
+  return (
+    <Route
+      {...props}
+      render={matchProps => (
+        <div className="app sans-serif">
+          <Header {...props} {...matchProps} />
+          {React.cloneElement(content, Object.assign({}, matchProps))}
+        </div>
+      )}
+    />
+  );
+};
+
+// <Route path="/" exact={true} render={props => <SearchResults auth={this.auth} {...props} />} />
+
 class App extends React.Component {
   constructor() {
     super();
@@ -194,10 +241,11 @@ class App extends React.Component {
   }
 
   render() {
+    const commonProps = { auth: this.auth };
     return (
       <Router history={history}>
         <div>
-          <Route path="/" exact={true} render={props => <Main auth={this.auth} {...props} />} />
+          <DefaultLayout path="/" content={<SearchResults {...commonProps} />} />
           <Route path="/home" exact={true} render={() => <div>home</div>} />
           <Route
             path="/callback"

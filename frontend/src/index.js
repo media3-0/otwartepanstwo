@@ -10,18 +10,11 @@ const queryString = require("query-string");
 const history = require("./services/history");
 const Auth = require("./services/auth");
 
+const { removeNullKeys } = require("./utils");
+
 const DocumentPreview = require("./document-preview");
 
 const DATE_FORMAT = "YYYY/MM/DD";
-
-const removeNullKeys = collection =>
-  Object.keys(collection).reduce((acc, key) => {
-    const value = collection[key];
-    if (!value) {
-      return acc;
-    }
-    return Object.assign({}, acc, { [key]: value });
-  }, {});
 
 require("react-table/react-table.css");
 require("tachyons");
@@ -92,7 +85,6 @@ class SearchResults extends React.Component {
     fetch(url)
       .then(res => res.json())
       .then(documents => {
-        console.log({ documents });
         this.setState({ documents });
       });
   }

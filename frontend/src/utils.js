@@ -33,4 +33,13 @@ const allIndexOf = (str, toSearch) => {
   return indices;
 };
 
-module.exports = { buildPdfUrl, formatDate, allIndexOf };
+const removeNullKeys = collection =>
+  Object.keys(collection).reduce((acc, key) => {
+    const value = collection[key];
+    if (!value) {
+      return acc;
+    }
+    return Object.assign({}, acc, { [key]: value });
+  }, {});
+
+module.exports = { buildPdfUrl, formatDate, allIndexOf, removeNullKeys };

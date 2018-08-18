@@ -3,7 +3,7 @@ const autoBind = require("react-autobind");
 const { Document, Page } = require("react-pdf");
 const queryString = require("query-string");
 
-const { buildPdfUrl, formatDate, allIndexOf } = require("./utils");
+const { buildPdfUrl, formatDate, removeNullKeys } = require("./utils");
 
 class SearchPanel extends React.Component {
   constructor(props) {
@@ -11,43 +11,6 @@ class SearchPanel extends React.Component {
     autoBind(this);
 
     this.state = { searchWord: this.props.searchFromUrl, results: [] };
-    // this.state = {
-    //   searchWord: "",
-    //   results: [
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 },
-    //     { pageNum: 1, count: 3 },
-    //     { pageNum: 3, count: 3 },
-    //     { pageNum: 5, count: 1 },
-    //     { pageNum: 7, count: 2 }
-    //   ]
-    // };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -145,10 +108,8 @@ class PDFViewer extends React.Component {
 
     this.state = {
       numPages: null,
-      pageNumber: 1,
       cachedPageHeights: null,
-      pagesContent: null,
-      searchHighlight: null
+      pagesContent: null
     };
 
     this._mounted = false;
@@ -202,21 +163,22 @@ class PDFViewer extends React.Component {
     this.cachePdfData(pdf);
   }
 
+  jumpToPage(num) {
+    this.props.handlePageChange(parseInt(num));
+    // this.setState({ pageNumber: parseInt(num) });
+  }
+
   decPage() {
-    this.setState({ pageNumber: Math.max(1, this.state.pageNumber - 1) });
+    this.jumpToPage(Math.max(1, this.props.pageNumber - 1));
   }
 
   incPage() {
-    this.setState({ pageNumber: Math.min(this.state.pageNumber + 1, this.state.numPages) });
+    this.jumpToPage(Math.min(this.props.pageNumber + 1, this.state.numPages));
   }
 
-  jumpToPage(num) {
-    this.setState({ pageNumber: parseInt(num) });
-  }
-
-  setSearchHighlight(word) {
-    this.setState({ searchHighlight: word });
-  }
+  // setSearchHighlight(word) {
+  //   this.setState({ searchHighlight: word });
+  // }
 
   // render() {
   //   const { file } = this.props;
@@ -272,8 +234,8 @@ class PDFViewer extends React.Component {
   // }
 
   render() {
-    const { file, searchFromUrl } = this.props;
-    const { pageNumber, numPages, searchHighlight, pagesContent } = this.state;
+    const { file, searchFromUrl, handleSearchChange, pageNumber } = this.props;
+    const { numPages, pagesContent } = this.state;
     const pageHeight = window.innerHeight * 0.85;
     return (
       <div>
@@ -284,10 +246,10 @@ class PDFViewer extends React.Component {
                 pageNumber={pageNumber}
                 height={pageHeight}
                 customTextRenderer={textItem => {
-                  if (searchHighlight) {
+                  if (searchFromUrl) {
                     return textItem.str
                       .toLowerCase()
-                      .split(searchHighlight)
+                      .split(searchFromUrl)
                       .reduce(
                         (strArray, currentValue, currentIndex) =>
                           currentIndex === 0
@@ -295,7 +257,7 @@ class PDFViewer extends React.Component {
                             : [
                                 ...strArray,
                                 // eslint-disable-next-line react/no-array-index-key
-                                <mark key={currentIndex}>{searchHighlight}</mark>,
+                                <mark key={currentIndex}>{searchFromUrl}</mark>,
                                 currentValue
                               ],
                         []
@@ -310,7 +272,7 @@ class PDFViewer extends React.Component {
           <div className="w-30">
             <SearchPanel
               pagesContent={this.state.pagesContent}
-              setSearchHighlight={this.setSearchHighlight}
+              setSearchHighlight={handleSearchChange}
               jumpToPage={this.jumpToPage}
               selectedPage={pageNumber}
               searchFromUrl={searchFromUrl}
@@ -341,7 +303,6 @@ class DocumentPreview extends React.Component {
 
     this.state = {
       numPages: null,
-      pageNumber: 1,
       info: { title: "", sourceName: "", date: null, lastDownload: null }
     };
   }
@@ -352,9 +313,27 @@ class DocumentPreview extends React.Component {
       .then(info => this.setState({ info: info[0] }));
   }
 
+  handleSearchChange(value) {
+    const hash = this.props.match.params.hash;
+    const search = queryString.parse(this.props.location.search);
+
+    const newSearch = removeNullKeys(Object.assign({}, search, { search: value }));
+    this.props.history.push(`/document/${hash}/?${queryString.stringify(newSearch)}`);
+  }
+
+  handlePageChange(pageNum) {
+    const hash = this.props.match.params.hash;
+    const search = queryString.parse(this.props.location.search);
+
+    const newSearch = removeNullKeys(Object.assign({}, search, { pageNum: parseInt(pageNum) }));
+    this.props.history.push(`/document/${hash}/?${queryString.stringify(newSearch)}`);
+  }
+
   render() {
     const pdfUrl = buildPdfUrl(this.props.match.params.hash);
-    const searchFromUrl = queryString.parse(this.props.location.search).search || "";
+    const search = queryString.parse(this.props.location.search);
+    const pageNum = search.pageNum ? parseInt(search.pageNum) : 1;
+    const searchWord = search.search;
     return (
       <div className="content w-80 p5 center document-preview">
         <h2>{this.state.info.title}</h2>
@@ -366,7 +345,13 @@ class DocumentPreview extends React.Component {
             <i className="material-icons">attachment</i> Pobierz dziennik
           </a>
         </div>
-        <PDFViewer file={pdfUrl} searchFromUrl={searchFromUrl} />
+        <PDFViewer
+          file={pdfUrl}
+          pageNumber={pageNum}
+          searchFromUrl={searchWord}
+          handleSearchChange={this.handleSearchChange}
+          handlePageChange={this.handlePageChange}
+        />
       </div>
     );
   }

@@ -33,8 +33,18 @@
 
 a {
   text-decoration: none;
+  cursor: pointer;
 }
 
 a:hover {
   opacity: 0.8;
+}
+
+.react-pdf__Page__canvas {
+  margin: 0 auto;
+  border: 1px solid #f0f0f0;
+}
+
+.document-preview h2 {
+  text-transform: capitalize;
 }

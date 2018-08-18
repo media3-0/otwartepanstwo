@@ -115,7 +115,7 @@ class SearchResults extends React.Component {
 
     return (
       <div className="app sans-serif">
-        <div className="content w-60 p5 center">
+        <div className="content w-80 p5 center">
           <div>
             {this.state.search.length > 0 &&
               isAuthenticated && <button onClick={this.handleSearchSubscribe}>subscribe to this search</button>}
@@ -198,14 +198,13 @@ class Header extends React.Component {
             <button className="br2 bg-red white bn" onClick={this.handleSearch}>
               Szukaj
             </button>
-          </div>
-
-          <div>
-            {isAuthenticated ? (
-              <button onClick={this.handleLogout}>logout</button>
-            ) : (
-              <button onClick={this.handleLogin}>login</button>
-            )}
+            <div>
+              {isAuthenticated ? (
+                <button onClick={this.handleLogout}>logout</button>
+              ) : (
+                <button onClick={this.handleLogin}>login</button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -221,7 +220,7 @@ const DefaultLayout = props => {
       render={matchProps => (
         <div className="app sans-serif">
           <Header {...props} {...matchProps} />
-          {React.cloneElement(content, Object.assign({}, matchProps))}
+          <div className="w-100">{React.cloneElement(content, Object.assign({}, matchProps))}</div>
         </div>
       )}
     />

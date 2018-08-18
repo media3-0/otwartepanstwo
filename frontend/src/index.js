@@ -15,7 +15,6 @@ require("tachyons");
 require("./styles.css");
 
 const columns = ({ search }) => {
-  console.log("search", search);
   return [
     {
       Header: "Tytuł",
@@ -34,14 +33,10 @@ const columns = ({ search }) => {
     {
       Header: "Szczegóły",
       accessor: "hash",
-      Cell: props => (
-        <Link to={`/document/${props.value}/?search=${search}`}>Wyświetl</Link>
-        // <a
-        //   className="link w-100 h-100 flex items-center justify-center items-center justify-center red"
-        //   href={buildPdfUrl(props.value)}>
-        //   <i className="material-icons">attachment</i>
-        // </a>
-      )
+      Cell: props => {
+        const url = search ? `/document/${props.value}/?search=${search}` : `document/${props.value}`;
+        return <Link to={url}>Wyświetl</Link>;
+      }
     }
   ];
 };

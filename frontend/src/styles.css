@@ -48,3 +48,23 @@ a:hover {
 .document-preview h2 {
   text-transform: capitalize;
 }
+
+.search-panel__results {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  height: calc(85vh - 65px);
+}
+
+.vh-85 {
+  height: 85vh;
+}
+
+.viewer-container {
+  height: 85vh;
+  overflow: hidden;
+}
+
+/* .search-panel__results li { */
+/*   border-top: 1px solid #f0f0f0; */
+/* } */

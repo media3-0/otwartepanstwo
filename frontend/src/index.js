@@ -14,34 +14,37 @@ require("react-table/react-table.css");
 require("tachyons");
 require("./styles.css");
 
-const columns = [
-  {
-    Header: "Tytuł",
-    accessor: "title",
-    width: 500
-  },
-  {
-    Header: "Źródło",
-    accessor: "sourceName"
-  },
-  {
-    Header: "Data",
-    accessor: "date",
-    Cell: props => <span className="number">{props.value}</span>
-  },
-  {
-    Header: "PDF",
-    accessor: "hash",
-    Cell: props => (
-      <Link to={`/document/${props.value}`}>Wyświetl</Link>
-      // <a
-      //   className="link w-100 h-100 flex items-center justify-center items-center justify-center red"
-      //   href={buildPdfUrl(props.value)}>
-      //   <i className="material-icons">attachment</i>
-      // </a>
-    )
-  }
-];
+const columns = ({ search }) => {
+  console.log("search", search);
+  return [
+    {
+      Header: "Tytuł",
+      accessor: "title",
+      width: 500
+    },
+    {
+      Header: "Źródło",
+      accessor: "sourceName"
+    },
+    {
+      Header: "Data",
+      accessor: "date",
+      Cell: props => <span className="number">{props.value}</span>
+    },
+    {
+      Header: "Szczegóły",
+      accessor: "hash",
+      Cell: props => (
+        <Link to={`/document/${props.value}/?search=${search}`}>Wyświetl</Link>
+        // <a
+        //   className="link w-100 h-100 flex items-center justify-center items-center justify-center red"
+        //   href={buildPdfUrl(props.value)}>
+        //   <i className="material-icons">attachment</i>
+        // </a>
+      )
+    }
+  ];
+};
 
 class SearchResults extends React.Component {
   constructor() {
@@ -112,6 +115,9 @@ class SearchResults extends React.Component {
 
   render() {
     const isAuthenticated = this.props.auth.isAuthenticated();
+    const search = queryString.parse(this.props.location.search);
+    const customColumns = columns({ search: search.query });
+    console.log(customColumns);
 
     return (
       <div className="app sans-serif">
@@ -123,7 +129,7 @@ class SearchResults extends React.Component {
 
           <ReactTable
             data={this.state.documents}
-            columns={columns}
+            columns={customColumns}
             showPageSizeOptions={false}
             sortable={false}
             multiSort={false}

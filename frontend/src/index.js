@@ -1,6 +1,8 @@
 const React = require("react");
 const ReactDOM = require("react-dom");
 const ReactTable = require("react-table").default;
+const DatePicker = require("react-datepicker").default;
+const moment = require("moment");
 const autoBind = require("react-autobind");
 const { Route, Router, Link } = require("react-router-dom");
 const queryString = require("query-string");
@@ -10,9 +12,21 @@ const Auth = require("./services/auth");
 
 const DocumentPreview = require("./document-preview");
 
+const DATE_FORMAT = "YYYY/MM/DD";
+
+const removeNullKeys = collection =>
+  Object.keys(collection).reduce((acc, key) => {
+    const value = collection[key];
+    if (!value) {
+      return acc;
+    }
+    return Object.assign({}, acc, { [key]: value });
+  }, {});
+
 require("react-table/react-table.css");
 require("tachyons");
 require("./styles.css");
+require("react-datepicker/dist/react-datepicker.css");
 
 const columns = ({ search }) => {
   return [
@@ -50,13 +64,13 @@ class SearchResults extends React.Component {
     this.state = {
       // subscriptions: [],
       documents: [],
-      search: ""
+      sourceNames: []
     };
   }
 
   componentDidMount() {
-    console.log("!");
     this.fetchDocuments(this.props.location);
+    this.fetchSourceNames();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -65,9 +79,15 @@ class SearchResults extends React.Component {
     }
   }
 
+  fetchSourceNames() {
+    fetch("/api/source-names")
+      .then(res => res.json())
+      .then(sourceNames => this.setState({ sourceNames }));
+  }
+
   fetchDocuments(currentProps) {
-    const search = queryString.parse(currentProps.search);
-    const url = search.query && search.query.length > 0 ? `/api/documents/?search=${search.query}` : "/api/documents/";
+    const search = removeNullKeys(queryString.parse(currentProps.search));
+    const url = Object.keys(search).length > 0 ? `/api/documents/?${queryString.stringify(search)}` : "/api/documents/";
 
     fetch(url)
       .then(res => res.json())
@@ -108,18 +128,59 @@ class SearchResults extends React.Component {
       .then(res => console.log(res));
   }
 
+  handleDateChange(name) {
+    return date => {
+      const newDate = date ? date.format(DATE_FORMAT) : null;
+      const search = queryString.parse(this.props.location.search);
+      const newSearch = removeNullKeys(Object.assign({}, search, { [`date${name}`]: newDate }));
+      this.props.history.push(`/?${queryString.stringify(newSearch)}`);
+    };
+  }
+
+  handleSourceNameChange(sourceName) {
+    const search = queryString.parse(this.props.location.search);
+    const newSearch = removeNullKeys(Object.assign({}, search, { sourceName }));
+    this.props.history.push(`/?${queryString.stringify(newSearch)}`);
+  }
+
   render() {
     const isAuthenticated = this.props.auth.isAuthenticated();
     const search = queryString.parse(this.props.location.search);
-    const customColumns = columns({ search: search.query });
-    console.log(customColumns);
+    const customColumns = columns({ search: search.search });
+    console.log(this.state);
 
     return (
       <div className="app sans-serif">
         <div className="content w-80 p5 center">
-          <div>
-            {this.state.search.length > 0 &&
-              isAuthenticated && <button onClick={this.handleSearchSubscribe}>subscribe to this search</button>}
+          <div className="flex justify-between pa3">
+            <div className="flex">
+              Od:
+              <DatePicker
+                selected={!!search.dateFrom ? moment(search.dateFrom, DATE_FORMAT) : null}
+                isClearable={true}
+                onChange={this.handleDateChange("From")}
+              />
+            </div>
+
+            <div className="flex">
+              Do:
+              <DatePicker
+                selected={!!search.dateTo ? moment(search.dateTo, DATE_FORMAT) : null}
+                isClearable={true}
+                onChange={this.handleDateChange("To")}
+              />
+            </div>
+
+            <div className="flex">
+              Źródło:
+              <select value={search.sourceName} onChange={ev => this.handleSourceNameChange(ev.target.value)}>
+                {this.state.sourceNames.map((sourceName, idx) => (
+                  <option key={idx} value={sourceName}>
+                    {sourceName}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <ReactTable
@@ -144,6 +205,11 @@ class SearchResults extends React.Component {
   }
 }
 
+// <div>
+//   {this.state.search.length > 0 &&
+//     isAuthenticated && <button onClick={this.handleSearchSubscribe}>subscribe to this search</button>}
+// </div>
+
 class Header extends React.Component {
   constructor() {
     super();
@@ -151,21 +217,25 @@ class Header extends React.Component {
     autoBind(this);
 
     this.state = {
-      search: ""
+      search: { search: null }
     };
   }
 
   componentDidMount() {
-    this.setState({ search: queryString.parse(this.props.location.search).query || "" });
+    const search = queryString.parse(this.props.location.search);
+    this.setState({ search: Object.assign({}, this.state.search, search) }, () => console.log(this.state));
+    // this.setState({ search: queryString.parse(this.props.location.search).query || "" });
   }
 
   setSearch(ev) {
     const value = ev.target.value;
-    this.setState({ search: value });
+    this.setState({ search: Object.assign({}, this.state.search, { search: value }) });
   }
 
   handleSearch() {
-    this.props.history.push(`/?query=${this.state.search}`);
+    const urlSearch = queryString.parse(this.props.location.search);
+    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search));
+    this.props.history.push(`/?${queryString.stringify(newSearch)}`);
   }
 
   handleLogin() {
@@ -188,7 +258,7 @@ class Header extends React.Component {
           <div className="flex">
             <input
               type="text"
-              value={this.state.search}
+              value={this.state.search.search}
               onChange={this.setSearch}
               onKeyPress={event => {
                 if (event.key === "Enter") {

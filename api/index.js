@@ -56,6 +56,15 @@ const init = async () => {
     res.send("ok");
   });
 
+  // source names
+  app.get("/source-names", (req, res) => {
+    db(DOCUMENTS_TABLE)
+      .distinct()
+      .pluck("source_name")
+      // .select("source_name")
+      .then(sources => res.json(toClient(sources)));
+  });
+
   // documents
   app.get("/documents/", (req, res) => {
     const { search, dateFrom, dateTo, sourceName, hash } = req.query;

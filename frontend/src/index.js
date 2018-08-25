@@ -239,7 +239,8 @@ class Header extends React.Component {
   }
 
   render() {
-    const { isAuthenticated } = this.props;
+    const isAuthenticated = this.props.auth.isAuthenticated();
+    const { email } = this.props.auth.getUser();
     return (
       <div className="topbar">
         <div className="center w-80 flex justify-between items-center">
@@ -258,14 +259,23 @@ class Header extends React.Component {
                 }
               }}
             />
-            <button className="br2 bg-red white bn" onClick={this.handleSearch}>
+            <button className="bg-red white ba b--red dim" onClick={this.handleSearch}>
               Szukaj
             </button>
             <div>
               {isAuthenticated ? (
-                <button onClick={this.handleLogout}>logout</button>
+                <div class="dropdown">
+                  <button class="dropbtn flex justify-center items-center">
+                    <i className="material-icons">person</i>
+                    {email}
+                  </button>
+                  <div class="dropdown-content">
+                    <a href="#">Moje Subskrypcje</a>
+                    <a href="#">Wyloguj</a>
+                  </div>
+                </div>
               ) : (
-                <button onClick={this.handleLogin}>login</button>
+                <button onClick={this.handleLogin}>Zaloguj</button>
               )}
             </div>
           </div>
@@ -283,7 +293,7 @@ const DefaultLayout = props => {
       render={matchProps => (
         <div className="app sans-serif">
           <Header {...props} {...matchProps} />
-          <div className="w-100">{React.cloneElement(content, Object.assign({}, matchProps))}</div>
+          <div className="w-100">{React.cloneElement(content, Object.assign({}, matchProps, props))}</div>
         </div>
       )}
     />
@@ -312,8 +322,8 @@ class App extends React.Component {
     return (
       <Router history={history}>
         <div>
-          <DefaultLayout exact={true} path="/" content={<SearchResults {...commonProps} />} />
-          <DefaultLayout exact={true} path="/document/:hash" content={<DocumentPreview />} />
+          <DefaultLayout {...commonProps} exact={true} path="/" content={<SearchResults />} />
+          <DefaultLayout {...commonProps} exact={true} path="/document/:hash" content={<DocumentPreview />} />
           <Route path="/home" exact={true} render={() => <div>home</div>} />
           <Route
             path="/callback"

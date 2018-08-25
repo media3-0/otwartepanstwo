@@ -45,16 +45,6 @@ class SearchPanel extends React.Component {
     }, []);
 
     this.setState({ results: res });
-
-    // TODO: this is for handling preview
-    // // const res = Object.values(this.props.pagesContent.reduce((acc, pageContent
-    // const res = Object.keys(pageContent).reduce((acc, pageNum) => {
-    //   const pageContent = pagesContent[pageNum];
-    //   if (pageContent.includes(searchWord)) {
-    //     const indexes = allIndexOf(pageContent, searchWord);
-    //     const
-    //   }
-    // }, []);
   }
 
   render() {
@@ -109,11 +99,11 @@ class PDFViewer extends React.Component {
     this.state = {
       numPages: null,
       cachedPageHeights: null,
-      pagesContent: null
+      pagesContent: null,
+      scale: 2
     };
 
     this._mounted = false;
-    this.scale = 1.2;
   }
 
   componentDidMount() {
@@ -127,9 +117,6 @@ class PDFViewer extends React.Component {
   cachePdfData(pdf) {
     const promises = Array.from({ length: pdf.numPages }, (v, i) => i + 1).map(pageNumber => pdf.getPage(pageNumber));
 
-    // Assuming all pages may have different heights. Otherwise we can just
-    // load the first page and use its height for determining all the row
-    // heights.
     Promise.all(promises).then(values => {
       if (!this._mounted) {
         return null;
@@ -176,75 +163,31 @@ class PDFViewer extends React.Component {
     this.jumpToPage(Math.min(this.props.pageNumber + 1, this.state.numPages));
   }
 
-  // setSearchHighlight(word) {
-  //   this.setState({ searchHighlight: word });
-  // }
+  incScale() {
+    this.setState({ scale: this.state.scale * 1.2 });
+  }
 
-  // render() {
-  //   const { file } = this.props;
-  //   const { pageNumber, numPages, searchHighlight } = this.state;
-  //   return (
-  //     <div className="flex">
-  //       <div className="w80">
-  //         <Document file={file} onLoadSuccess={this.onDocumentSuccess}>
-  //           <Page
-  //             pageNumber={pageNumber}
-  //             customTextRenderer={textItem => {
-  //               if (searchHighlight) {
-  //                 return textItem.str
-  //                   .toLowerCase()
-  //                   .split(searchHighlight)
-  //                   .reduce(
-  //                     (strArray, currentValue, currentIndex) =>
-  //                       currentIndex === 0
-  //                         ? [...strArray, currentValue]
-  //                         : [
-  //                             ...strArray,
-  //                             // eslint-disable-next-line react/no-array-index-key
-  //                             <mark key={currentIndex}>{searchHighlight}</mark>,
-  //                             currentValue
-  //                           ],
-  //                     []
-  //                   );
-  //               } else {
-  //                 return textItem.str;
-  //               }
-  //             }}
-  //           />
-  //         </Document>
-  //         <div className="bt b--light-silver w-100 tc flex center items-center justify-between">
-  //           <a className="link" onClick={this.decPage}>
-  //             Poprzednia
-  //           </a>
-  //           <p>
-  //             Strona {pageNumber} z {numPages}
-  //           </p>
-  //           <a className="link" onClick={this.incPage}>
-  //             Następna
-  //           </a>
-  //         </div>
-  //       </div>
-  //       <SearchPanel
-  //         pagesContent={this.state.pagesContent}
-  //         setSearchHighlight={this.setSearchHighlight}
-  //         jumpToPage={this.jumpToPage}
-  //       />
-  //     </div>
-  //   );
-  // }
+  decScale() {
+    this.setState({ scale: this.state.scale * 0.8 });
+  }
 
   render() {
     const { file, searchFromUrl, handleSearchChange, pageNumber } = this.props;
     const { numPages, pagesContent } = this.state;
-    const pageHeight = window.innerHeight * 0.85;
+    const pageHeight = window.innerHeight * this.state.scale;
     return (
-      <div>
+      <div className="relative">
+        <div style={{ position: "absolute", top: 0, left: 0, zIndex: 99 }}>
+          <button onClick={this.incScale}>+</button>
+          <button onClick={this.decScale}>-</button>
+        </div>
         <div className="viewer-container flex">
-          <div className="w-70 vh-85 overflow-scrol bg-near-white">
+          <div className="w-80 vh-85 overflow-scroll bg-near-white">
             <Document file={file} onLoadSuccess={this.onDocumentSuccess}>
               <Page
                 pageNumber={pageNumber}
-                height={pageHeight}
+                renderTextLayer={true}
+                width={1200}
                 customTextRenderer={textItem => {
                   if (searchFromUrl) {
                     return textItem.str
@@ -269,7 +212,7 @@ class PDFViewer extends React.Component {
               />
             </Document>
           </div>
-          <div className="w-30">
+          <div className="w-20">
             <SearchPanel
               pagesContent={this.state.pagesContent}
               setSearchHighlight={handleSearchChange}
@@ -279,7 +222,7 @@ class PDFViewer extends React.Component {
             />
           </div>
         </div>
-        <div className="bt b--moon-gray f7 dark-gray w-70 tc flex items-center justify-between">
+        <div className="bt b--moon-gray f7 dark-gray w-80 tc flex items-center justify-between">
           <a className="link" onClick={this.decPage}>
             Poprzednia
           </a>

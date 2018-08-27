@@ -131,7 +131,7 @@ const init = async () => {
           lastNotify: moment().format("YYYY-MM-DD")
         })
       )
-      .then(res => {
+      .then(result => {
         res.send({ ok: true });
       });
   });
@@ -139,6 +139,8 @@ const init = async () => {
   app.delete("/subscriptions", checkJwt, (req, res) => {
     const { email } = req.user;
     const { search } = req.body;
+
+    console.log(email, search, req.body);
 
     if (!email) {
       return res.status(400).send({ reason: "`email` missing" });
@@ -155,8 +157,8 @@ const init = async () => {
           searchPhrase: search
         })
       )
-      .delete()
-      .then(res => {
+      .del()
+      .then(() => {
         res.send({ ok: true });
       });
   });

@@ -53,7 +53,7 @@ class SearchPanel extends React.Component {
 
     const LIST_ITEM_HEIGHT = 50;
     return (
-      <div className="pa2">
+      <div>
         <div className="mb2">
           <input
             type="text"
@@ -100,7 +100,7 @@ class PDFViewer extends React.Component {
       numPages: null,
       cachedPageHeights: null,
       pagesContent: null,
-      scale: 2
+      scale: 1
     };
 
     this._mounted = false;
@@ -187,7 +187,7 @@ class PDFViewer extends React.Component {
               <Page
                 pageNumber={pageNumber}
                 renderTextLayer={true}
-                width={1200}
+                scale={this.state.scale}
                 customTextRenderer={textItem => {
                   if (searchFromUrl) {
                     return textItem.str
@@ -278,7 +278,7 @@ class DocumentPreview extends React.Component {
     const pageNum = search.pageNum ? parseInt(search.pageNum) : 1;
     const searchWord = search.search;
     return (
-      <div className="content w-80 p5 center document-preview">
+      <div className="w-80 p5 center document-preview">
         <h2>{this.state.info.title}</h2>
         <h3>{this.state.info.sourceName}</h3>
         <h5>Data Publikacji: {this.state.info.date && formatDate(this.state.info.date)}</h5>

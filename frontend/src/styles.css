@@ -88,6 +88,12 @@ a:hover {
   font-size: 12px;
   border: none;
   border-left: 1px solid white;
+  margin-left: 10px;
+}
+
+.dropbtn:disabled {
+  background-color: hsl(0, 0%, 98%);
+  color: hsl(0, 0%, 90%);
 }
 
 .dropdown {
@@ -294,4 +300,15 @@ input:focus {
     -webkit-transform: scale(1);
     transform: scale(1);
   }
+}
+
+.react-datepicker__input-container input {
+  background-color: hsl(0, 0%, 98%);
+  border: none;
+  padding: 0 8px;
+  color: hsl(0, 0%, 50%);
+}
+
+.react-datepicker__input-container input::placeholder {
+  color: hsl(0, 0%, 50%);
 }

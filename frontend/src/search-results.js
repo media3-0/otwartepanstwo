@@ -4,6 +4,7 @@ const { Link } = require("react-router-dom");
 const queryString = require("query-string");
 const ReactTable = require("react-table").default;
 const DatePicker = require("react-datepicker").default;
+const Select = require("react-select").default;
 const moment = require("moment");
 const { observer, inject } = require("mobx-react");
 
@@ -97,36 +98,34 @@ class SearchResults extends React.Component {
       <div className="app sans-serif">
         <div className="w-80 p5 center">
           <div className="flex justify-between pa3">
-            <div className="flex">
-              <span className="f5">Data od: </span>
+            <div className="flex css-1aya2g8">
               <DatePicker
                 selected={!!query.dateFrom ? moment(query.dateFrom, DATE_FORMAT) : null}
                 isClearable={true}
                 onChange={this.handleDateChange("From")}
-                placeholderText="Kliknij żeby wybrać"
+                placeholderText="Data od:"
               />
             </div>
 
-            <div className="flex">
-              <span className="f5">Data do: </span>
+            <div className="flex css-1aya2g8">
               <DatePicker
                 selected={!!query.dateTo ? moment(query.dateTo, DATE_FORMAT) : null}
                 isClearable={true}
                 onChange={this.handleDateChange("To")}
-                placeholderText="Kliknij żeby wybrać"
+                placeholderText="Data do:"
               />
             </div>
 
             <div className="flex">
-              Źródło:
-              <select value={query.sourceName} onChange={ev => this.handleSourceNameChange(ev.target.value)}>
-                {this.props.store.sourceNames.map((sourceName, idx) => (
-                  <option key={idx} value={sourceName}>
-                    {sourceName}
-                  </option>
-                ))}
-              </select>
+              <div style={{ width: 200 }}>
+                <Select
+                  options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
+                  onChange={ev => this.handleSourceNameChange(ev.target.value)}
+                  placeholder="Źródło"
+                />
+              </div>
             </div>
+
             <div className="flex">
               {isAuthenticated && (
                 <button

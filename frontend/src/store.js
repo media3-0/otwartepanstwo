@@ -28,7 +28,6 @@ class Store {
     })
       .then(res => res.json())
       .then(subscriptions => {
-        console.log(subscriptions);
         this.subscriptions = subscriptions;
       });
   }

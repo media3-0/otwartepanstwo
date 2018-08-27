@@ -25,6 +25,13 @@ class Header extends React.Component {
     this.setState({ search: Object.assign({}, this.state.search, search) });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.location.search !== nextProps.location.search) {
+      const search = queryString.parse(nextProps.location.search);
+      this.setState({ search: Object.assign({}, this.state.search, search) });
+    }
+  }
+
   setSearch(ev) {
     const value = ev.target.value;
     this.setState({ search: Object.assign({}, this.state.search, { search: value }) });

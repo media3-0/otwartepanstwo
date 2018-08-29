@@ -1,2 +1,2 @@
-* * * * * /bin/date > /data/files/health-check 2>&1
+# * * * * * /bin/date > /data/files/health-check 2>&1
 0 0 * * * /usr/local/bin/node /app/index.js | logger -t "fetcher"

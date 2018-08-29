@@ -98,9 +98,10 @@ class PDFViewer extends React.Component {
 
     this.state = {
       numPages: null,
-      cachedPageHeights: null,
       pagesContent: null,
-      scale: 1
+      scale: 1,
+      pdfContainerRect: null,
+      textContentRect: null
     };
 
     this._mounted = false;
@@ -108,25 +109,41 @@ class PDFViewer extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
+
+    this.updateViewContainers();
+    window.addEventListener("resize", this.updateViewContainers);
   }
 
   componentWillUnmount() {
     this._mounted = false;
+
+    window.removeEventListener("resize", this.updateViewContainers);
+  }
+
+  updateViewContainers() {
+    if (!this.pdfContainerRef) {
+      return;
+    }
+
+    const textContent = this.pdfContainerRef.querySelector(".react-pdf__Page__textContent");
+
+    const pdfContainerRect = this.pdfContainerRef.getBoundingClientRect();
+    const textContentRect = textContent && textContent.getBoundingClientRect();
+
+    this.setState({
+      pdfContainerRect: { width: pdfContainerRect.width, height: pdfContainerRect.height },
+      textContentRect: textContent && { width: textContentRect.width, height: textContentRect.height }
+    });
   }
 
   cachePdfData(pdf) {
+    if (!this._mounted) {
+      return null;
+    }
+
     const promises = Array.from({ length: pdf.numPages }, (v, i) => i + 1).map(pageNumber => pdf.getPage(pageNumber));
 
     Promise.all(promises).then(values => {
-      if (!this._mounted) {
-        return null;
-      }
-
-      const pageHeights = values.reduce((accPageHeights, page) => {
-        accPageHeights[page.pageIndex + 1] = page.pageInfo.view[3] * this.scale;
-        return accPageHeights;
-      }, {});
-
       const contentPromises = values.map(page => page.getTextContent());
 
       Promise.all(contentPromises).then(resolvedPageContentPromises => {
@@ -140,8 +157,6 @@ class PDFViewer extends React.Component {
 
         this.setState({ pagesContent });
       });
-
-      this.setState({ cachedPageHeights: pageHeights });
     });
   }
 
@@ -152,7 +167,6 @@ class PDFViewer extends React.Component {
 
   jumpToPage(num) {
     this.props.handlePageChange(parseInt(num));
-    // this.setState({ pageNumber: parseInt(num) });
   }
 
   decPage() {
@@ -173,8 +187,9 @@ class PDFViewer extends React.Component {
 
   render() {
     const { file, searchFromUrl, handleSearchChange, pageNumber } = this.props;
-    const { numPages, pagesContent } = this.state;
-    const pageHeight = window.innerHeight * this.state.scale;
+    const { numPages, pdfContainerRect, textContentRect } = this.state;
+    const shouldFixZoom = pdfContainerRect && textContentRect && textContentRect.width > pdfContainerRect.width;
+
     return (
       <div className="relative">
         <div style={{ position: "absolute", top: 0, left: 0, zIndex: 99 }}>
@@ -182,12 +197,16 @@ class PDFViewer extends React.Component {
           <button onClick={this.decScale}>-</button>
         </div>
         <div className="viewer-container flex">
-          <div className="w-80 vh-85 overflow-scroll bg-near-white">
+          <div
+            className={`w-80 vh-85 overflow-scroll bg-near-white ${shouldFixZoom ? "pdf-zoom-fix" : ""}`}
+            ref={r => (this.pdfContainerRef = r)}
+          >
             <Document file={file} onLoadSuccess={this.onDocumentSuccess}>
               <Page
                 pageNumber={pageNumber}
                 renderTextLayer={true}
                 scale={this.state.scale}
+                onRenderSuccess={this.updateViewContainers}
                 customTextRenderer={textItem => {
                   if (searchFromUrl) {
                     return textItem.str

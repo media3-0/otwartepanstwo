@@ -81,9 +81,9 @@ class SearchResults extends React.Component {
     };
   }
 
-  handleSourceNameChange(sourceName) {
+  handleSourceNameChange({ value }) {
     const search = queryString.parse(this.props.location.search);
-    const newSearch = removeNullKeys(Object.assign({}, search, { sourceName }));
+    const newSearch = removeNullKeys(Object.assign({}, search, { sourceName: value }));
     this.props.history.push(`/?${queryString.stringify(newSearch)}`);
   }
 
@@ -136,7 +136,7 @@ class SearchResults extends React.Component {
                 <Select
                   styles={customStyles()}
                   options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
-                  onChange={ev => this.handleSourceNameChange(ev.target.value)}
+                  onChange={this.handleSourceNameChange}
                   placeholder="Źródło"
                 />
               </div>

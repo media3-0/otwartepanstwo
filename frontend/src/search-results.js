@@ -25,7 +25,7 @@ const columns = ({ search }) => {
     {
       Header: "Data",
       accessor: "date",
-      Cell: props => <span className="number">{props.value}</span>
+      Cell: props => <span className="number">{moment(new Date(props.value)).format("DD.MM.YYYY")}</span>
     },
     {
       Header: "Szczegóły",
@@ -94,6 +94,21 @@ class SearchResults extends React.Component {
     const isSubscribedToThisPhrase =
       query.search && this.props.store.subscriptions.some(s => s.searchPhrase === query.search);
 
+    const customStyles = (width = 200, height = 20) => {
+      return {
+        container: base =>
+          Object.assign({}, base, {
+            display: "inline-block",
+            width: width
+          }),
+        valueContainer: base =>
+          Object.assign({}, base, {
+            minHeight: height
+          }),
+        placeHolder: base => Object.assign({}, base, { fontSize: 12 })
+      };
+    };
+
     return (
       <div className="app sans-serif">
         <div className="w-80 p5 center">
@@ -119,6 +134,7 @@ class SearchResults extends React.Component {
             <div className="flex">
               <div style={{ width: 200 }}>
                 <Select
+                  styles={customStyles()}
                   options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
                   onChange={ev => this.handleSourceNameChange(ev.target.value)}
                   placeholder="Źródło"

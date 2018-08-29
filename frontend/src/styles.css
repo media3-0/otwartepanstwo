@@ -34,6 +34,7 @@
 a {
   text-decoration: none;
   cursor: pointer;
+  color: #ff4136;
 }
 
 a:hover {
@@ -311,4 +312,12 @@ input:focus {
 
 .react-datepicker__input-container input::placeholder {
   color: hsl(0, 0%, 50%);
+}
+
+.css-1aya2g8 {
+  border-radius: 0 !important;
+}
+
+.rt-td {
+  text-transform: capitalize;
 }

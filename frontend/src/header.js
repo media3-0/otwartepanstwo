@@ -66,6 +66,7 @@ class Header extends React.Component {
             <div className="flex">
               <input
                 className="f7"
+                style={{ height: 36 }}
                 type="text"
                 value={this.state.search.search}
                 onChange={this.setSearch}

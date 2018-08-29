@@ -17,6 +17,7 @@ class Auth {
     this.logout = this.logout.bind(this);
     this.handleAuthentication = this.handleAuthentication.bind(this);
     this.isAuthenticated = this.isAuthenticated.bind(this);
+    this.email = null;
   }
 
   login() {
@@ -27,9 +28,9 @@ class Auth {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
-        history.replace("/home");
+        history.replace("/");
       } else if (err) {
-        history.replace("/home");
+        history.replace("/");
         console.error(err);
       }
     });
@@ -41,16 +42,18 @@ class Auth {
     localStorage.setItem("access_token", authResult.accessToken);
     localStorage.setItem("id_token", authResult.idToken);
     localStorage.setItem("expires_at", expiresAt);
+    localStorage.setItem("email", authResult.idTokenPayload.email);
 
-    history.replace("/home");
+    history.replace("/");
   }
 
   logout() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("id_token");
     localStorage.removeItem("expires_at");
+    localStorage.removeItem("email");
 
-    history.replace("/home");
+    history.replace("/");
   }
 
   isAuthenticated() {
@@ -60,6 +63,10 @@ class Auth {
 
   getToken() {
     return localStorage.getItem("id_token");
+  }
+
+  getUser() {
+    return { email: localStorage.getItem("email") };
   }
 }
 

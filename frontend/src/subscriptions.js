@@ -16,7 +16,7 @@ class Subscriptions extends React.Component {
 
   render() {
     return (
-      <div className="w-80 center">
+      <div className="w-80 pt2 center">
         <h3 className="red">Moje Subskrypcje</h3>
         {this.props.store.subscriptions.map(obj => {
           return (

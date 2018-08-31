@@ -3,6 +3,8 @@ const autoBind = require("react-autobind");
 const { Document, Page } = require("react-pdf");
 const queryString = require("query-string");
 
+const { WrappedSpinner } = require("./loader");
+
 const { buildPdfUrl, formatDate, removeNullKeys } = require("./utils");
 
 class SearchPanel extends React.Component {
@@ -54,10 +56,10 @@ class SearchPanel extends React.Component {
     const LIST_ITEM_HEIGHT = 50;
     return (
       <div>
-        <div className="mb2">
+        <div className="pa2">
           <input
             type="text"
-            className="w-100 h-100 f7 pa3"
+            className="w-100 h-100 f7 pa3 border--red"
             value={searchWord}
             placeholder="Wpisz wyszukiwaną frazę..."
             onChange={ev => this.setSearch(ev.target.value)}
@@ -73,7 +75,7 @@ class SearchPanel extends React.Component {
             const pageNum = parseInt(result.pageNum);
             return (
               <li
-                className={`f7 pl2 bt b--light-silver flex flex-column justify-center align-center pointer dim ${
+                className={`f7 pl2 bb b--near-white flex flex-column justify-center align-center pointer dim ${
                   pageNum === selectedPage ? "red b" : "black"
                 }`}
                 style={{ height: LIST_ITEM_HEIGHT }}
@@ -193,17 +195,28 @@ class PDFViewer extends React.Component {
     return (
       <div className="relative">
         <div style={{ position: "absolute", top: 0, left: 0, zIndex: 99 }}>
-          <button onClick={this.incScale}>+</button>
-          <button onClick={this.decScale}>-</button>
+          <button
+            className="bg-animate bg-red white inline-flex hover-bg-dark-red justify-center items-center ba b--near-white tc square-20"
+            onClick={this.incScale}
+          >
+            <i className="material-icons">zoom_in</i>
+          </button>
+          <button
+            className="bg-animate bg-red white inline-flex hover-bg-dark-red justify-center items-center ba b--near-white tc square-20"
+            onClick={this.decScale}
+          >
+            <i className="material-icons">zoom_out</i>
+          </button>
         </div>
         <div className="viewer-container flex">
           <div
-            className={`w-80 vh-85 overflow-scroll bg-near-white ${shouldFixZoom ? "pdf-zoom-fix" : ""}`}
+            className={`w-80 overflow-scroll bg-near-white br b--moon-gray ${shouldFixZoom ? "pdf-zoom-fix" : ""}`}
             ref={r => (this.pdfContainerRef = r)}
           >
-            <Document file={file} onLoadSuccess={this.onDocumentSuccess}>
+            <Document file={file} onLoadSuccess={this.onDocumentSuccess} loading={<WrappedSpinner />}>
               <Page
                 pageNumber={pageNumber}
+                loading={<WrappedSpinner />}
                 renderTextLayer={true}
                 scale={this.state.scale}
                 onRenderSuccess={this.updateViewContainers}
@@ -241,15 +254,15 @@ class PDFViewer extends React.Component {
             />
           </div>
         </div>
-        <div className="bt b--moon-gray f7 dark-gray w-80 tc flex items-center justify-between">
-          <a className="link" onClick={this.decPage}>
-            Poprzednia
+        <div className="bg-near-white bt b--moon-gray f7 dark-gray w-80 tc flex items-center justify-between">
+          <a className="bg-near-white red pdf-btn justify-center items-center inline-flex" onClick={this.decPage}>
+            <i className="material-icons">navigate_before</i>
           </a>
           <p>
             {pageNumber} / {numPages}
           </p>
-          <a className="link" onClick={this.incPage}>
-            Następna
+          <a className="bg-near-white red pdf-btn justify-center items-center inline-flex" onClick={this.incPage}>
+            <i className="material-icons">navigate_next</i>
           </a>
         </div>
       </div>
@@ -296,25 +309,32 @@ class DocumentPreview extends React.Component {
     const search = queryString.parse(this.props.location.search);
     const pageNum = search.pageNum ? parseInt(search.pageNum) : 1;
     const searchWord = search.search;
-    console.log(this.state);
     return (
-      <div className="w-80 p5 center document-preview">
-        <h2>{this.state.info.title}</h2>
-        <h3>{this.state.info.sourceName}</h3>
-        <h5>Data Publikacji: {this.state.info.date && formatDate(this.state.info.date)}</h5>
-        <h5>Data Ostatniego Pobrania: {this.state.info.date && formatDate(this.state.info.lastDownload)}</h5>
-        <div>
-          <a className="red flex items-center" href={this.state.info.url}>
-            <i className="material-icons">attachment</i> Pobierz dziennik ze źródła
-          </a>
+      <div className="w-100 p5 center document-preview">
+        <div className="flex">
+          <div className="w-20 pa3 br b--moon-gray">
+            <h3 className="title">{this.state.info.title}</h3>
+            <h5 className="title">Żródło: {this.state.info.sourceName}</h5>
+            <h5 className="title">Data Publikacji: {this.state.info.date && formatDate(this.state.info.date)}</h5>
+            <h5 className="title">
+              Data Ostatniego Pobrania: {this.state.info.date && formatDate(this.state.info.lastDownload)}
+            </h5>
+            <div>
+              <a className="red flex items-center" href={this.state.info.url}>
+                <i className="material-icons">attachment</i> Pobierz dziennik ze źródła
+              </a>
+            </div>
+          </div>
+          <div className="w-80">
+            <PDFViewer
+              file={pdfUrl}
+              pageNumber={pageNum}
+              searchFromUrl={searchWord}
+              handleSearchChange={this.handleSearchChange}
+              handlePageChange={this.handlePageChange}
+            />
+          </div>
         </div>
-        <PDFViewer
-          file={pdfUrl}
-          pageNumber={pageNum}
-          searchFromUrl={searchWord}
-          handleSearchChange={this.handleSearchChange}
-          handlePageChange={this.handlePageChange}
-        />
       </div>
     );
   }

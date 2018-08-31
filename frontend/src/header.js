@@ -5,7 +5,7 @@ const queryString = require("query-string");
 const { observer, inject } = require("mobx-react");
 const { removeNullKeys } = require("./utils");
 
-const Loader = require("./loader");
+const { Loader } = require("./loader");
 
 @inject("store")
 @observer

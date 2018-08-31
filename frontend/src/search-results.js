@@ -141,11 +141,11 @@ class SearchResults extends React.Component {
             <div className="flex">
               {isAuthenticated && (
                 <button
-                  className="dropbtn"
+                  className="dropbtn dim pointer"
                   disabled={isSubscribedToThisPhrase || !query.search}
                   onClick={this.handleSearchSubscribe}
                 >
-                  Zasubskrybuj to hasło
+                  Zasubskrybuj
                 </button>
               )}
             </div>
@@ -164,7 +164,7 @@ class SearchResults extends React.Component {
             pageText="Strona"
             ofText="z"
             rowsText="wierszy"
-            getTdProps={(state, rowInfo, column) => {
+            getTdProps={(state, rowInfo) => {
               return {
                 onClick: (e, handleOriginal) => {
                   const hash = rowInfo.original.hash;

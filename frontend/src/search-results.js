@@ -1,12 +1,13 @@
 const React = require("react");
 const autoBind = require("react-autobind");
-const { Link } = require("react-router-dom");
+const { withRouter } = require("react-router-dom");
 const queryString = require("query-string");
 const ReactTable = require("react-table").default;
 const DatePicker = require("react-datepicker").default;
 const Select = require("react-select").default;
 const moment = require("moment");
 const { observer, inject } = require("mobx-react");
+const mobx = require("mobx");
 
 const { removeNullKeys } = require("./utils");
 const { DATE_FORMAT } = require("./constants");
@@ -16,28 +17,22 @@ const columns = ({ search }) => {
     {
       Header: "Tytuł",
       accessor: "title",
-      width: 500
-    },
-    {
-      Header: "Źródło",
-      accessor: "sourceName"
+      width: 600
     },
     {
       Header: "Data",
       accessor: "date",
-      Cell: props => <span className="number">{moment(new Date(props.value)).format("DD.MM.YYYY")}</span>
+      width: 100,
+      Cell: props => <div className="tc">{moment(new Date(props.value)).format("DD.MM.YYYY")}</div>
     },
     {
-      Header: "Szczegóły",
-      accessor: "hash",
-      Cell: props => {
-        const url = search ? `/document/${props.value}/?search=${search}` : `document/${props.value}`;
-        return <Link to={url}>Wyświetl</Link>;
-      }
+      Header: "Źródło",
+      accessor: "sourceName"
     }
   ];
 };
 
+@withRouter
 @inject("store")
 @observer
 class SearchResults extends React.Component {
@@ -109,10 +104,11 @@ class SearchResults extends React.Component {
       };
     };
 
+    // console.log(mobx.toJS(this.props.store.documents));
     return (
       <div className="app sans-serif">
         <div className="w-80 p5 center">
-          <div className="flex justify-between pa3">
+          <div className="flex justify-between pv3">
             <div className="flex css-1aya2g8">
               <DatePicker
                 selected={!!query.dateFrom ? moment(query.dateFrom, DATE_FORMAT) : null}
@@ -156,11 +152,9 @@ class SearchResults extends React.Component {
           </div>
 
           <ReactTable
-            data={this.props.store.documents}
+            data={mobx.toJS(this.props.store.documents)}
             columns={customColumns}
             showPageSizeOptions={false}
-            sortable={false}
-            multiSort={false}
             resizable={false}
             filterable={false}
             previousText="Wstecz"
@@ -170,6 +164,18 @@ class SearchResults extends React.Component {
             pageText="Strona"
             ofText="z"
             rowsText="wierszy"
+            getTdProps={(state, rowInfo, column) => {
+              return {
+                onClick: (e, handleOriginal) => {
+                  const hash = rowInfo.original.hash;
+                  const url = query.search ? `/document/${hash}/?search=${query.search}` : `document/${hash}`;
+                  this.props.history.push(url);
+                  if (handleOriginal) {
+                    handleOriginal();
+                  }
+                }
+              };
+            }}
           />
         </div>
       </div>

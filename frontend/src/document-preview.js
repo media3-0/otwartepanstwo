@@ -265,7 +265,7 @@ class DocumentPreview extends React.Component {
 
     this.state = {
       numPages: null,
-      info: { title: "", sourceName: "", date: null, lastDownload: null }
+      info: { title: "", sourceName: "", date: null, lastDownload: null, url: "" }
     };
   }
 
@@ -296,6 +296,7 @@ class DocumentPreview extends React.Component {
     const search = queryString.parse(this.props.location.search);
     const pageNum = search.pageNum ? parseInt(search.pageNum) : 1;
     const searchWord = search.search;
+    console.log(this.state);
     return (
       <div className="w-80 p5 center document-preview">
         <h2>{this.state.info.title}</h2>
@@ -303,8 +304,8 @@ class DocumentPreview extends React.Component {
         <h5>Data Publikacji: {this.state.info.date && formatDate(this.state.info.date)}</h5>
         <h5>Data Ostatniego Pobrania: {this.state.info.date && formatDate(this.state.info.lastDownload)}</h5>
         <div>
-          <a className="red flex items-center" href={pdfUrl}>
-            <i className="material-icons">attachment</i> Pobierz dziennik
+          <a className="red flex items-center" href={this.state.info.url}>
+            <i className="material-icons">attachment</i> Pobierz dziennik ze źródła
           </a>
         </div>
         <PDFViewer

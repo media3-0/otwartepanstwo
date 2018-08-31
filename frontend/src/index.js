@@ -17,8 +17,8 @@ const Subscriptions = require("./subscriptions");
 
 require("react-table/react-table.css");
 require("tachyons");
-require("./styles.css");
 require("react-datepicker/dist/react-datepicker.css");
+require("./styles.css");
 
 class DefaultLayout extends React.Component {
   render() {

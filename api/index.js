@@ -68,7 +68,7 @@ const init = async () => {
   // documents
   app.get("/documents/", (req, res) => {
     const { search, dateFrom, dateTo, sourceName, hash } = req.query;
-    const fields = ["title", "date", "last_download", "source_name", "hash"];
+    const fields = ["title", "date", "last_download", "source_name", "hash", "url"];
 
     let query = db(DOCUMENTS_TABLE);
 

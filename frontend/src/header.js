@@ -58,10 +58,20 @@ class Header extends React.Component {
       <div>
         <Loader visible={this.props.store.fetching} />
         <div className="topbar">
-          <div className="center w-80 flex justify-between items-center">
-            <Link to="/">
-              <h2 className="red">OtwartePaństwo</h2>
-            </Link>
+          <div className="center w-70 flex justify-between items-center">
+            <div className="flex">
+              <Link to="/">
+                <h2 className="red">OtwartePaństwo</h2>
+              </Link>
+              <div className="flex ml3 items-center">
+                <a className="pr2 f6" href="/documents">
+                  Dokumenty
+                </a>
+                <a className="f6" href="/">
+                  Blog
+                </a>
+              </div>
+            </div>
 
             <div className="flex">
               <input

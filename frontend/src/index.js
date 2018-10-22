@@ -12,6 +12,8 @@ const Auth = require("./services/auth");
 const Header = require("./header");
 const SearchResults = require("./search-results");
 
+const { Blog } = require("./blog");
+const { BlogPost } = require("./blog-post");
 const DocumentPreview = require("./document-preview");
 const Subscriptions = require("./subscriptions");
 
@@ -62,7 +64,9 @@ class App extends React.Component {
       <Provider store={new Store()}>
         <Router history={history}>
           <div>
-            <DefaultLayout exact={true} path="/" content={<SearchResults />} />
+            <DefaultLayout exact={true} path="/" content={<Blog />} />
+            <DefaultLayout exact={true} path="/article/:id" content={<BlogPost />} />
+            <DefaultLayout exact={true} path="/documents" content={<SearchResults />} />
             <DefaultLayout exact={true} path="/document/:hash" content={<DocumentPreview />} />
             <DefaultLayout exact={true} path="/subscriptions" content={<Subscriptions />} />
             <Route

@@ -72,14 +72,14 @@ class SearchResults extends React.Component {
       const newDate = date ? date.format(DATE_FORMAT) : null;
       const search = queryString.parse(this.props.location.search);
       const newSearch = removeNullKeys(Object.assign({}, search, { [`date${name}`]: newDate }));
-      this.props.history.push(`/?${queryString.stringify(newSearch)}`);
+      this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
     };
   }
 
   handleSourceNameChange({ value }) {
     const search = queryString.parse(this.props.location.search);
     const newSearch = removeNullKeys(Object.assign({}, search, { sourceName: value }));
-    this.props.history.push(`/?${queryString.stringify(newSearch)}`);
+    this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 
   render() {

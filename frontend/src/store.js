@@ -13,6 +13,31 @@ class Store {
   @observable subscriptions = [];
   @observable sourceNames = [];
 
+  @observable
+  articles = [
+    {
+      title: "Artykul testowy 2",
+      date: "2018-10-09T00:00:00.000Z",
+      content: {
+        blocks: [
+          {
+            key: "4op71",
+            data: {},
+            text: "HEHE",
+            type: "unstyled",
+            depth: 0,
+            entityRanges: [],
+            inlineStyleRanges: []
+          }
+        ],
+        entityMap: {}
+      },
+      entities: [1, 2, 3],
+      connections: [1],
+      id: 2
+    }
+  ];
+
   @action
   fetchSubscriptions() {
     const token = this.auth.getToken();

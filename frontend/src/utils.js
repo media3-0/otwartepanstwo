@@ -1,4 +1,6 @@
 const { format } = require("date-fns");
+const { uniq, mapValues, groupBy } = require("lodash");
+const moment = require("moment");
 
 const buildPdfUrl = hash => `/files/${hash}.pdf`;
 
@@ -42,4 +44,24 @@ const removeNullKeys = collection =>
     return Object.assign({}, acc, { [key]: value });
   }, {});
 
-module.exports = { buildPdfUrl, formatDate, allIndexOf, removeNullKeys };
+moment.locale("pl");
+
+const getUniqueMonths = list =>
+  mapValues(groupBy(list, d => d.slice(0, 4)), yearCollection => {
+    return uniq(yearCollection.map(d => parseInt(d.slice(5, 7))).sort()).map(monthNum => {
+      return {
+        name: moment()
+          .month(monthNum - 1)
+          .format("MMMM"),
+        num: monthNum
+      };
+    });
+  });
+
+module.exports = {
+  buildPdfUrl,
+  formatDate,
+  allIndexOf,
+  removeNullKeys,
+  getUniqueMonths
+};

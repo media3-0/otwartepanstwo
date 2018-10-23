@@ -1,6 +1,8 @@
 const { action, observable } = require("mobx");
 const queryString = require("query-string");
+const moment = require("moment");
 
+const history = require("./services/history");
 const Auth = require("./services/auth");
 const API_URL = "/api";
 const DEFAULT_HEADERS = {
@@ -135,6 +137,7 @@ class Store {
 
   @action
   getAllArticles() {
+    console.log(this.auth.getToken());
     getFetch("/articles").then(articles => {
       this.articles = articles;
     });

@@ -11,6 +11,8 @@ services:
       - "8080:80"
     volumes:
       - ./data/files:/data/files # persisted downloads
+      - ./data/uploads:/data/uploads # persisted downloads
+      - ./data/assets:/data/assets # persisted downloads
     depends_on:
       - frontend
       - api
@@ -50,6 +52,7 @@ services:
       - ./../api:/app
       - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
       - ./data/files:/data/files # persisted downloads
+      - ./data/uploads:/data/uploads # persisted downloads
     depends_on:
       - db
       # - elasticsearch

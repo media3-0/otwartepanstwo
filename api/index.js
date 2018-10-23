@@ -16,6 +16,8 @@ const PORT = process.env.PORT || 4000;
 const toClient = obj => changeCaseKeys(obj, "camelize");
 const toDB = obj => changeCaseKeys(obj, "underscored");
 
+const upload = multer({ dest: "/data/uploads/" });
+
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
@@ -66,8 +68,8 @@ const init = async () => {
       collection: "articles",
       fields: ["title", "date", "content"],
       fieldFormatters: { date: value => moment(value).format("YYYY-MM-DD") },
-      db
-      // authMiddleware: checkJwt
+      db,
+      authMiddleware: checkJwt
     })
   );
 
@@ -174,6 +176,12 @@ const init = async () => {
       .then(() => {
         res.send({ ok: true });
       });
+  });
+
+  // uploads
+  app.post("/upload", upload.single("asset"), (req, res) => {
+    console.log(req.file);
+    res.send({ filePath: `/uploads/${req.file.filename}` });
   });
 
   // start

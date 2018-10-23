@@ -60,8 +60,8 @@ class Header extends React.Component {
         <div className="topbar">
           <div className="center w-70 flex justify-between items-center">
             <div className="flex">
-              <Link to="/">
-                <h2 className="red">OtwartePaństwo</h2>
+              <Link to="/" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <img width="200" src="/assets/logo.png" />
               </Link>
               <div className="flex ml3 items-center">
                 <a className="pr2 f6" href="/documents">

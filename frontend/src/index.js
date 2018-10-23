@@ -14,6 +14,8 @@ const SearchResults = require("./search-results");
 
 const { Blog } = require("./blog");
 const { BlogPost } = require("./blog-post");
+const AdminHome = require("./admin");
+const AdminArticleEdit = require("./admin-article");
 const DocumentPreview = require("./document-preview");
 const Subscriptions = require("./subscriptions");
 
@@ -21,6 +23,14 @@ require("react-table/react-table.css");
 require("tachyons");
 require("react-datepicker/dist/react-datepicker.css");
 require("./styles.css");
+
+const Footer = () => (
+  <div className="fl w-100 pa2 mt3 bg-white">
+    <footer class="ph3 w-70 center">
+      <img src="/assets/footer.png" width="100%" />
+    </footer>
+  </div>
+);
 
 class DefaultLayout extends React.Component {
   render() {
@@ -35,6 +45,7 @@ class DefaultLayout extends React.Component {
             <div className="content">
               <div className="w-100 center">
                 {React.cloneElement(content, Object.assign({}, matchProps, cleanProps))}
+                <Footer />
               </div>
             </div>
           </div>
@@ -71,6 +82,10 @@ class App extends React.Component {
             <DefaultLayout exact={true} path="/documents" content={<SearchResults />} />
             <DefaultLayout exact={true} path="/document/:hash" content={<DocumentPreview />} />
             <DefaultLayout exact={true} path="/subscriptions" content={<Subscriptions />} />
+
+            <DefaultLayout exact={true} admin path="/admin/article" content={<AdminArticleEdit />} />
+            <DefaultLayout exact={true} admin path="/admin/article/:id" content={<AdminArticleEdit />} />
+
             <Route
               path="/callback"
               render={props => {
@@ -82,11 +97,13 @@ class App extends React.Component {
               path="/admin"
               render={props => {
                 const isAuth = this.auth.isAuthenticated();
-                if (isAuth) {
+                const isAdmin = this.auth.isAdmin();
+                if (isAuth && isAdmin) {
                   return <DefaultLayout exact={true} admin path="/admin" content={<AdminHome />} {...props} />;
+                } else {
+                  this.auth.login();
+                  return null;
                 }
-                this.auth.login();
-                return null;
               }}
             />
           </div>

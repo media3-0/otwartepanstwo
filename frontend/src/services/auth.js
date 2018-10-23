@@ -2,6 +2,8 @@ const auth0 = require("auth0-js");
 
 const history = require("./history");
 
+const ADMIN_EMAILS = ["jnhfmn@gmail.com"];
+
 class Auth {
   constructor() {
     this.auth0 = new auth0.WebAuth({
@@ -26,6 +28,7 @@ class Auth {
 
   handleAuthentication() {
     this.auth0.parseHash((err, authResult) => {
+      console.log(authResult);
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
         history.replace("/");
@@ -38,11 +41,13 @@ class Auth {
 
   setSession(authResult) {
     const expiresAt = JSON.stringify(authResult.expiresIn * 1000 + new Date().getTime());
+    const email = authResult.idTokenPayload.email;
 
     localStorage.setItem("access_token", authResult.accessToken);
     localStorage.setItem("id_token", authResult.idToken);
     localStorage.setItem("expires_at", expiresAt);
-    localStorage.setItem("email", authResult.idTokenPayload.email);
+    localStorage.setItem("email", email);
+    localStorage.setItem("isAdmin", ADMIN_EMAILS.includes(email));
 
     history.replace("/");
   }
@@ -58,6 +63,7 @@ class Auth {
 
   isAuthenticated() {
     let expiresAt = JSON.parse(localStorage.getItem("expires_at"));
+    const email = localStorage.getItem("email");
     return new Date().getTime() < expiresAt;
   }
 
@@ -67,6 +73,11 @@ class Auth {
 
   getUser() {
     return { email: localStorage.getItem("email") };
+  }
+
+  isAdmin(callback) {
+    const email = localStorage.getItem("email");
+    return ADMIN_EMAILS.includes(email);
   }
 }
 

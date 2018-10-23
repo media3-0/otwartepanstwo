@@ -12,7 +12,7 @@ services:
     volumes:
       - ./data/files:/data/files # persisted downloads
       - ./data/uploads:/data/uploads # persisted downloads
-      - ./frontend/assets:/data/assets # assets
+      - ../frontend/assets:/data/assets # persisted downloads
     depends_on:
       - frontend
       - api

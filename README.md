@@ -14,6 +14,8 @@ AUTH0_CLIENTID=...    # client id for auth0
 AUTH0_REDIRECT=...    # redirect (callback) for auth0
 
 MAILGUN_API_KEY=...   # api key for mailgun
+
+ADMIN_EMAILS=...      # list of emails that grants access to admin panel
 ```
 
 For dev, this could be set in `PROJECT_ROOT/.env`, for production use it's preffered to `export` them in the shell.

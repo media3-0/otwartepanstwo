@@ -2,7 +2,7 @@ const auth0 = require("auth0-js");
 
 const history = require("./history");
 
-const ADMIN_EMAILS = ["jnhfmn@gmail.com"];
+const ADMIN_EMAILS = process.env.ADMIN_EMAILS.split(",");
 
 class Auth {
   constructor() {
@@ -63,7 +63,6 @@ class Auth {
 
   isAuthenticated() {
     let expiresAt = JSON.parse(localStorage.getItem("expires_at"));
-    const email = localStorage.getItem("email");
     return new Date().getTime() < expiresAt;
   }
 

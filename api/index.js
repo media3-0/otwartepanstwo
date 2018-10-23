@@ -5,6 +5,9 @@ const knex = require("knex");
 const moment = require("moment");
 const morgan = require("morgan");
 const changeCaseKeys = require("change-case-keys");
+const multer = require("multer");
+
+const simpleCrud = require("./simple-crud");
 
 const DOCUMENTS_TABLE = "documents";
 const SUBSCRIPTIONS_TABLE = "subscriptions";
@@ -55,6 +58,18 @@ const init = async () => {
   app.get("/health-check", (req, res) => {
     res.send("ok");
   });
+
+  // articles
+  app.use(
+    simpleCrud({
+      basePath: "/articles",
+      collection: "articles",
+      fields: ["title", "date", "content"],
+      fieldFormatters: { date: value => moment(value).format("YYYY-MM-DD") },
+      db
+      // authMiddleware: checkJwt
+    })
+  );
 
   // source names
   app.get("/source-names", (req, res) => {
@@ -139,8 +154,6 @@ const init = async () => {
   app.delete("/subscriptions", checkJwt, (req, res) => {
     const { email } = req.user;
     const { search } = req.body;
-
-    console.log(email, search, req.body);
 
     if (!email) {
       return res.status(400).send({ reason: "`email` missing" });

@@ -20,6 +20,11 @@ const ReadOnlyEditor = ({ rawState }) => {
 @inject("store")
 @observer
 class BlogPost extends React.Component {
+  componentDidMount() {
+    console.log(this.props);
+    this.props.store.getArticleById({ id: this.props.match.params.id });
+  }
+
   render() {
     const { match, store } = this.props;
     const id = parseInt(match.params.id);

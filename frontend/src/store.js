@@ -2,6 +2,43 @@ const { action, observable } = require("mobx");
 const queryString = require("query-string");
 
 const Auth = require("./services/auth");
+const API_URL = "/api";
+const DEFAULT_HEADERS = {
+  Accept: "application/json",
+  "Content-Type": "application/json"
+};
+
+const getFetch = path =>
+  fetch(`${API_URL}${path}`, {
+    method: "GET",
+    headers: DEFAULT_HEADERS
+  }).then(resp => resp.json());
+
+const getSpecificFetch = (path, id) =>
+  fetch(`${API_URL}${path}/${id}`, {
+    method: "GET",
+    headers: DEFAULT_HEADERS
+  }).then(resp => resp.json());
+
+const addNewFetch = (path, body, token) =>
+  fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: Object.assign(DEFAULT_HEADERS, { Authorization: `Bearer ${token}` }),
+    body: JSON.stringify(body)
+  }).then(resp => resp.json());
+
+const updateFetch = (path, id, body, token) =>
+  fetch(`${API_URL}${path}/${id}`, {
+    method: "PUT",
+    headers: Object.assign(DEFAULT_HEADERS, { Authorization: `Bearer ${token}` }),
+    body: JSON.stringify(body)
+  }).then(resp => resp.json());
+
+const deleteFetch = (path, id, token) =>
+  fetch(`${API_URL}${path}/${id}`, {
+    method: "DELETE",
+    headers: Object.assign(DEFAULT_HEADERS, { Authorization: `Bearer ${token}` })
+  }).then(resp => resp.json());
 
 class Store {
   constructor() {
@@ -13,30 +50,7 @@ class Store {
   @observable subscriptions = [];
   @observable sourceNames = [];
 
-  @observable
-  articles = [
-    {
-      title: "Artykul testowy 2",
-      date: "2018-10-09T00:00:00.000Z",
-      content: {
-        blocks: [
-          {
-            key: "4op71",
-            data: {},
-            text: "HEHE",
-            type: "unstyled",
-            depth: 0,
-            entityRanges: [],
-            inlineStyleRanges: []
-          }
-        ],
-        entityMap: {}
-      },
-      entities: [1, 2, 3],
-      connections: [1],
-      id: 2
-    }
-  ];
+  @observable articles = [];
 
   @action
   fetchSubscriptions() {
@@ -117,6 +131,53 @@ class Store {
         this.documents = documents;
         this.fetching = false;
       });
+  }
+
+  @action
+  getAllArticles() {
+    getFetch("/articles").then(articles => {
+      this.articles = articles;
+    });
+  }
+
+  @action
+  getArticleById({ id }) {
+    if (this.articles.some(article => article.id === id)) {
+      return;
+    }
+    getSpecificFetch("/articles", id).then(article => {
+      this.articles = this.articles.concat(article);
+    });
+  }
+
+  @action
+  addNewArticle(data) {
+    addNewFetch(
+      "/articles",
+      Object.assign({}, data, { date: moment().format("YYYY-MM-DD") }),
+      this.auth.getToken()
+    ).then(json => {
+      this.articles = this.articles.concat([Object.assign({ id: json.id }, data)]);
+      history.push(`/admin/article/${json.id}`);
+    });
+  }
+
+  @action
+  updateArticle(id, data) {
+    updateFetch("/articles", id, data, this.auth.getToken()).then(({ id }) => {
+      this.articles = this.articles.map(article => {
+        if (article.id === id) {
+          return Object.assign(article, data);
+        }
+        return article;
+      });
+    });
+  }
+
+  deleteArticle({ id }) {
+    deleteFetch("/articles", id, this.auth.getToken()).then(() => {
+      this.articles = this.articles.filter(article => article.id !== id);
+    });
   }
 }
 

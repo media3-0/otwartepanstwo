@@ -57,6 +57,10 @@ const BlogArticle = ({ id, title, date, children, readMore = false }) => (
 @inject("store")
 @observer
 class Blog extends React.Component {
+  componentDidMount() {
+    this.props.store.getAllArticles();
+  }
+
   render() {
     const { store, match } = this.props;
 
@@ -64,7 +68,7 @@ class Blog extends React.Component {
       match.params.year && match.params.month
         ? store.articles.filter(({ date }) => {
             const d = moment(date);
-            const testDate = `${match.params.year}-${match.params.month}`;
+            const testDate = `${match.params.year}-${match.params.month.length === 1 ? "0" : ""}${match.params.month}`;
             return d.isSame(testDate, "year") && d.isSame(testDate, "month");
           })
         : store.articles;

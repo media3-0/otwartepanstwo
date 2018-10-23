@@ -65,6 +65,8 @@ class App extends React.Component {
         <Router history={history}>
           <div>
             <DefaultLayout exact={true} path="/" content={<Blog />} />
+            <DefaultLayout exact={true} path="/articles/" content={<Blog />} />
+            <DefaultLayout exact={true} path="/articles/:year/:month" content={<Blog />} />
             <DefaultLayout exact={true} path="/article/:id" content={<BlogPost />} />
             <DefaultLayout exact={true} path="/documents" content={<SearchResults />} />
             <DefaultLayout exact={true} path="/document/:hash" content={<DocumentPreview />} />
@@ -73,6 +75,17 @@ class App extends React.Component {
               path="/callback"
               render={props => {
                 this.handleAuthentication(props);
+                return null;
+              }}
+            />
+            <Route
+              path="/admin"
+              render={props => {
+                const isAuth = this.auth.isAuthenticated();
+                if (isAuth) {
+                  return <DefaultLayout exact={true} admin path="/admin" content={<AdminHome />} {...props} />;
+                }
+                this.auth.login();
                 return null;
               }}
             />

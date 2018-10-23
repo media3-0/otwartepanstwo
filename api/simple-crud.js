@@ -31,7 +31,6 @@ module.exports = ({ basePath, collection, authMiddleware = noMiddleware, fields,
   });
 
   router.put(`${basePath}/:id`, authMiddleware, (req, res) => {
-    console.log(req);
     const { id } = req.params;
 
     const toUpdate = mapValues(pick(req.body, fields), (value, key) => {

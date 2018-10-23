@@ -6,7 +6,6 @@ const ADMIN_EMAILS = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split("
 
 class Auth {
   constructor() {
-    console.log(process.env.ADMIN_EMAILS);
     this.auth0 = new auth0.WebAuth({
       domain: process.env.AUTH0_DOMAIN,
       clientID: process.env.AUTH0_CLIENTID,

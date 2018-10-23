@@ -21,7 +21,6 @@ const ReadOnlyEditor = ({ rawState }) => {
 @observer
 class BlogPost extends React.Component {
   componentDidMount() {
-    console.log(this.props);
     this.props.store.getArticleById({ id: this.props.match.params.id });
   }
 

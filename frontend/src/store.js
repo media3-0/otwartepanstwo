@@ -137,7 +137,6 @@ class Store {
 
   @action
   getAllArticles() {
-    console.log(this.auth.getToken());
     getFetch("/articles").then(articles => {
       this.articles = articles;
     });

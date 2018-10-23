@@ -2,7 +2,7 @@ const auth0 = require("auth0-js");
 
 const history = require("./history");
 
-const ADMIN_EMAILS = process.env.ADMIN_EMAILS.split(",");
+const ADMIN_EMAILS = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(",") : [];
 
 class Auth {
   constructor() {
@@ -28,7 +28,6 @@ class Auth {
 
   handleAuthentication() {
     this.auth0.parseHash((err, authResult) => {
-      console.log(authResult);
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult);
         history.replace("/");

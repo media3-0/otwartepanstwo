@@ -86,13 +86,13 @@ class Header extends React.Component {
                   }
                 }}
               />
-              <button className="bg-red white ba b--red dim f7" onClick={this.handleSearch}>
+              <button className="bg-red white ba b--red dim pointer f7" onClick={this.handleSearch}>
                 Szukaj
               </button>
               <div>
                 {isAuthenticated ? (
                   <div className="dropdown">
-                    <button className="dropbtn flex justify-center items-center">
+                    <button className="dropbtn flex justify-center items-center dim pointer">
                       <i className="material-icons">person</i>
                       {email}
                     </button>
@@ -102,7 +102,7 @@ class Header extends React.Component {
                     </div>
                   </div>
                 ) : (
-                  <button className="dropbtn flex justify-center items-center" onClick={this.handleLogin}>
+                  <button className="dropbtn flex justify-center items-center dim pointer" onClick={this.handleLogin}>
                     Zaloguj
                   </button>
                 )}

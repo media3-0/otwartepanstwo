@@ -18,6 +18,14 @@ class Subscriptions extends React.Component {
     return (
       <div className="w-80 pt2 center">
         <h3 className="red">Moje Subskrypcje</h3>
+
+        {this.props.store.subscriptions.length === 0 && (
+          <div>
+            Brak subskrypcji, wyszukaj interesującą Cię frazę i zasubskrybuj, żeby otrzymać powiadomienia mailowe o
+            nowych dokumentach.
+          </div>
+        )}
+
         {this.props.store.subscriptions.map(obj => {
           return (
             <div className="bg-red white pa3 mv3" key={obj.searchPhrase}>

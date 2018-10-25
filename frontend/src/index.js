@@ -34,7 +34,7 @@ const Footer = () => (
 
 class DefaultLayout extends React.Component {
   render() {
-    const { content } = this.props;
+    const { content, noFooter } = this.props;
     const cleanProps = omit(this.props, ["store"]);
     return (
       <Route
@@ -45,7 +45,7 @@ class DefaultLayout extends React.Component {
             <div className="content">
               <div className="w-100 center">
                 {React.cloneElement(content, Object.assign({}, matchProps, cleanProps))}
-                <Footer />
+                {!noFooter && <Footer />}
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ class App extends React.Component {
             <DefaultLayout exact={true} path="/articles/:year/:month" content={<Blog />} />
             <DefaultLayout exact={true} path="/article/:id" content={<BlogPost />} />
             <DefaultLayout exact={true} path="/documents" content={<SearchResults />} />
-            <DefaultLayout exact={true} path="/document/:hash" content={<DocumentPreview />} />
+            <DefaultLayout exact={true} path="/document/:hash" noFooter content={<DocumentPreview />} />
             <DefaultLayout exact={true} path="/subscriptions" content={<Subscriptions />} />
 
             <DefaultLayout exact={true} admin path="/admin/article" content={<AdminArticleEdit />} />

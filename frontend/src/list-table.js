@@ -8,6 +8,7 @@ const TableHead = require("@material-ui/core/TableHead").default;
 const TableRow = require("@material-ui/core/TableRow").default;
 const Paper = require("@material-ui/core/Paper").default;
 const IconButton = require("@material-ui/core/IconButton").default;
+const DeleteIcon = require("@material-ui/icons/Delete").default;
 
 const styles = theme => ({
   root: {
@@ -51,7 +52,9 @@ class TableList extends React.Component {
                     <TableCell key={key}>{accessor ? accessor(row) : row[key]}</TableCell>
                   ))}
                   <TableCell numeric>
-                    <IconButton naria-label="Delete" onClick={this.handleDeleteClick(row.id)} />
+                    <IconButton naria-label="Delete" onClick={this.handleDeleteClick(row.id)}>
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               );

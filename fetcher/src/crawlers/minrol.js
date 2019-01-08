@@ -68,7 +68,7 @@ const crawl = async emitter => {
 
           await watcherForResponse;
 
-          await sleep(1000);
+          await sleep(5000);
 
           content = await newPage.content();
           $ = cheerio.load(content);
@@ -89,8 +89,9 @@ const crawl = async emitter => {
   return new Promise((resolve, reject) => {
     async.mapLimit(
       pages,
-      6,
+      1,
       async current => {
+        logger.debug(`Processing data ${current}`);
         const result = await simpleDOMGet(browser, current, ITEM_SELECTOR, node => ({
           title: node.find("div:nth-child(3) > div.row > div.col-md-9 > div:nth-child(1) > div > p > span").text(),
           date: node
@@ -102,6 +103,8 @@ const crawl = async emitter => {
           url: MAIN_URL + "/" + node.find("#notHtmlVersionOfAct > div > div > abc-download-pdf > div > a").attr("href"),
           sourceName: SOURCE_NAME
         }));
+
+        console.log("RESULT", result);
 
         emitter.emit("entity", [result]);
 

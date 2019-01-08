@@ -12,6 +12,7 @@ const SOURCE_NAME = "Dziennik Urzędowy Ministra Rozwoju";
 const crawl = async emitter => {
   const browserOpts = {
     headless: true,
+    ignoreHTTPSErrors: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   };
 

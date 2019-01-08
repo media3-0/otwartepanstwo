@@ -26,7 +26,8 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db.raw("select 1 + 1 as result")
+    db
+      .raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -49,6 +50,7 @@ const fetchAndParse = ({ url, hash }) => {
 
     request({
       uri: url,
+      strictSSL: false,
       method: "GET",
       encoding: "binary",
       headers: {

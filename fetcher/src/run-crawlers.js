@@ -12,7 +12,7 @@ const { parseEnvArray } = require("./utils");
 const crawlersDir = `${__dirname}/crawlers`;
 const MAX_TIME_BETWEEN_MSG = 10 * 60 * 1000;
 
-const DATE_SCHEMA = j.string().regex(/^[0-9]{4}[-]{1}[0-9]{2}[-]{1}[0-9]{2}$/g);
+const DATE_SCHEMA = j.string().regex(/^[1-9]{1}[0-9]{3}[-]{1}[0-9]{2}[-]{1}[0-9]{2}$/g);
 
 const ENTITY_SCHEMA = j.object().keys({
   title: j.string().required(),

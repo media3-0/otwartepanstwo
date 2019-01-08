@@ -66,7 +66,7 @@ const crawl = async emitter => {
 
           await watcherForResponse;
 
-          await sleep(1000);
+          await sleep(5000);
 
           content = await newPage.content();
           $ = cheerio.load(content);

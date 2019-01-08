@@ -3,8 +3,30 @@ const cheerio = require("cheerio");
 const { flatten, range } = require("lodash");
 const async = require("async");
 const { EventEmitter } = require("events");
+const logger = require("../logger");
 
-const { simpleDOMListParser, formatFromDotToDash } = require("../utils");
+const { formatFromDotToDash } = require("../utils");
+
+const simpleDOMListParser = async (browser, url, path, parse, missIndex) => {
+  const page = await browser.newPage();
+  await page.goto(url);
+
+  const content = await page.content();
+  const $ = cheerio.load(content);
+
+  const results = $(path)
+    .map((i, link) => {
+      if (!!missIndex && i === missIndex) {
+        return;
+      }
+      return parse($(link));
+    })
+    .get();
+
+  await page.close();
+
+  return results;
+};
 
 const BASE_URL = "https://www.msz.gov.pl";
 const MAIN_URL = `${BASE_URL}/pl/ministerstwo/dziennik_urzedowy/`;
@@ -19,7 +41,7 @@ const crawl = async emitter => {
 
   const browser = await puppeteer.launch(browserOpts);
   const page = await browser.newPage();
-  await page.goto(MAIN_URL, { waitUntil: "networkidle0" });
+  await page.goto(MAIN_URL);
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -41,12 +63,15 @@ const crawl = async emitter => {
       pagination,
       1,
       async pageNumber => {
+        logger.debug(`Processing #${pageNumber} of msz.js`);
         const list = await simpleDOMListParser(browser, getPaginationHref(pageNumber), ITEM_SELECTOR, node => ({
           title: node.find("td:nth-child(1) a").text(),
           url: BASE_URL + node.find("td:nth-child(1) a").attr("href"),
           date: formatFromDotToDash(node.find("td:nth-child(2) > p").text()),
           sourceName: SOURCE_NAME
         }));
+
+        logger.debug(`processed`, list);
 
         emitter.emit("entity", list);
 

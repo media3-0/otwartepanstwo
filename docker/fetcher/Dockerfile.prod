@@ -3,7 +3,7 @@ FROM node:latest
 
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get -y install cron rsyslog
+RUN apt-get -y install rsyslog
 
 RUN apt-get -y install poppler-utils libgconf-2-4
 RUN apt-get update && \
@@ -23,16 +23,8 @@ RUN chmod +x /usr/local/bin/dumb-init
 # set up script
 WORKDIR /app
 
-# setup cron
-COPY fetcher .
-COPY fetcher/etc/crontab /tmp/crontab
-
-RUN touch /var/log/cron.log
-RUN cat /tmp/crontab | crontab -
-RUN crontab -l
-
 RUN yarn global add wait-on
 RUN yarn install
 
-CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
-# CMD wait-on -l tcp:db:5432 && yarn install && yarn start
+# CMD rsyslogd && cron && tail -F /var/log/cron.log /var/log/syslog
+CMD wait-on -l tcp:db:5432 && yarn install && yarn start

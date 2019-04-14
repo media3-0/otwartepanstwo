@@ -78,7 +78,7 @@ const crawlTable = async (browser, $, emitter) => {
   return new Promise(resolve =>
     async.mapLimit(
       IS_DEV ? flatList.slice(0, 2) : flatList,
-      3,
+      1,
       async ({ date, link }) => {
         const linkData = await crawlLink(browser, link);
 
@@ -114,7 +114,7 @@ const crawlPagination = async (url, browser, emitter) => {
   return new Promise((resolve, reject) => {
     async.mapLimit(
       IS_DEV ? pagesCount.slice(0, 2) : pagesCount,
-      3,
+      1,
       async pageIdx => {
         const pageUrl = `${url}&page=${pageIdx}`;
 

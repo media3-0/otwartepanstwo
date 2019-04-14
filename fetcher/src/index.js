@@ -186,7 +186,7 @@ const processCrawlers = async ({ db }) => {
   });
 };
 
-(async () => {
+module.exports = async () => {
   logger.info(`Fetcher started at ${moment().toISOString()}`);
 
   const db = await createDB();
@@ -196,4 +196,4 @@ const processCrawlers = async ({ db }) => {
   await updateSubscriptions({ db });
 
   logger.info(`Fetcher finished at ${moment().toISOString()}`);
-})();
+};

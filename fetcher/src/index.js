@@ -49,7 +49,7 @@ const fetchAndParse = ({ url, hash }) => {
     const file = fs.createWriteStream(`/data/files/${hash}.pdf`);
 
     request({
-      uri: url,
+      uri: encodeURI(url),
       strictSSL: false,
       method: "GET",
       encoding: "binary",

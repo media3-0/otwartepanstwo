@@ -5,10 +5,14 @@ const { flatten } = require("lodash");
 const async = require("async");
 const { EventEmitter } = require("events");
 
-const { simpleDOMListParser, simpleDOMGet } = require("../utils");
+const logger = require("../logger");
 
 const MAIN_URL = "https://e-dziennik.men.gov.pl";
 const SOURCE_NAME = "Dziennik Urzędowy Ministra Edukacji Narodowej";
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const crawl = async emitter => {
   const browserOpts = {
@@ -23,84 +27,81 @@ const crawl = async emitter => {
   const content = await page.content();
   const $ = cheerio.load(content);
 
-  const YEARS_SELECTOR = "#mainmenu > ul > li.item-101.active.deeper.parent > ul > li > a";
+  const YEARS_SELECTOR = "#__BVID__11";
 
-  const PAGES_SELECTOR = "#table1 > tbody > tr > td:nth-child(3) > a:nth-child(1)";
+  const ITEM_SELECTOR = "#__BVID__13 > tbody > tr";
 
-  const ITEM_SELECTOR = "#jwts_tab1 > div > table > tbody";
-
-  const yearsData = $(YEARS_SELECTOR)
-    .map((i, d) => MAIN_URL + $(d).attr("href"))
+  const yearsData = $(YEARS_SELECTOR + " option")
+    .map((i, d) => $(d).text())
     .get();
 
-  await page.close();
-
-  const pages = await new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     async.mapLimit(
       yearsData,
       1,
-      async currentYearUrl => {
+      async current => {
+        logger.debug(`Processing ${current}`);
+
         const newPage = await browser.newPage();
-        await newPage.goto(currentYearUrl);
-        const entity = await simpleDOMListParser(
-          browser,
-          currentYearUrl,
-          PAGES_SELECTOR,
-          node => MAIN_URL + node.attr("href")
+        await newPage.goto(MAIN_URL, { waitUntil: "networkidle0" });
+
+        let content = await newPage.content();
+        let $ = cheerio.load(content);
+
+        const toSelect = $(YEARS_SELECTOR + " option")
+          .map((i, d) => ({ label: $(d).text(), value: $(d).val() }))
+          .get()
+          .find(d => d.label === current);
+
+        const currentlySelected = $(YEARS_SELECTOR).val();
+
+        if (currentlySelected !== toSelect.value) {
+          const watcherForResponse = newPage.waitForResponse(() => true);
+
+          await newPage.select(YEARS_SELECTOR, toSelect.value);
+
+          await watcherForResponse;
+
+          await sleep(1000);
+
+          content = await newPage.content();
+          $ = cheerio.load(content);
+        }
+
+        const items = flatten(
+          $(ITEM_SELECTOR)
+            .map((i, d) => {
+              const title = $(d)
+                .find("td:nth-child(2)")
+                .text();
+
+              const date = $(d)
+                .find("td:nth-child(4) > span")
+                .text()
+                .trim();
+
+              const url = $(d)
+                .find("td:nth-child(5) > a")
+                .attr("href");
+
+              return {
+                title,
+                date,
+                url: url,
+                sourceName: SOURCE_NAME,
+                ocr: false
+              };
+            })
+            .get()
         );
 
-        await newPage.close();
+        emitter.emit("entity", items);
 
-        return entity;
+        return;
       },
-      (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(flatten(results));
-      }
-    );
-  });
-
-  return new Promise((resolve, reject) => {
-    async.mapLimit(
-      pages,
-      5,
-      async currentPageUrl => {
-        const entity = await simpleDOMGet(browser, currentPageUrl, ITEM_SELECTOR, node => ({
-          title: node
-            .find("tr:nth-child(9) > td:nth-child(2)")
-            .text()
-            .trim(),
-          date: node
-            .find("tr:nth-child(4) > td:nth-child(2)")
-            .text()
-            .trim()
-            .split(".")
-            .reverse()
-            .join("-"),
-          updateDate: node
-            .find("tr:nth-child(5) > td:nth-child(2)")
-            .text()
-            .trim()
-            .split(".")
-            .reverse()
-            .join("-"),
-          url: MAIN_URL + node.find("tr:nth-child(10) > td:nth-child(2) > a").attr("href"),
-          sourceName: SOURCE_NAME,
-          ocr: false
-        }));
-
-        emitter.emit("entity", [entity]);
-
-        return entity;
-      },
-      (err, results) => {
-        browser.close();
-        if (err) {
-          return reject(err);
-        }
-        resolve(flatten(results));
+      async () => {
+        await browser.close();
+        resolve();
       }
     );
   });

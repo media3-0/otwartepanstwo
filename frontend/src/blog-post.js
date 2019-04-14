@@ -34,7 +34,7 @@ class BlogPost extends React.Component {
 
     return (
       <div className="w-70 p5 center">
-        <div className="fl w-70 pa2 mt3">
+        <div className="fl w-70 pa2 mt3 lh-copy measure-wide">
           <BlogArticle id={article.id} title={article.title} date={moment(article.date).format("DD.MM.YYYY")}>
             <ReadOnlyEditor rawState={article.content} />
           </BlogArticle>

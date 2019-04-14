@@ -40,7 +40,7 @@ class Header extends React.Component {
   handleSearch() {
     const urlSearch = queryString.parse(this.props.location.search);
     const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search));
-    this.props.history.push(`/?${queryString.stringify(newSearch)}`);
+    this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 
   handleLogin() {

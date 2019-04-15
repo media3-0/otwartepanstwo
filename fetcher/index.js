@@ -7,12 +7,14 @@ const IS_DEV = process.env.NODE_ENV === "development";
 if (IS_DEV) {
   fetcher();
 } else {
-  cron.schedule({
-    cronTime: "00 00 */1 * *",
-    onTick: function() {
+  cron.schedule(
+    "00 00 */1 * *",
+    () => {
+      console.log("TICK FROM CRON");
       fetcher();
     },
-    start: false,
-    timezone: "Europe/Warsaw"
-  });
+    {
+      timezone: "Europe/Warsaw"
+    }
+  );
 }

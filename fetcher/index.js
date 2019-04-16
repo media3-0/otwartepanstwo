@@ -8,7 +8,7 @@ if (IS_DEV) {
   fetcher();
 } else {
   cron.schedule(
-    "00 00 */1 * *",
+    "05 12 */1 * *",
     () => {
       console.log("TICK FROM CRON");
       fetcher();

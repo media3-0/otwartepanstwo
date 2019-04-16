@@ -28,6 +28,7 @@ RUN ln -fs /usr/share/zoneinfo/Europe/Warsaw /etc/localtime && dpkg-reconfigure 
 
 # set up script
 WORKDIR /app
+COPY fetcher .
 
 RUN yarn global add wait-on
 RUN yarn install

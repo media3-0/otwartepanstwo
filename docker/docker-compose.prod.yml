@@ -77,7 +77,7 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgres:10
     environment:
       - POSTGRES_PASSWORD # env passed from shell
       - POSTGRES_USER # env passed from shell

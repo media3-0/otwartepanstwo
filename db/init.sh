@@ -7,6 +7,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     hash TEXT,
     url TEXT,
     content TEXT,
+    content_lower TEXT,
     last_download DATE,
     date DATE,
     title TEXT,

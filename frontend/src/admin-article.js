@@ -1,7 +1,6 @@
 const React = require("react");
 const autoBind = require("react-autobind");
 const { observer, inject } = require("mobx-react");
-const { toJS } = require("mobx");
 const { withStyles } = require("@material-ui/core/styles");
 const Button = require("@material-ui/core/Button").default;
 const TextField = require("@material-ui/core/TextField").default;
@@ -15,10 +14,13 @@ import Checkbox from "@material-ui/core/Checkbox";
 
 const Divider = require("@material-ui/core/Divider").default;
 
+const DatePicker = require("react-datepicker").default;
+const moment = require("moment");
 const { EditorState, convertFromRaw, convertToRaw } = require("draft-js");
 const { Editor } = require("react-draft-wysiwyg");
 
 require("react-draft-wysiwyg/dist/react-draft-wysiwyg.css");
+const { DATE_FORMAT } = require("./constants");
 
 class SimpleList extends React.Component {
   state = {
@@ -68,7 +70,8 @@ class ArticleEdit extends React.Component {
     const { article } = this.props;
     this.setState({
       title: article.title,
-      editorState: article.editorState
+      editorState: article.editorState,
+      date: article.date
     });
   }
 
@@ -80,6 +83,10 @@ class ArticleEdit extends React.Component {
 
   handleChange(name) {
     return event => this.setState({ [name]: event.target.value });
+  }
+
+  handleDateChange(date) {
+    this.setState({ date: date.format(DATE_FORMAT) });
   }
 
   handleChangeOnList(listName) {
@@ -102,8 +109,8 @@ class ArticleEdit extends React.Component {
 
   onSaveClick() {
     const { onSave } = this.props;
-    const { title, editorState } = this.state;
-    onSave({ title, content: convertToRaw(editorState.getCurrentContent()) });
+    const { title, date, editorState } = this.state;
+    onSave({ title, content: convertToRaw(editorState.getCurrentContent()), date });
   }
 
   uploadImageCallBack(file) {
@@ -139,6 +146,15 @@ class ArticleEdit extends React.Component {
             value={this.state.title}
             onChange={this.handleChange("title")}
             margin="normal"
+          />
+        </Paper>
+
+        <Paper style={{ margin: "10px 0", padding: 10 }}>
+          <DatePicker
+            selected={!!this.state.date ? moment(this.state.date, DATE_FORMAT) : null}
+            isClearable={true}
+            onChange={this.handleDateChange}
+            placeholderText="Data Publikacji"
           />
         </Paper>
         {this.state.editorState && (
@@ -179,6 +195,7 @@ class ArticleEditWrapper extends React.Component {
   }
 
   onUpdate(data) {
+    console.log("DATA", data);
     const { match, store } = this.props;
     const id = match.params.id;
     store.updateArticle(id, data);
@@ -195,11 +212,13 @@ class ArticleEditWrapper extends React.Component {
     const articleContent = article
       ? {
           title: article.title,
-          editorState: EditorState.createWithContent(convertFromRaw(article.content))
+          editorState: EditorState.createWithContent(convertFromRaw(article.content)),
+          date: article.date
         }
       : {
           title: "",
-          editorState: EditorState.createEmpty()
+          editorState: EditorState.createEmpty(),
+          date: null
         };
 
     return (

@@ -139,7 +139,6 @@ class Store {
   getAllArticles() {
     getFetch("/articles").then(articles => {
       this.articles = articles.sort((a, b) => new Date(b.date) - new Date(a.date));
-      console.log(articles);
     });
   }
 

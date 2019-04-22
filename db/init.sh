@@ -28,6 +28,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   );
 
   CREATE EXTENSION pg_trgm;
+  CREATE INDEX idx_documents_content_lower ON documents USING gin (content_lower gin_trgm_ops);
   CREATE INDEX idx_documents_content ON documents USING gin (content gin_trgm_ops);
   CREATE INDEX idx_documents_title ON documents USING gin (title gin_trgm_ops);
 EOSQL

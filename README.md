@@ -14,6 +14,7 @@ AUTH0_CLIENTID=...    # client id for auth0
 AUTH0_REDIRECT=...    # redirect (callback) for auth0
 
 MAILGUN_API_KEY=...   # api key for mailgun
+MAILGUN_DOMAIN=...    # domain for mailgun
 
 ADMIN_EMAILS=...      # list of emails that grants access to admin panel
 ```

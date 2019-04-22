@@ -129,14 +129,14 @@ const init = async () => {
 
   app.post("/subscriptions", checkJwt, (req, res) => {
     const { email } = req.user;
-    const { search } = req.body;
+    const { search, documentSource } = req.body;
 
     if (!email) {
       return res.status(400).send({ reason: "`email` missing" });
     }
 
-    if (!search) {
-      return res.status(400).send({ reason: "`search` missing" });
+    if (!search && !documentSource) {
+      return res.status(400).send({ reason: "`search` and `documentSource` missing" });
     }
 
     db(SUBSCRIPTIONS_TABLE)
@@ -144,32 +144,38 @@ const init = async () => {
         toDB({
           email,
           searchPhrase: search,
+          documentSource,
           lastNotify: moment().format("YYYY-MM-DD")
         })
       )
-      .then(result => {
+      .then(() => {
         res.send({ ok: true });
       });
   });
 
   app.delete("/subscriptions", checkJwt, (req, res) => {
     const { email } = req.user;
-    const { search } = req.body;
+    const { search, documentSource } = req.body;
 
     if (!email) {
       return res.status(400).send({ reason: "`email` missing" });
     }
 
-    if (!search) {
-      return res.status(400).send({ reason: "`search` missing" });
+    if (!search && !documentSource) {
+      return res.status(400).send({ reason: "`search` and `documentSource` missing" });
     }
 
     db(SUBSCRIPTIONS_TABLE)
       .where(
-        toDB({
-          email,
-          searchPhrase: search
-        })
+        search
+          ? toDB({
+              email,
+              searchPhrase: search
+            })
+          : toDB({
+              email,
+              documentSource
+            })
       )
       .del()
       .then(() => {

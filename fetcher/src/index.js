@@ -26,8 +26,7 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db
-      .raw("select 1 + 1 as result")
+    db.raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -105,6 +104,7 @@ const processCrawlers = async ({ db }) => {
                   url: item.url,
                   ["last_download"]: updateDate,
                   content: parsedText,
+                  ["content_lower"]: parsedText.toLowerCase(),
                   title: item.title,
                   date: item.date,
                   ["source_name"]: item.sourceName

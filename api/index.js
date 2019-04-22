@@ -43,8 +43,7 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db
-      .raw("select 1 + 1 as result")
+    db.raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -106,7 +105,7 @@ const init = async () => {
     }
 
     if (search) {
-      query = query.where(db.raw(`LOWER(title  || ' ' || content) LIKE LOWER('%${search}%')`));
+      query = query.where(db.raw(`content_lower LIKE '%${search}%'`));
     }
 
     query.select(...fields).then(documents => res.json(toClient(documents)));

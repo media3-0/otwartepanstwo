@@ -77,7 +77,7 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgres:10
     environment:
       - POSTGRES_PASSWORD # env passed from shell
       - POSTGRES_USER # env passed from shell
@@ -87,13 +87,3 @@ services:
       - ./../db/init.sh:/docker-entrypoint-initdb.d/init.sh
     ports:
       - "5432:5432"
-
-#   elasticsearch:
-#     image: elasticsearch
-#     volumes:
-#       - ./data/elasticsearch:/usr/share/elasticsearch/data
-#     ports:
-#       - "9200:9200"
-#       - "9300:9300"
-#     depends_on:
-#       - db

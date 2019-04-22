@@ -17,6 +17,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
   CREATE TABLE IF NOT EXISTS subscriptions (
     email TEXT,
     search_phrase TEXT,
+    document_source TEXT,
     last_notify DATE
   );
 

@@ -1,9 +1,8 @@
 const async = require("async");
 const changeCaseKeys = require("change-case-keys");
 const fs = require("fs");
-const mailgunTransport = require("nodemailer-mailgun-transport");
+const mailgun = require("mailgun-js");
 const moment = require("moment");
-const nodemailer = require("nodemailer");
 const path = require("path");
 const { groupBy, template, flatten, pick } = require("lodash");
 
@@ -21,15 +20,16 @@ const processUserSubscriptions = ({ db, subscriptions }, callback) => {
   async.mapLimit(
     subscriptions,
     CONCURRENT_PHRASES,
-    ({ searchPhrase, lastNotify, email }, callback) => {
+    ({ searchPhrase, documentSource, lastNotify, email }, callback) => {
       db(DOCUMENTS_TABLE)
         .select(["date", "title", "source_name"])
         .where("date", ">", lastNotify)
-        .where(db.raw(`LOWER(title  || ' ' || content) LIKE LOWER('%${searchPhrase}%')`))
+        .where(db.raw(`content_lower LIKE '%${searchPhrase}%' or source_name = '${documentSource}'`))
         .then(newDocument => {
           callback(null, {
             newDocument,
             searchPhrase,
+            documentSource,
             email,
             lastNotify
           });
@@ -55,7 +55,7 @@ const updateLastNotifyDates = ({ db, data }, callback) => {
   async.map(
     flatten(data),
     (data, callback) => {
-      const fields = pick(data, ["searchPhrase", "email"]);
+      const fields = pick(data, ["searchPhrase", "documentSource", "email"]);
 
       db(SUBSCRIPTIONS_TABLE)
         .where(changeCaseKeys(fields, "underscored"))
@@ -66,11 +66,11 @@ const updateLastNotifyDates = ({ db, data }, callback) => {
   );
 };
 
-const sendEmails = ({ emails, nodemailer }, callback) => {
+const sendEmails = ({ emails, mg }, callback) => {
   async.mapLimit(emails, 2, ({ email, text }) => {
-    nodemailer.sendMail(
+    mg.messages().send(
       {
-        from: "OtwartePaństwo",
+        from: "noreply@otwartepanstwo.pl",
         to: email,
         subject: "Powiadomienie",
         text
@@ -81,18 +81,17 @@ const sendEmails = ({ emails, nodemailer }, callback) => {
 };
 
 module.exports = async ({ db }) => {
-  const nodemailerMailgun = nodemailer.createTransport(
-    mailgunTransport({
-      auth: {
-        ["api_key"]: process.env.MAILGUN_API_KEY
-        // domain: process.env.MAILGUN_DOMAIN
-      }
-    })
-  );
+  const config = {
+    host: "api.eu.mailgun.net",
+    apiKey: process.env.MAILGUN_API_KEY,
+    domain: process.env.MAILGUN_DOMAIN
+  };
+
+  const mg = mailgun(config);
 
   return new Promise((resolve, reject) => {
     db(SUBSCRIPTIONS_TABLE)
-      .select(["email", "search_phrase", "last_notify"])
+      .select(["email", "search_phrase", "document_source", "last_notify"])
       .then(subscriptions => {
         const userSubscriptions = Object.entries(groupBy(subscriptions, "email")).map(
           ([_, userSubscriptions]) => userSubscriptions
@@ -120,8 +119,12 @@ module.exports = async ({ db }) => {
               text: createNotificationEmail(data)
             }));
 
-            sendEmails({ emails, nodemailer: nodemailerMailgun }, () => {
-              updateLastNotifyDates({ db, data: results }, () => resolve());
+            sendEmails({ emails, mg }, err => {
+              if (err) {
+                console.log("mailgun error", err);
+              } else {
+                updateLastNotifyDates({ db, data: results }, () => resolve());
+              }
             });
           }
         );

@@ -37,7 +37,7 @@ const readOneFile = path => {
       if (err) {
         reject(err);
       } else {
-        resolve(content);
+        resolve(content.join(""));
       }
     });
   });

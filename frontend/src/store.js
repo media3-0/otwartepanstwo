@@ -126,14 +126,11 @@ class Store {
     const url =
       Object.entries(query).length > 0 ? `/api/documents/?${queryString.stringify(query)}` : "/api/documents/";
 
-    console.log("URL", url);
-
     this.fetching = true;
 
     fetch(url)
       .then(res => res.json())
       .then(response => {
-        console.log("response", response);
         this.documents = response.data;
         this.totalPages = response.totalPages;
         this.fetching = false;

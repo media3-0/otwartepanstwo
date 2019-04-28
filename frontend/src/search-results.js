@@ -66,7 +66,6 @@ class SearchResults extends React.Component {
 
   componentDidMount() {
     const search = queryString.parse(this.props.location.search);
-    console.log("SEARCH IN DID MOUNT", search);
     this.setState({ search: Object.assign({}, this.state.search, search) });
     this.fetchDocuments(this.props.location);
     this.props.store.fetchSourceNames();
@@ -138,8 +137,6 @@ class SearchResults extends React.Component {
     const isSubscribedToThisPhrase =
       (query.search || query.sourceName) &&
       subs.some(s => s.searchPhrase === query.search && s.sourceName === query.sourceName);
-
-    console.log(this.props.store.totalPages);
 
     return (
       <div className="app sans-serif">

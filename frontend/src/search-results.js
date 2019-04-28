@@ -12,6 +12,25 @@ const mobx = require("mobx");
 const { removeNullKeys } = require("./utils");
 const { DATE_FORMAT } = require("./constants");
 
+class SelectPicker extends React.Component {
+  render() {
+    const { options, onChange, selected } = this.props;
+    return (
+      <div className="select-picker-scroll">
+        {options.map(({ value, label }, idx) => (
+          <div className="select-item" key={idx} onClick={() => onChange({ value })}>
+            {/*<input type="radio" name={value} value={value} checked={isSelected} />*/}
+            <div className={`circle-marker ${selected === value ? "fill" : ""}`}>
+              <div className="circle-marker-inside" />
+            </div>
+            {label}
+          </div>
+        ))}
+      </div>
+    );
+  }
+}
+
 const columns = ({ search }) => {
   return [
     {
@@ -89,26 +108,74 @@ class SearchResults extends React.Component {
     const isSubscribedToThisPhrase =
       query.search && this.props.store.subscriptions.some(s => s.searchPhrase === query.search);
 
-    const customStyles = (width = 200, height = 20) => {
-      return {
-        container: base =>
-          Object.assign({}, base, {
-            display: "inline-block",
-            width: width
-          }),
-        valueContainer: base =>
-          Object.assign({}, base, {
-            minHeight: height
-          }),
-        placeHolder: base => Object.assign({}, base, { fontSize: 12 })
-      };
-    };
+    // const customStyles = (width = 200, height = 20) => {
+    //   return {
+    //     container: base =>
+    //       Object.assign({}, base, {
+    //         display: "inline-block",
+    //         width: width
+    //       }),
+    //     valueContainer: base =>
+    //       Object.assign({}, base, {
+    //         minHeight: height
+    //       }),
+    //     placeHolder: base => Object.assign({}, base, { fontSize: 12 })
+    //   };
+    // };
 
     // console.log(mobx.toJS(this.props.store.documents));
     return (
       <div className="app sans-serif">
-        <div className="w-80 p5 center">
-          <div className="flex justify-between pv3">
+        <div className="w-80 mv3 center flex">
+          <div className="w-80">
+            <ReactTable
+              data={mobx.toJS(this.props.store.documents)}
+              columns={customColumns}
+              showPageSizeOptions={false}
+              resizable={false}
+              filterable={false}
+              previousText="Wstecz"
+              nextText="Dalej"
+              loadingText="Wczytuję..."
+              noDataText="Brak wyników"
+              pageText="Strona"
+              ofText="z"
+              rowsText="wierszy"
+              getTdProps={(state, rowInfo) => {
+                return {
+                  onClick: (e, handleOriginal) => {
+                    const hash = rowInfo.original.hash;
+                    const url = query.search ? `/document/${hash}/?search=${query.search}` : `document/${hash}`;
+                    this.props.history.push(url);
+                    if (handleOriginal) {
+                      handleOriginal();
+                    }
+                  }
+                };
+              }}
+            />
+          </div>
+
+          <div className="w-20 ph3">
+            {/*
+            <div className="flex">
+                <Select
+                  styles={customStyles()}
+                  options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
+                  onChange={this.handleSourceNameChange}
+                  placeholder="Źródło"
+                />
+            </div>
+            */}
+
+            <div className="flex">
+              <SelectPicker
+                options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
+                onChange={this.handleSourceNameChange}
+                selected={query.sourceName}
+              />
+            </div>
+
             <div className="flex css-1aya2g8">
               <DatePicker
                 selected={!!query.dateFrom ? moment(query.dateFrom, DATE_FORMAT) : null}
@@ -128,17 +195,6 @@ class SearchResults extends React.Component {
             </div>
 
             <div className="flex">
-              <div style={{ width: 200 }}>
-                <Select
-                  styles={customStyles()}
-                  options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
-                  onChange={this.handleSourceNameChange}
-                  placeholder="Źródło"
-                />
-              </div>
-            </div>
-
-            <div className="flex">
               {isAuthenticated && (
                 <button
                   className="dropbtn dim pointer"
@@ -150,33 +206,6 @@ class SearchResults extends React.Component {
               )}
             </div>
           </div>
-
-          <ReactTable
-            data={mobx.toJS(this.props.store.documents)}
-            columns={customColumns}
-            showPageSizeOptions={false}
-            resizable={false}
-            filterable={false}
-            previousText="Wstecz"
-            nextText="Dalej"
-            loadingText="Wczytuję..."
-            noDataText="Brak wyników"
-            pageText="Strona"
-            ofText="z"
-            rowsText="wierszy"
-            getTdProps={(state, rowInfo) => {
-              return {
-                onClick: (e, handleOriginal) => {
-                  const hash = rowInfo.original.hash;
-                  const url = query.search ? `/document/${hash}/?search=${query.search}` : `document/${hash}`;
-                  this.props.history.push(url);
-                  if (handleOriginal) {
-                    handleOriginal();
-                  }
-                }
-              };
-            }}
-          />
         </div>
       </div>
     );

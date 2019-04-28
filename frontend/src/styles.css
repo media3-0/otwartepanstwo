@@ -476,3 +476,45 @@ input:focus {
 .react-datepicker-popper {
   z-index: 99999;
 }
+
+.select-picker-scroll {
+  height: 300px;
+  overflow: scroll;
+  padding: 10px;
+  border: 1px solid #f0f0f0;
+}
+
+.select-item {
+  font-size: 14px;
+  padding-bottom: 5px;
+  display: flex;
+  cursor: pointer;
+}
+
+.select-item input {
+  margin-right: 5px;
+}
+
+.circle-marker {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  border-radius: 20px;
+  border: 2px solid #ff4136;
+  background: white;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle-marker.fill {
+  background: #ff4136;
+}
+
+.circle-marker.fill .circle-marker-inside {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 5px;
+}

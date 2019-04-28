@@ -59,13 +59,14 @@ class SearchResults extends React.Component {
   constructor() {
     super();
 
-    this.state = { search: { search: "" } };
+    this.state = { search: { search: "" }, page: 0 };
 
     autoBind(this);
   }
 
   componentDidMount() {
     const search = queryString.parse(this.props.location.search);
+    console.log("SEARCH IN DID MOUNT", search);
     this.setState({ search: Object.assign({}, this.state.search, search) });
     this.fetchDocuments(this.props.location);
     this.props.store.fetchSourceNames();
@@ -115,7 +116,17 @@ class SearchResults extends React.Component {
 
   handleSearch() {
     const urlSearch = queryString.parse(this.props.location.search);
-    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search));
+    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: 0 }));
+    this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
+  }
+
+  fetchData(state) {
+    // const urlSearch = queryString.parse(this.props.location.search);
+    // const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search));
+    // this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
+    const urlSearch = queryString.parse(this.props.location.search);
+    // TODO: this can be fixed
+    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: state.page + 1 }));
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 
@@ -128,12 +139,17 @@ class SearchResults extends React.Component {
       (query.search || query.sourceName) &&
       subs.some(s => s.searchPhrase === query.search && s.sourceName === query.sourceName);
 
+    console.log(this.props.store.totalPages);
+
     return (
       <div className="app sans-serif">
         <div className="w-100 center flex">
           <div className="w-75 ph3 pv3 ">
             <ReactTable
               data={mobx.toJS(this.props.store.documents)}
+              pages={this.props.store.totalPages}
+              defaultPageSize={20}
+              manual
               columns={customColumns}
               showPageSizeOptions={false}
               resizable={false}
@@ -145,6 +161,7 @@ class SearchResults extends React.Component {
               pageText="Strona"
               ofText="z"
               rowsText="wierszy"
+              onFetchData={this.fetchData}
               getTdProps={(state, rowInfo) => {
                 return {
                   onClick: (e, handleOriginal) => {

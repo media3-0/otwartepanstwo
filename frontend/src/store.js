@@ -51,6 +51,7 @@ class Store {
   @observable documents = [];
   @observable subscriptions = [];
   @observable sourceNames = [];
+  @observable totalPages = 0;
 
   @observable articles = [];
 
@@ -125,12 +126,16 @@ class Store {
     const url =
       Object.entries(query).length > 0 ? `/api/documents/?${queryString.stringify(query)}` : "/api/documents/";
 
+    console.log("URL", url);
+
     this.fetching = true;
 
     fetch(url)
       .then(res => res.json())
-      .then(documents => {
-        this.documents = documents;
+      .then(response => {
+        console.log("response", response);
+        this.documents = response.data;
+        this.totalPages = response.totalPages;
         this.fetching = false;
       });
   }

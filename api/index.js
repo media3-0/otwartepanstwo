@@ -2,6 +2,7 @@ const express = require("express");
 const jwksRsa = require("jwks-rsa");
 const jwt = require("express-jwt");
 const knex = require("knex");
+const setupPaginator = require("knex-paginator");
 const moment = require("moment");
 const morgan = require("morgan");
 const changeCaseKeys = require("change-case-keys");
@@ -42,8 +43,11 @@ const createDB = () =>
       }
     });
 
+    setupPaginator(db);
+
     // test connection and callback if ok
-    db.raw("select 1 + 1 as result")
+    db
+      .raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -108,7 +112,13 @@ const init = async () => {
       query = query.where(db.raw(`content_lower LIKE '%${search}%'`));
     }
 
-    query.select(...fields).then(documents => res.json(toClient(documents)));
+    query
+      .select(...fields)
+      .paginate(20, 1, true)
+      .then(paginator => {
+        console.log("current page", paginator.current_page);
+        res.json(toClient(paginator.data));
+      });
   });
 
   // subscriptions (protected api)

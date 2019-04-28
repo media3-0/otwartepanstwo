@@ -84,7 +84,7 @@ class Store {
         Accept: "application/json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ search: search })
+      body: JSON.stringify({ search: search.search, documentSource: search.sourceName })
     }).then(() => {
       this.fetchSubscriptions();
       this.fetching = false;

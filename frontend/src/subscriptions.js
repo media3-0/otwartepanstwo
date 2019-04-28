@@ -1,5 +1,6 @@
 const React = require("react");
 const { Link } = require("react-router-dom");
+const mobx = require("mobx");
 
 const { observer, inject } = require("mobx-react");
 
@@ -15,6 +16,7 @@ class Subscriptions extends React.Component {
   }
 
   render() {
+    console.log(mobx.toJS(this.props.store.subscriptions));
     return (
       <div className="w-80 pt2 center">
         <h3 className="red">Moje Subskrypcje</h3>
@@ -30,7 +32,15 @@ class Subscriptions extends React.Component {
           return (
             <div className="bg-red white pa3 mv3" key={obj.searchPhrase}>
               <div className="flex justify-between items-center">
-                <div className="ttu tracked">{obj.searchPhrase}</div>
+                <div>
+                  <div className="ttu tracked">Fraza: </div>
+                  <div>{obj.searchPhrase === null ? "*" : obj.searchPhrase}</div>
+                </div>
+                <div>
+                  <div className="ttu tracked">Źródło: </div>
+                  <div>{obj.documentSource === null ? "*" : obj.documentSource}</div>
+                </div>
+
                 <div className="flex">
                   <div
                     className="flex items-center pa1 mh4 pointer"

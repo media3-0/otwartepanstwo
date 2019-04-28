@@ -20,29 +20,6 @@ class Header extends React.Component {
     };
   }
 
-  componentDidMount() {
-    const search = queryString.parse(this.props.location.search);
-    this.setState({ search: Object.assign({}, this.state.search, search) });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.location.search !== nextProps.location.search) {
-      const search = queryString.parse(nextProps.location.search);
-      this.setState({ search: Object.assign({}, this.state.search, search) });
-    }
-  }
-
-  setSearch(ev) {
-    const value = ev.target.value;
-    this.setState({ search: Object.assign({}, this.state.search, { search: value }) });
-  }
-
-  handleSearch() {
-    const urlSearch = queryString.parse(this.props.location.search);
-    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search));
-    this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
-  }
-
   handleLogin() {
     this.props.store.auth.login();
   }
@@ -58,7 +35,7 @@ class Header extends React.Component {
       <div>
         <Loader visible={this.props.store.fetching} />
         <div className="topbar">
-          <div className="center w-70 flex justify-between items-center">
+          <div className="center w-100 pa3 flex justify-between items-center">
             <div className="flex">
               <Link to="/" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <img width="200" src="/assets/logo.png" />
@@ -74,21 +51,6 @@ class Header extends React.Component {
             </div>
 
             <div className="flex">
-              <input
-                className="f7 search-input"
-                type="text"
-                value={this.state.search.search}
-                onChange={this.setSearch}
-                placeholder="Wpisz wyszukiwaną frazę..."
-                onKeyPress={event => {
-                  if (event.key === "Enter") {
-                    this.handleSearch();
-                  }
-                }}
-              />
-              <button className="bg-red white ba b--red dim pointer f7" onClick={this.handleSearch}>
-                Szukaj
-              </button>
               <div>
                 {isAuthenticated ? (
                   <div className="dropdown">

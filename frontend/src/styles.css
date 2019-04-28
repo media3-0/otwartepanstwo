@@ -42,8 +42,9 @@ h3 {
 
 .search-input {
   height: 38px;
-  width: 400px;
+  width: 100%;
   padding: 0 10px;
+  margin: 10px 0;
 }
 
 .content {
@@ -118,8 +119,14 @@ a:hover {
   overflow: hidden;
 }
 
-.w-70 {
-  max-width: 70%;
+.w-75 {
+  width: 75%;
+  max-width: 75%;
+}
+
+.w-25 {
+  width: 25%;
+  max-width: 25%;
 }
 
 /* .search-panel__results li { */
@@ -142,7 +149,6 @@ a:hover {
   font-size: 12px;
   border: none;
   border-left: 1px solid white;
-  margin-left: 10px;
 }
 
 .dropbtn:disabled {
@@ -517,4 +523,29 @@ input:focus {
   height: 6px;
   background: white;
   border-radius: 5px;
+}
+
+.date-picker {
+  background: white;
+  border: 1px solid #f0f0f0;
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.date-picker input {
+  background: white;
+  color: #4a4a4a;
+}
+
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--keyboard-selected:hover {
+  background: #ff4136;
+}
+
+.date-picker > div,
+.date-picker > div > .react-datepicker-wrapper,
+.date-picker .react-datepicker__input-container {
+  width: 100%;
 }

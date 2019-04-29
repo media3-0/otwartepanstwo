@@ -91,6 +91,8 @@ const init = async () => {
     const fields = ["title", "date", "last_download", "source_name", "hash", "url"];
     const selectedPage = page || 1;
 
+    console.log(req.query);
+
     let query = db(DOCUMENTS_TABLE);
 
     if (hash) {

@@ -285,7 +285,9 @@ class DocumentPreview extends React.Component {
   componentDidMount() {
     fetch(`/api/documents/?hash=${this.props.match.params.hash}`)
       .then(res => res.json())
-      .then(info => this.setState({ info: info[0] }));
+      .then(info => {
+        this.setState({ info: info.data[0] });
+      });
   }
 
   handleSearchChange(value) {
@@ -309,6 +311,9 @@ class DocumentPreview extends React.Component {
     const search = queryString.parse(this.props.location.search);
     const pageNum = search.pageNum ? parseInt(search.pageNum) : 1;
     const searchWord = search.search;
+    if (!this.state.info) {
+      return null;
+    }
     return (
       <div className="w-100 p5 center document-preview">
         <div className="flex">

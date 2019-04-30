@@ -75,10 +75,10 @@ class Blog extends React.Component {
 
     return (
       <div className="w-70 p5 center">
-        <div className="fl w-70 pa2 mt3 lh-copy measure-wide">
+        <div className="fl w-70 pa2 mt3">
           {articles.map(({ id, title, date, content }) => (
             <BlogArticle key={id} id={id} title={title} date={moment(date).format("DD.MM.YYYY")}>
-              <p className="f5 lh-copy dark-gray">
+              <p className="f5 lh-copy dark-gray lh-copy measure-wide">
                 <TextExcerpt rawState={content} />
               </p>
               <Link to={`/article/${id}`} className="f6 link dim ph3 pv2 mb2 dib white bg-red">

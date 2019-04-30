@@ -11,7 +11,7 @@ const { BlogArticle, BlogSidebar } = require("./blog");
 const ReadOnlyEditor = ({ rawState }) => {
   const storedState = EditorState.createWithContent(convertFromRaw(rawState));
   return (
-    <div className="readonly-editor">
+    <div className="readonly-editor lh-copy measure-wide">
       <Editor editorState={storedState} toolbarHidden readOnly={true} />
     </div>
   );
@@ -34,7 +34,7 @@ class BlogPost extends React.Component {
 
     return (
       <div className="w-70 p5 center">
-        <div className="fl w-70 pa2 mt3 lh-copy measure-wide">
+        <div className="fl w-70 pa2 mt3">
           <BlogArticle id={article.id} title={article.title} date={moment(article.date).format("DD.MM.YYYY")}>
             <ReadOnlyEditor rawState={article.content} />
           </BlogArticle>

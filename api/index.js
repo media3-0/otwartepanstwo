@@ -46,8 +46,7 @@ const createDB = () =>
     setupPaginator(db);
 
     // test connection and callback if ok
-    db
-      .raw("select 1 + 1 as result")
+    db.raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -115,13 +114,14 @@ const init = async () => {
       query = query.where(db.raw(`content_lower LIKE '%${search}%'`));
     }
 
-    query
-      .select(...fields)
-      .paginate(20, selectedPage, true)
-      .then(paginator => {
-        console.log("current page", paginator.last_page, paginator.current_page);
-        res.json(toClient({ page: paginator.current_page, totalPages: paginator.last_page, data: paginator.data }));
-      });
+    query = query.select(...fields);
+
+    console.log("query\n", query.toString());
+
+    query.paginate(20, selectedPage, true).then(paginator => {
+      console.log("current page", paginator.last_page, paginator.current_page);
+      res.json(toClient({ page: paginator.current_page, totalPages: paginator.last_page, data: paginator.data }));
+    });
   });
 
   // subscriptions (protected api)

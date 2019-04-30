@@ -19,7 +19,7 @@ class SelectPicker extends React.Component {
     return (
       <div className="select-picker-scroll">
         {options.map(({ value, label }, idx) => (
-          <div className="select-item" key={idx} onClick={() => onChange({ value })}>
+          <div className="select-item f5" key={idx} onClick={() => onChange({ value })}>
             {/*<input type="radio" name={value} value={value} checked={isSelected} />*/}
             <div className={`circle-marker ${selected === value ? "fill" : ""}`}>
               <div className="circle-marker-inside" />
@@ -73,7 +73,9 @@ class SearchResults extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log("CHANGED", nextProps.location.search, this.props.location.search);
     if (this.props.location.search !== nextProps.location.search) {
+      console.log("CHANGED", nextProps.location.search);
       const search = queryString.parse(nextProps.location.search);
       this.setState({ search: Object.assign({}, this.state.search, search) });
       this.fetchDocuments(nextProps.location);
@@ -102,11 +104,13 @@ class SearchResults extends React.Component {
     };
   }
 
-  handleSourceNameChange({ value }) {
+  handleSourceNameChange = ({ value }) => {
     const search = queryString.parse(this.props.location.search);
-    const newSearch = removeNullKeys(Object.assign({}, search, { sourceName: value }));
+    const newSearch = removeNullKeys(
+      Object.assign({}, search, { sourceName: value === search.sourceName ? null : value })
+    );
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
-  }
+  };
 
   setSearch(ev) {
     const value = ev.target.value;
@@ -115,17 +119,37 @@ class SearchResults extends React.Component {
 
   handleSearch() {
     const urlSearch = queryString.parse(this.props.location.search);
-    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: 0 }));
+    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: 1 }));
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 
+  // sortChange(newSorted) {
+  //   const sort = newSorted[0];
+  //   const sortDirection = sort.desc === true ? "DESC" : "ASC";
+
+  //   const urlSearch = queryString.parse(this.props.location.search);
+  //   const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: 1, sortBy: sort.id, sortDirection }));
+
+  //   this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
+
+  //   console.log("!", newSearch, queryString.stringify(newSearch));
+  //   console.log(this.props.history);
+
+  // }
+
   fetchData(state) {
-    // const urlSearch = queryString.parse(this.props.location.search);
-    // const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search));
-    // this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
+    const { id, desc } = state.sorted[0];
+    console.log("stejt", state, id);
+    const sortDirection = desc === true ? "DESC" : "ASC";
     const urlSearch = queryString.parse(this.props.location.search);
-    // TODO: this can be fixed
-    const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: state.page + 1 }));
+    // TODO: this can be fixed - I mean id === etc
+    const newSearch = removeNullKeys(
+      Object.assign({}, urlSearch, this.state.search, {
+        page: state.page + 1,
+        sortBy: id === "sourceName" ? "source_name" : id,
+        sortDirection
+      })
+    );
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 
@@ -140,14 +164,16 @@ class SearchResults extends React.Component {
 
     return (
       <div className="app sans-serif">
-        <div className="w-100 center flex">
+        <div className="w-100 m9 center flex">
           <div className="w-75 ph3 pv3 ">
             <ReactTable
               data={mobx.toJS(this.props.store.documents)}
               pages={this.props.store.totalPages}
+              defaultSorted={[{ id: "title", desc: true }]}
               defaultPageSize={20}
               manual
               columns={customColumns}
+              multiSort={false}
               showPageSizeOptions={false}
               resizable={false}
               filterable={false}
@@ -188,7 +214,7 @@ class SearchResults extends React.Component {
             */}
 
               <input
-                className="f7 search-input"
+                className="f6 search-input"
                 type="text"
                 value={this.state.search.search}
                 onChange={this.setSearch}
@@ -213,7 +239,7 @@ class SearchResults extends React.Component {
                 />
               </div>
 
-              <div className="flex date-picker">
+              <div className="flex date-picker f6">
                 <DatePicker
                   selected={!!query.dateFrom ? moment(query.dateFrom, DATE_FORMAT) : null}
                   isClearable={true}
@@ -222,7 +248,7 @@ class SearchResults extends React.Component {
                 />
               </div>
 
-              <div className="flex date-picker">
+              <div className="flex date-picker f6">
                 <DatePicker
                   selected={!!query.dateTo ? moment(query.dateTo, DATE_FORMAT) : null}
                   isClearable={true}
@@ -265,3 +291,4 @@ class SearchResults extends React.Component {
 }
 
 module.exports = SearchResults;
+// sorted={[{id: "title", desc: true}]}

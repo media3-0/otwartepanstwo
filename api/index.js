@@ -2,12 +2,12 @@ const express = require("express");
 const jwksRsa = require("jwks-rsa");
 const jwt = require("express-jwt");
 const knex = require("knex");
-const setupPaginator = require("knex-paginator");
 const moment = require("moment");
 const morgan = require("morgan");
 const changeCaseKeys = require("change-case-keys");
 const multer = require("multer");
 
+const paginator = require("./knex-paginate");
 const simpleCrud = require("./simple-crud");
 
 const DOCUMENTS_TABLE = "documents";
@@ -42,8 +42,6 @@ const createDB = () =>
         password: process.env.POSTGRES_PASSWORD
       }
     });
-
-    setupPaginator(db);
 
     // test connection and callback if ok
     db.raw("select 1 + 1 as result")
@@ -80,19 +78,15 @@ const init = async () => {
     db(DOCUMENTS_TABLE)
       .distinct()
       .pluck("source_name")
-      // .select("source_name")
       .then(sources => res.json(toClient(sources)));
   });
 
   // documents
   app.get("/documents/", (req, res) => {
-    const { search, dateFrom, dateTo, sourceName, hash, page } = req.query;
+    const { search, dateFrom, dateTo, sourceName, hash, page, sortBy, sortDirection } = req.query;
     const fields = ["title", "date", "last_download", "source_name", "hash", "url"];
-    const selectedPage = page || 1;
 
-    console.log(req.query);
-
-    let query = db(DOCUMENTS_TABLE);
+    let query = db(DOCUMENTS_TABLE).select(...fields);
 
     if (hash) {
       query = query.where("hash", "=", hash);
@@ -114,14 +108,21 @@ const init = async () => {
       query = query.where(db.raw(`content_lower LIKE '%${search}%'`));
     }
 
-    query = query.select(...fields);
+    if (sortBy) {
+      query = query.orderBy(sortBy, sortDirection);
+    }
 
-    console.log("query\n", query.toString());
+    // console.log("query: ", query.toString())
 
-    query.paginate(20, selectedPage, true).then(paginator => {
-      console.log("current page", paginator.last_page, paginator.current_page);
-      res.json(toClient({ page: paginator.current_page, totalPages: paginator.last_page, data: paginator.data }));
-    });
+    paginator(db, query, { page: page ? parseInt(page) : 1 }).then(({ pagination, data }) =>
+      res.json(
+        toClient({
+          page: pagination.currentPage,
+          totalPages: pagination.lastPage,
+          data
+        })
+      )
+    );
   });
 
   // subscriptions (protected api)
@@ -198,7 +199,6 @@ const init = async () => {
 
   // uploads
   app.post("/upload", upload.single("asset"), (req, res) => {
-    console.log(req.file);
     res.send({ filePath: `/uploads/${req.file.filename}` });
   });
 

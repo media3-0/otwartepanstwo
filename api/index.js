@@ -83,7 +83,7 @@ const init = async () => {
 
   // documents
   app.get("/documents/", (req, res) => {
-    const { search, dateFrom, dateTo, sourceName, hash, page, sortBy, sortDirection } = req.query;
+    const { search, dateFrom, dateTo, sourceName, hash, page, perPage, sortBy, sortDirection } = req.query;
     const fields = ["title", "date", "last_download", "source_name", "hash", "url"];
 
     let query = db(DOCUMENTS_TABLE).select(...fields);
@@ -114,7 +114,7 @@ const init = async () => {
 
     // console.log("query: ", query.toString())
 
-    paginator(db, query, { page: page ? parseInt(page) : 1 }).then(({ pagination, data }) =>
+    paginator(db, query, { page: page ? parseInt(page) : 1, perPage: perPage || 20 }).then(({ pagination, data }) =>
       res.json(
         toClient({
           page: pagination.currentPage,

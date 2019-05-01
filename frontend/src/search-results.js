@@ -164,12 +164,12 @@ class SearchResults extends React.Component {
 
     return (
       <div className="app sans-serif">
-        <div className="w-100 m9 center flex">
+        <div className="w-100 mw9 center flex">
           <div className="w-75 ph3 pv3 ">
             <ReactTable
               data={mobx.toJS(this.props.store.documents)}
               pages={this.props.store.totalPages}
-              defaultSorted={[{ id: "title", desc: true }]}
+              defaultSorted={[{ id: "date", desc: true }]}
               defaultPageSize={20}
               manual
               columns={customColumns}

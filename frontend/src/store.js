@@ -117,7 +117,7 @@ class Store {
     fetch("/api/source-names")
       .then(res => res.json())
       .then(sourceNames => {
-        this.sourceNames = sourceNames;
+        this.sourceNames = sourceNames.sort();
       });
   }
 

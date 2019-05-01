@@ -72,6 +72,7 @@ services:
       - POSTGRES_DB # env passed from shell
       - MAILGUN_API_KEY # env passed from shell
       - MAILGUN_DOMAIN # env passed from shell
+      - MAIN_URL # url used in subscriptions mails from fetcher
     volumes:
       - ./data/files:/data/files # persisted downloads
     depends_on:

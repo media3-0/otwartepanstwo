@@ -46,9 +46,9 @@ class BlogSidebar extends React.Component {
 const BlogArticle = ({ id, title, date, children, readMore = false }) => (
   <div className="pb2 mb4">
     <Link to={`/article/${id}`}>
-      <h2 class="f3 dark-gray pb1 mt0 mb0">{title}</h2>
+      <h2 className="f3 dark-gray pb1 mt0 mb0">{title}</h2>
     </Link>
-    <span class="f7 silver">{date}</span>
+    <span className="f7 silver">{date}</span>
     {children}
   </div>
 );

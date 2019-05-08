@@ -73,11 +73,9 @@ class SearchResults extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("CHANGED", nextProps.location.search, this.props.location.search);
     if (this.props.location.search !== nextProps.location.search) {
-      console.log("CHANGED", nextProps.location.search);
       const search = queryString.parse(nextProps.location.search);
-      this.setState({ search: Object.assign({}, this.state.search, search) });
+      this.setState({ search });
       this.fetchDocuments(nextProps.location);
     }
   }
@@ -123,25 +121,12 @@ class SearchResults extends React.Component {
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 
-  // sortChange(newSorted) {
-  //   const sort = newSorted[0];
-  //   const sortDirection = sort.desc === true ? "DESC" : "ASC";
-
-  //   const urlSearch = queryString.parse(this.props.location.search);
-  //   const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: 1, sortBy: sort.id, sortDirection }));
-
-  //   this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
-
-  //   console.log("!", newSearch, queryString.stringify(newSearch));
-  //   console.log(this.props.history);
-
-  // }
-
   fetchData(state) {
     const { id, desc } = state.sorted[0];
-    console.log("stejt", state, id);
+
     const sortDirection = desc === true ? "DESC" : "ASC";
     const urlSearch = queryString.parse(this.props.location.search);
+
     // TODO: this can be fixed - I mean id === etc
     const newSearch = removeNullKeys(
       Object.assign({}, urlSearch, this.state.search, {
@@ -150,6 +135,7 @@ class SearchResults extends React.Component {
         sortDirection
       })
     );
+
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   }
 

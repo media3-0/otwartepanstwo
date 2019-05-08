@@ -26,7 +26,7 @@ require("./styles.css");
 
 const Footer = () => (
   <div className="fl w-100 pa2 mt3 bg-white">
-    <footer class="ph3 w-70 center">
+    <footer className="ph3 w-70 center">
       <img src="/assets/footer.png" width="100%" />
     </footer>
   </div>

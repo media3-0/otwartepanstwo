@@ -41,10 +41,13 @@ class Header extends React.Component {
                 <img width="200" src="/assets/logo.png" />
               </Link>
               <div className="flex ml3 items-center">
-                <a className="pr2 f6" href="/documents">
+                <a className="mr2 f6" href="/documents">
                   Dokumenty
                 </a>
-                <a className="f6" href="/">
+                <a className="mr2 f6" href="http://sady.otwartepanstwo.pl">
+                  Sądy
+                </a>
+                <a className="mr2 f6" href="/">
                   Blog
                 </a>
               </div>

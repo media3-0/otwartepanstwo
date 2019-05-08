@@ -7,7 +7,7 @@ const { EventEmitter } = require("events");
 const logger = require("../logger");
 
 const MAIN_URL = "http://monitorpolskinauchodzstwie.gov.pl";
-const SOURCE_NAME = "Dziennik Urzędowy Rzeczypospolitej Polski";
+const SOURCE_NAME = "Dziennik Urzędowy Rzeczypospolitej Polskiej";
 
 const simpleDOMListParser = async (browser, url, path, parse) => {
   const page = await browser.newPage();

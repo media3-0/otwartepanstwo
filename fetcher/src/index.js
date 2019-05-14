@@ -26,7 +26,8 @@ const createDB = () =>
     });
 
     // test connection and callback if ok
-    db.raw("select 1 + 1 as result")
+    db
+      .raw("select 1 + 1 as result")
       .then(() => resolve(db))
       .catch(e => reject(e));
   });
@@ -92,7 +93,7 @@ const processCrawlers = async ({ db }) => {
         const isNew = rows.length === 0;
 
         if (isNew) {
-          logger.info(`${item.sourceName} - #${hash} is new - fetching & parsing`);
+          logger.info(`${item.sourceName} - #${hash} is new - fetching & parsing (${item.url})`);
 
           fetchAndParse({ url: item.url, hash })
             .then(parsedText => {

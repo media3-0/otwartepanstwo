@@ -96,7 +96,7 @@ const getAllPdfsUrlsFromNewerPage = async (browser, url) => {
   });
 };
 
-const getAllPdfsUrlsFromOlderPage = async (browser, url) => {
+const getAllPdfsUrlsFromOlderPage = async (browser, url, year) => {
   const page = await browser.newPage();
   await page.goto(url);
   await page.waitForSelector("#dnn_ctr490_ViewJournal_JournalList_gvJournalList");
@@ -117,13 +117,13 @@ const getAllPdfsUrlsFromOlderPage = async (browser, url) => {
       pageUrls,
       3,
       async current => {
-        logger.debug(`Processing ${current}`);
+        logger.debug(`Processing older ${current}`);
 
         const newPage = await browser.newPage();
         await newPage.goto(MAIN_URL + current);
         const content = await newPage.content();
         const $ = cheerio.load(content);
-        const name = $("#dnn_ctr491_ViewAct_tableWhole h2")
+        const title = $("#dnn_ctr491_ViewAct_tableWhole h2")
           .text()
           .trim();
         const date = $("#dnn_ctr491_ViewAct_lblPublishDate").text();
@@ -132,8 +132,8 @@ const getAllPdfsUrlsFromOlderPage = async (browser, url) => {
           .attr("href");
         await newPage.close();
         return {
-          name,
-          date,
+          title,
+          date: date === "brak" ? `${year}-01-01` : date,
           url: MAIN_URL + url,
           sourceName: SOURCE_NAME
         };
@@ -143,8 +143,9 @@ const getAllPdfsUrlsFromOlderPage = async (browser, url) => {
         if (err) {
           logger.error("!", err);
           reject(err);
+        } else {
+          resolve(results);
         }
-        resolve(results);
       }
     );
   });
@@ -161,25 +162,28 @@ const crawl = async emitter => {
   const years = await getYearsUrls(browser);
   const filteredYears = years; //.filter(d => d.year === 2011);
 
-  await browser.close();
+  const pdfs = await async.mapLimit(
+    filteredYears,
+    1,
+    async current => {
+      logger.debug(`Processing started ${SOURCE_NAME} - ${current.year} - ${current.url}`);
 
-  const pdfs = async.eachSeries(filteredYears, async current => {
-    logger.debug(`Processing started ${SOURCE_NAME} - ${current.year} - ${current.url}`);
+      const result =
+        current.year <= 2011
+          ? await getAllPdfsUrlsFromOlderPage(browser, current.url, current.year)
+          : await getAllPdfsUrlsFromNewerPage(browser, current.url);
 
-    const browser = await puppeteer.launch(browserOpts);
-    const result =
-      current.year <= 2011
-        ? await getAllPdfsUrlsFromOlderPage(browser, current.url)
-        : await getAllPdfsUrlsFromNewerPage(browser, current.url);
+      logger.debug(`Processing finished ${current.year} - ${current.url}`);
 
-    await browser.close();
+      emitter.emit("entity", flatten(result));
 
-    logger.debug(`Processing finished ${current.year} - ${current.url}`);
-
-    emitter.emit("entity", flatten(result));
-
-    return flatten(list);
-  });
+      return flatten(result);
+    },
+    async (err, result) => {
+      await browser.close();
+      return result;
+    }
+  );
 
   return flatten(pdfs);
 };

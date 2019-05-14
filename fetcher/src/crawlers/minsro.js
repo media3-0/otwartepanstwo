@@ -126,8 +126,6 @@ const getPdfsUrlsWithMetadata = (browser, list) => {
             .get()
             .find(d => d.split(".").pop() === "pdf");
 
-        console.log("PDF_URL", pdfUrl);
-
         return {
           title,
           date,

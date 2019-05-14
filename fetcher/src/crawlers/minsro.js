@@ -118,9 +118,15 @@ const getPdfsUrlsWithMetadata = (browser, list) => {
           MAIN_URL +
           "/" +
           $(".file-link")
-            .last()
-            .parent()
-            .attr("href");
+            .map((i, d) =>
+              $(d)
+                .parent()
+                .attr("href")
+            )
+            .get()
+            .find(d => d.split(".").pop() === "pdf");
+
+        console.log("PDF_URL", pdfUrl);
 
         return {
           title,
@@ -186,6 +192,8 @@ const crawl = async emitter => {
       const urls = await getAllPdfsUrls(browser, currentUrl);
 
       emitter.emit("entity", flatten(urls));
+
+      return urls;
     },
     async (err, results) => {
       await browser.close();

@@ -1,0 +1,26 @@
+{
+  "name": "otwartepanstwo-public-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "concurrently 'yarn dev:watch-deps' 'yarn dev:run'",
+    "dev:run": "nodemon -L index.js",
+    "dev:watch-deps": "nodemon -w package.json -x 'yarn install'"
+  },
+  "author": "Szymon Kaliski <hi@szymonkaliski.com> (http://szymonkaliski.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^4.1.2",
+    "nodemon": "^1.19.3"
+  },
+  "dependencies": {
+    "change-case-keys": "^0.0.4",
+    "express": "^4.17.1",
+    "express-rate-limit": "^5.0.0",
+    "knex": "^0.19.4",
+    "morgan": "^1.9.1",
+    "pg": "^7.12.1"
+  }
+}

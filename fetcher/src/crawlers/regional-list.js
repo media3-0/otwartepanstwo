@@ -33,8 +33,9 @@ const regionalList = [
     name: "Dziennik Urzędowy Województwa Opolskiego"
   },
   {
-    url: "http://edziennik.rzeszow.uw.gov.pl/#/actbymonths",
-    name: "Dziennik Urzędowy Województwa Podkarpackiego"
+    url: "http://edziennik.rzeszow.uw.gov.pl/",
+    name: "Dziennik Urzędowy Województwa Podkarpackiego",
+    mainURLFix: "#/actbymonths"
   },
   {
     url: "http://edziennik.bialystok.uw.gov.pl/",
@@ -65,7 +66,7 @@ const regionalList = [
 module.exports = () => {
   const emitter = new EventEmitter();
   async.mapLimit(regionalList, 1, async current => {
-    await crawl(emitter, current.url, current.name);
+    await crawl(emitter, current.url, current.name, current.mainURLFix || "");
   });
   return emitter;
 };

@@ -11,7 +11,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const crawl = async (emitter, MAIN_URL, SOURCE_NAME) => {
+const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -19,7 +19,7 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME) => {
 
   const browser = await puppeteer.launch(browserOpts);
   const page = await browser.newPage();
-  await page.goto(MAIN_URL, { waitUntil: "networkidle0" });
+  await page.goto(MAIN_URL + MAIN_URL_FIX || "", { waitUntil: "networkidle0" });
 
   const content = await page.content();
   const $ = cheerio.load(content);
@@ -34,13 +34,13 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME) => {
 
   return new Promise(resolve => {
     async.mapLimit(
-      yearsData,
+      yearsData, //.slice(0, 1),
       1,
       async current => {
         logger.debug(`Processing ${current}`);
 
         const newPage = await browser.newPage();
-        await newPage.goto(MAIN_URL, { waitUntil: "networkidle0" });
+        await newPage.goto(`${MAIN_URL}${MAIN_URL_FIX || ""}`, { waitUntil: "networkidle0" });
 
         let content = await newPage.content();
         let $ = cheerio.load(content);
@@ -104,7 +104,7 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME) => {
               return { title, type, date, updateDate: updateDate || date, url, sourceName: SOURCE_NAME, ocr: false };
             })
             .get()
-        );
+        ); //.slice(0, 2);
         emitter.emit("entity", entity);
         return entity;
       },

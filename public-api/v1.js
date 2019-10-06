@@ -39,6 +39,9 @@ module.exports = ({ db }) => {
    *          name: search
    *          type: string
    *        - in: query
+   *          name: type
+   *          type: string
+   *        - in: query
    *          name: dateFrom
    *          type: string
    *          description: Data w formacie DDMMYYYY
@@ -104,6 +107,10 @@ module.exports = ({ db }) => {
 
     if (sortBy) {
       query = query.orderBy(sortBy, sortDirection);
+    }
+
+    if (type) {
+      query = query.where("type", "=", type);
     }
 
     paginator(db, query, { page: page ? parseInt(page) : 1, perPage: Math.max(1, Math.min(perPage || 20, 100)) }).then(

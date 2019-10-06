@@ -81,12 +81,26 @@ const init = async () => {
       .then(sources => res.json(toClient(sources)));
   });
 
+  // types
+  app.get("/type-names", (req, res) => {
+    db(DOCUMENTS_TABLE)
+      .distinct()
+      .pluck("type")
+      .then(sources => {
+        res.json(toClient(sources));
+      });
+  });
+
   // documents
   app.get("/documents/", (req, res) => {
-    const { search, dateFrom, dateTo, sourceName, hash, page, perPage, sortBy, sortDirection } = req.query;
-    const fields = ["title", "date", "last_download", "source_name", "hash", "url"];
+    const { search, dateFrom, dateTo, sourceName, hash, page, perPage, sortBy, sortDirection, type } = req.query;
+    const fields = ["title", "date", "last_download", "source_name", "hash", "url", "type"];
 
     let query = db(DOCUMENTS_TABLE).select(...fields);
+
+    if (type) {
+      query = query.where("type", "=", type);
+    }
 
     if (hash) {
       query = query.where("hash", "=", hash);

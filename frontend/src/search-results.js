@@ -48,6 +48,10 @@ const columns = ({ search }) => {
     {
       Header: "Źródło",
       accessor: "sourceName"
+    },
+    {
+      Header: "Typ",
+      accessor: "type"
     }
   ];
 };
@@ -69,6 +73,7 @@ class SearchResults extends React.Component {
     this.setState({ search: Object.assign({}, this.state.search, search) });
     this.fetchDocuments(this.props.location);
     this.props.store.fetchSourceNames();
+    this.props.store.fetchTypeNames();
     this.props.store.fetchSubscriptions();
   }
 
@@ -107,6 +112,12 @@ class SearchResults extends React.Component {
     const newSearch = removeNullKeys(
       Object.assign({}, search, { sourceName: value === search.sourceName ? null : value })
     );
+    this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
+  };
+
+  handleTypeNameChange = ({ value }) => {
+    const search = queryString.parse(this.props.location.search);
+    const newSearch = removeNullKeys(Object.assign({}, search, { type: value === search.type ? null : value }));
     this.props.history.push(`/documents?${queryString.stringify(newSearch)}`);
   };
 
@@ -222,6 +233,14 @@ class SearchResults extends React.Component {
                   options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
                   onChange={this.handleSourceNameChange}
                   selected={query.sourceName}
+                />
+              </div>
+
+              <div className="flex">
+                <SelectPicker
+                  options={this.props.store.typeNames.map(s => ({ value: s, label: s }))}
+                  onChange={this.handleTypeNameChange}
+                  selected={query.type}
                 />
               </div>
 

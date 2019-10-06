@@ -1,22 +1,17 @@
-// Generic 2
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const { flatten } = require("lodash");
 const async = require("async");
-const { EventEmitter } = require("events");
 
-const logger = require("../logger");
+const logger = require("./logger");
 
-const MAIN_URL = "http://edu.cba.gov.pl/";
-const SOURCE_NAME = "Dziennik Urzędowy Centralnego Biura Antykorupcyjnego";
-
-const { formatFromDotToDash } = require("../utils");
+const { formatFromDotToDash } = require("./utils");
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const crawl = async emitter => {
+const crawl = async (emitter, MAIN_URL, SOURCE_NAME) => {
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -29,11 +24,9 @@ const crawl = async emitter => {
   const content = await page.content();
   const $ = cheerio.load(content);
 
-  const YEARS_SELECTOR =
-    "body > div > div.container.main-container > div:nth-child(2) > div > div.page-header.clearfix > div.form-inline.form--years > div > select:nth-child(2)";
+  const YEARS_SELECTOR = "#year";
 
-  const ITEM_SELECTOR =
-    "body > div > div.container.main-container > div:nth-child(2) > div > abc-act-grid > div > table > tbody > tr";
+  const ITEM_SELECTOR = "#main-content > div > div > abc-act-grid > div > table > tbody > tr";
 
   const yearsData = $(YEARS_SELECTOR + " option")
     .map((i, d) => $(d).text())
@@ -74,10 +67,15 @@ const crawl = async emitter => {
         const entity = flatten(
           $(ITEM_SELECTOR)
             .map((i, d) => {
+              const type = $(d)
+                .find("td.act__item-desc.item-desc-td > div > span.type.ng-binding")
+                .text()
+                .trim();
               const title =
-                "zarządzenie " +
+                type +
+                " " +
                 $(d)
-                  .find("td.act__item-desc.item-desc-td > a")
+                  .find("td.act__item-desc.item-desc-td > div > a")
                   .text()
                   .trim();
               const date = formatFromDotToDash(
@@ -118,8 +116,4 @@ const crawl = async emitter => {
   });
 };
 
-module.exports = () => {
-  const emitter = new EventEmitter();
-  crawl(emitter);
-  return emitter;
-};
+module.exports = crawl;

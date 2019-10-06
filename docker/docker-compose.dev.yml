@@ -11,10 +11,11 @@ services:
       - "8080:80"
     volumes:
       - ./data/files:/data/files # persisted downloads
-      - ./data/uploads:/data/uploads # persisted downloads
+      - ./data/uploads:/data/uploads # persisted uploads
     depends_on:
       - frontend
       - api
+      - publicapi
 
   frontend:
     build:
@@ -52,12 +53,30 @@ services:
       - ./../api:/app
       - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
       - ./data/files:/data/files # persisted downloads
-      - ./data/uploads:/data/uploads # persisted downloads
+      - ./data/uploads:/data/uploads # persisted uploads
     depends_on:
       - db
-      # - elasticsearch
     ports:
       - "4000:4000"
+
+  publicapi:
+    build:
+      context: ../.
+      dockerfile: docker/public-api/Dockerfile.dev
+    image: otwartepanstwo-public-api-dev
+    restart: on-failure
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_PASSWORD # env passed from shell
+      - POSTGRES_USER # env passed from shell
+      - POSTGRES_DB # env passed from shell
+    volumes:
+      - ./../public-api:/app
+      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
 
   fetcher:
     build:

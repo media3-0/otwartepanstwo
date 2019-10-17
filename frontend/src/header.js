@@ -50,6 +50,9 @@ class Header extends React.Component {
                 {/* <a className="mr2 f6" href="/"> */}
                 {/*   Blog */}
                 {/* </a> */}
+                <a className="mr2 f6" href="/public-api/docs/">
+                  API
+                </a>
               </div>
             </div>
 

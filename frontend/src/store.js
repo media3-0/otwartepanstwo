@@ -47,13 +47,21 @@ class Store {
     this.auth = new Auth();
   }
 
-  @observable fetching = false;
-  @observable documents = [];
-  @observable subscriptions = [];
-  @observable sourceNames = [];
-  @observable totalPages = 0;
+  @observable
+  fetching = false;
+  @observable
+  documents = [];
+  @observable
+  subscriptions = [];
+  @observable
+  sourceNames = [];
+  @observable
+  typeNames = [];
+  @observable
+  totalPages = 0;
 
-  @observable articles = [];
+  @observable
+  articles = [];
 
   @action
   fetchSubscriptions() {
@@ -118,6 +126,16 @@ class Store {
       .then(res => res.json())
       .then(sourceNames => {
         this.sourceNames = sourceNames.sort();
+      });
+  }
+
+  @action
+  fetchTypeNames() {
+    fetch("/api/type-names")
+      .then(res => res.json())
+      .then(typeNames => {
+        console.log(typeNames, typeNames);
+        this.typeNames = typeNames.sort();
       });
   }
 

@@ -16,6 +16,7 @@ const DATE_SCHEMA = j.string().regex(/^[1-9]{1}[0-9]{3}[-]{1}[0-9]{2}[-]{1}[0-9]
 
 const ENTITY_SCHEMA = j.object().keys({
   title: j.string().required(),
+  type: j.string(),
   sourceName: j.string().required(),
   url: j.string().required(),
   date: DATE_SCHEMA.required(),

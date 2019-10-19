@@ -11,6 +11,19 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     last_download DATE,
     date DATE,
     title TEXT,
+    source_name TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS documents_regional (
+    hash TEXT,
+    url TEXT,
+    content TEXT,
+    content_lower TEXT,
+    last_download DATE,
+    date DATE,
+    title TEXT,
+    keywords: TEXT[],
+    publisher TEXT[],
     type TEXT,
     source_name TEXT
   );

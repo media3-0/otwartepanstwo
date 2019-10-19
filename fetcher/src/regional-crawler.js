@@ -12,6 +12,7 @@ function sleep(ms) {
 }
 
 const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
+  console.log("H");
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -31,6 +32,8 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
   const yearsData = $(YEARS_SELECTOR + " option")
     .map((i, d) => $(d).text())
     .get();
+
+  logger.debug(yearsData);
 
   return new Promise(resolve => {
     async.mapLimit(
@@ -64,49 +67,20 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
           content = await newPage.content();
           $ = cheerio.load(content);
         }
-        const entity = flatten(
-          $(ITEM_SELECTOR)
-            .map((i, d) => {
-              const type = $(d)
-                .find("td.act__item-desc.item-desc-td > div > span.type.ng-binding")
-                .text()
-                .trim();
-              const title =
-                type +
-                " " +
-                $(d)
-                  .find("td.act__item-desc.item-desc-td > div > a")
-                  .text()
-                  .trim();
-              const date = formatFromDotToDash(
-                $(d)
-                  .find("td.acts__publish-date.ng-binding")
-                  .text()
-                  .trim()
-              )
-                .split("-")
-                .reverse()
-                .join("-");
-              const updateDate = formatFromDotToDash(
-                $(d)
-                  .find("td.acts__date > div > div:nth-child(1) > span")
-                  .text()
-                  .trim()
-              )
-                .split("-")
-                .reverse()
-                .join("-");
-              const url =
-                MAIN_URL +
-                $(d)
-                  .find("td.acts__pdf.text-right > a")
-                  .attr("href");
-              return { title, type, date, updateDate: updateDate || date, url, sourceName: SOURCE_NAME, ocr: false };
-            })
-            .get()
-        ); //.slice(0, 2);
-        emitter.emit("entity", entity);
-        return entity;
+
+        const links = $(ITEM_SELECTOR)
+          .map((i, d) => {
+            return $(d)
+              .find("a.subject")
+              .attr("href")
+              .trim();
+          })
+          .get();
+        console.log("...");
+        console.log("LINKS", links);
+
+        // tu dalej
+        // async.mapLimit(
       },
       async (err, results) => {
         await browser.close();

@@ -65,6 +65,7 @@ const regionalList = [
 
 module.exports = () => {
   const emitter = new EventEmitter();
+  console.log("A");
   async.mapLimit(regionalList, 1, async current => {
     await crawl(emitter, current.url, current.name, current.mainURLFix || "");
   });

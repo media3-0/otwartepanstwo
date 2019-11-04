@@ -11,6 +11,7 @@ const paginator = require("./knex-paginate");
 const simpleCrud = require("./simple-crud");
 
 const DOCUMENTS_TABLE = "documents";
+const REGIONAL_DOCUMENTS_TABLE = "documents_regional";
 const SUBSCRIPTIONS_TABLE = "subscriptions";
 const PORT = process.env.PORT || 4000;
 
@@ -73,26 +74,52 @@ const init = async () => {
     })
   );
 
-  // source names
-  app.get("/source-names", (req, res) => {
-    db(DOCUMENTS_TABLE)
+  // keywords
+  app.get("/regional/keywords", (req, res) => {
+    db(REGIONAL_DOCUMENTS_TABLE)
       .distinct()
-      .pluck("source_name")
-      .then(sources => res.json(toClient(sources)));
-  });
-
-  // types
-  app.get("/type-names", (req, res) => {
-    db(DOCUMENTS_TABLE)
-      .distinct()
-      .pluck("type")
+      .pluck("keywords")
       .then(sources => {
         res.json(toClient(sources));
       });
   });
 
+  // publishers
+  app.get("/regional/publishers", (req, res) => {
+    db(REGIONAL_DOCUMENTS_TABLE)
+      .distinct()
+      .pluck("publisher")
+      .then(sources => {
+        res.json(toClient(sources));
+      });
+  });
+
+  // source names
+  const getSourceNames = db => (req, res) => {
+    db.distinct()
+      .pluck("source_name")
+      .then(sources => {
+        res.json(toClient(sources));
+      });
+  };
+
+  app.get("/general/source-names", getSourceNames(db(DOCUMENTS_TABLE)));
+  app.get("/regional/source-names", getSourceNames(db(REGIONAL_DOCUMENTS_TABLE)));
+
+  // types
+  const getTypes = db => (req, res) => {
+    db.distinct()
+      .pluck("type")
+      .then(sources => {
+        res.json(toClient(sources));
+      });
+  };
+
+  app.get("/general/type-names", getTypes(db(DOCUMENTS_TABLE)));
+  app.get("/regional/type-names", getTypes(db(REGIONAL_DOCUMENTS_TABLE)));
+
   // documents
-  app.get("/documents/", (req, res) => {
+  app.get("/general/documents/", (req, res) => {
     const { search, dateFrom, dateTo, sourceName, hash, page, perPage, sortBy, sortDirection, type } = req.query;
     const fields = ["title", "date", "last_download", "source_name", "hash", "url", "type"];
 
@@ -100,6 +127,70 @@ const init = async () => {
 
     if (type) {
       query = query.where("type", "=", type);
+    }
+
+    if (hash) {
+      query = query.where("hash", "=", hash);
+    }
+
+    if (dateFrom) {
+      query = query.where("date", ">", dateFrom);
+    }
+
+    if (dateTo) {
+      query = query.where("date", "<", dateTo);
+    }
+
+    if (sourceName) {
+      query = query.where("source_name", "=", sourceName);
+    }
+
+    if (search) {
+      query = query.where(db.raw(`content_lower LIKE '%${search}%'`));
+    }
+
+    if (sortBy) {
+      query = query.orderBy(sortBy, sortDirection);
+    }
+
+    paginator(db, query, { page: page ? parseInt(page) : 1, perPage: perPage || 20 }).then(({ pagination, data }) =>
+      res.json(
+        toClient({
+          page: pagination.currentPage,
+          totalPages: pagination.lastPage,
+          data
+        })
+      )
+    );
+  });
+
+  // regional documents
+  app.get("/regional/documents", (req, res) => {
+    const {
+      search,
+      dateFrom,
+      dateTo,
+      sourceName,
+      hash,
+      page,
+      perPage,
+      sortBy,
+      sortDirection,
+      publisher,
+      keywords
+    } = req.query;
+    const fields = ["title", "date", "last_download", "source_name", "hash", "url", "type", "publisher", "keywords"];
+
+    let query = db(REGIONAL_DOCUMENTS_TABLE).select(...fields);
+
+    console.log(keywords);
+
+    if (keywords) {
+      query = query.whereIn("keywords", [keywords]);
+    }
+
+    if (publisher) {
+      query = query.where("publisher", "=", publisher);
     }
 
     if (hash) {
@@ -138,6 +229,8 @@ const init = async () => {
       )
     );
   });
+
+  //
 
   // subscriptions (protected api)
   app.get("/subscriptions", checkJwt, (req, res) => {

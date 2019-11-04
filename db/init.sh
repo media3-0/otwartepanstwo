@@ -11,6 +11,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     last_download DATE,
     date DATE,
     title TEXT,
+    type TEXT,
     source_name TEXT
   );
 
@@ -22,8 +23,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     last_download DATE,
     date DATE,
     title TEXT,
-    keywords: TEXT[],
-    publisher TEXT[],
+    keywords TEXT[],
+    publisher TEXT,
     type TEXT,
     source_name TEXT
   );

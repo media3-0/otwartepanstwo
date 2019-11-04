@@ -11,6 +11,7 @@ const Auth = require("./services/auth");
 
 const Header = require("./header");
 const SearchResults = require("./search-results");
+const SearchRegionalResults = require("./search-regional-results");
 
 const { Blog } = require("./blog");
 const { BlogPost } = require("./blog-post");
@@ -79,8 +80,16 @@ class App extends React.Component {
             <DefaultLayout exact={true} path="/articles/" content={<Blog />} />
             <DefaultLayout exact={true} path="/articles/:year/:month" content={<Blog />} />
             <DefaultLayout exact={true} path="/article/:id" content={<BlogPost />} />
-            <DefaultLayout exact={true} path="/documents" content={<SearchResults />} />
-            <DefaultLayout exact={true} path="/document/:hash" noFooter content={<DocumentPreview />} />
+            <DefaultLayout exact={true} path="/documents/general" content={<SearchResults />} />
+            <DefaultLayout exact={true} path="/document/general/:hash" noFooter content={<DocumentPreview />} />
+            <DefaultLayout exact={true} path="/documents/regional" content={<SearchRegionalResults />} />
+            <DefaultLayout
+              exact={true}
+              path="/document/regional/:hash"
+              noFooter
+              content={<DocumentPreview regional />}
+            />
+
             <DefaultLayout exact={true} path="/subscriptions" content={<Subscriptions />} />
 
             <DefaultLayout exact={true} admin path="/admin/article" content={<AdminArticleEdit />} />

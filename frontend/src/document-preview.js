@@ -283,7 +283,8 @@ class DocumentPreview extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`/api/documents/?hash=${this.props.match.params.hash}`)
+    console.log("!");
+    fetch(`/api/${this.props.regional ? "regional" : "general"}/documents/?hash=${this.props.match.params.hash}`)
       .then(res => res.json())
       .then(info => {
         this.setState({ info: info.data[0] });
@@ -295,7 +296,9 @@ class DocumentPreview extends React.Component {
     const search = queryString.parse(this.props.location.search);
 
     const newSearch = removeNullKeys(Object.assign({}, search, { search: value }));
-    this.props.history.push(`/document/${hash}/?${queryString.stringify(newSearch)}`);
+    this.props.history.push(
+      `/document/${this.props.regional ? "regional" : "general"}/${hash}/?${queryString.stringify(newSearch)}`
+    );
   }
 
   handlePageChange(pageNum) {
@@ -303,7 +306,9 @@ class DocumentPreview extends React.Component {
     const search = queryString.parse(this.props.location.search);
 
     const newSearch = removeNullKeys(Object.assign({}, search, { pageNum: parseInt(pageNum) }));
-    this.props.history.push(`/document/${hash}/?${queryString.stringify(newSearch)}`);
+    this.props.history.push(
+      `/document/${this.props.regional ? "regional" : "general"}/${hash}/?${queryString.stringify(newSearch)}`
+    );
   }
 
   render() {

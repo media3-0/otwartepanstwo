@@ -78,16 +78,13 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
             );
           })
           .get();
-        console.log("LINKS", links);
 
         async.mapLimit(
           links,
           1,
           async link => {
-            console.log("LINK", link);
             const docPage = await browser.newPage();
             await docPage.goto(link, { waitUntil: "networkidle0" });
-            console.log("!!!!");
 
             const docContent = await docPage.content();
             const doc$ = cheerio.load(docContent);
@@ -123,8 +120,6 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
             );
 
             const entity = { title, publisher, keywords, url, date, sourceName: SOURCE_NAME, ocr: false };
-
-            console.log(entity);
 
             emitter.emit("entity", [entity]);
 

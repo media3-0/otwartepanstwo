@@ -229,7 +229,7 @@ module.exports = async () => {
 
   const db = await createDB();
 
-  // await processGeneralCrawlers({ db });
+  await processGeneralCrawlers({ db });
 
   await processRegionalCrawlers({ db });
 

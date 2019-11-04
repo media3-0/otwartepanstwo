@@ -58,6 +58,10 @@ class Store {
   @observable
   typeNames = [];
   @observable
+  keywords = [];
+  @observable
+  publishers = [];
+  @observable
   totalPages = 0;
 
   @observable
@@ -67,18 +71,19 @@ class Store {
   fetchSubscriptions() {
     const token = this.auth.getToken();
 
-    if (!this.auth.isAuthenticated()) {
-      return;
-    }
+    // if (!this.auth.isAuthenticated()) {
+    //   return;
+    // }
 
-    fetch("/api/subscriptions", {
+    fetch("/api/regional/keywords", {
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
       .then(res => res.json())
       .then(subscriptions => {
-        this.subscriptions = subscriptions;
+        console.log(subscriptions);
+        // this.subscriptions = subscriptions;
       });
   }
 
@@ -122,7 +127,7 @@ class Store {
 
   @action
   fetchSourceNames() {
-    fetch("/api/source-names")
+    fetch("/api/general/source-names")
       .then(res => res.json())
       .then(sourceNames => {
         this.sourceNames = sourceNames.sort();
@@ -130,8 +135,35 @@ class Store {
   }
 
   @action
+  fetchRegionalSourceNames() {
+    fetch("/api/regional/source-names")
+      .then(res => res.json())
+      .then(sourceNames => {
+        this.sourceNames = sourceNames.sort();
+      });
+  }
+
+  @action
+  fetchRegionalKeywords() {
+    fetch("/api/regional/keywords")
+      .then(res => res.json())
+      .then(keywords => {
+        this.keywords = keywords.sort();
+      });
+  }
+
+  @action
+  fetchRegionalPublishers() {
+    fetch("/api/regional/publishers")
+      .then(res => res.json())
+      .then(publishers => {
+        this.publishers = publishers.sort();
+      });
+  }
+
+  @action
   fetchTypeNames() {
-    fetch("/api/type-names")
+    fetch("/api/general/type-names")
       .then(res => res.json())
       .then(typeNames => {
         console.log(typeNames, typeNames);
@@ -142,7 +174,27 @@ class Store {
   @action
   fetchDocuments(query) {
     const url =
-      Object.entries(query).length > 0 ? `/api/documents/?${queryString.stringify(query)}` : "/api/documents/";
+      Object.entries(query).length > 0
+        ? `/api/general/documents/?${queryString.stringify(query)}`
+        : "/api/general/documents/";
+
+    this.fetching = true;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(response => {
+        this.documents = response.data;
+        this.totalPages = response.totalPages;
+        this.fetching = false;
+      });
+  }
+
+  @action
+  fetchRegionalDocuments(query) {
+    const url =
+      Object.entries(query).length > 0
+        ? `/api/regional/documents/?${queryString.stringify(query)}`
+        : "/api/regional/documents/";
 
     this.fetching = true;
 

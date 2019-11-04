@@ -30,8 +30,12 @@ const columns = ({ search }) => {
       accessor: "sourceName"
     },
     {
-      Header: "Typ",
-      accessor: "type"
+      Header: "Skorowidz",
+      accessor: "keywords"
+    },
+    {
+      Header: "Publikujący",
+      accessor: "publisher"
     }
   ];
 };
@@ -52,9 +56,9 @@ class SearchResults extends React.Component {
     const search = queryString.parse(this.props.location.search);
     this.setState({ search: Object.assign({}, this.state.search, search) });
     this.fetchDocuments(this.props.location);
-    this.props.store.fetchSourceNames();
-    this.props.store.fetchTypeNames();
-    this.props.store.fetchSubscriptions();
+    this.props.store.fetchRegionalPublishers();
+    this.props.store.fetchRegionalSourceNames();
+    this.props.store.fetchRegionalKeywords();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,7 +71,7 @@ class SearchResults extends React.Component {
 
   fetchDocuments(currentProps) {
     const query = removeNullKeys(queryString.parse(currentProps.search));
-    this.props.store.fetchDocuments(query);
+    this.props.store.fetchRegionalDocuments(query);
   }
 
   handleSearchSubscribe() {
@@ -83,7 +87,7 @@ class SearchResults extends React.Component {
       const newDate = date ? date.format(DATE_FORMAT) : null;
       const search = queryString.parse(this.props.location.search);
       const newSearch = removeNullKeys(Object.assign({}, search, { [`date${name}`]: newDate }));
-      this.props.history.push(`/documents/general/?${queryString.stringify(newSearch)}`);
+      this.props.history.push(`/documents/regional/?${queryString.stringify(newSearch)}`);
     };
   }
 
@@ -92,13 +96,15 @@ class SearchResults extends React.Component {
     const newSearch = removeNullKeys(
       Object.assign({}, search, { sourceName: value === search.sourceName ? null : value })
     );
-    this.props.history.push(`/documents/general?${queryString.stringify(newSearch)}`);
+    this.props.history.push(`/documents/regional/?${queryString.stringify(newSearch)}`);
   };
 
-  handleTypeNameChange = ({ value }) => {
+  handlePublisherChange = ({ value }) => {
     const search = queryString.parse(this.props.location.search);
-    const newSearch = removeNullKeys(Object.assign({}, search, { type: value === search.type ? null : value }));
-    this.props.history.push(`/documents/general?${queryString.stringify(newSearch)}`);
+    const newSearch = removeNullKeys(
+      Object.assign({}, search, { publisher: value === search.publisher ? null : value })
+    );
+    this.props.history.push(`/documents/regional/?${queryString.stringify(newSearch)}`);
   };
 
   setSearch(ev) {
@@ -109,7 +115,7 @@ class SearchResults extends React.Component {
   handleSearch() {
     const urlSearch = queryString.parse(this.props.location.search);
     const newSearch = removeNullKeys(Object.assign({}, urlSearch, this.state.search, { page: 1 }));
-    this.props.history.push(`/documents/general?${queryString.stringify(newSearch)}`);
+    this.props.history.push(`/documents/regional/?${queryString.stringify(newSearch)}`);
   }
 
   fetchData(state) {
@@ -127,7 +133,7 @@ class SearchResults extends React.Component {
       })
     );
 
-    this.props.history.push(`/documents/general/?${queryString.stringify(newSearch)}`);
+    this.props.history.push(`/documents/regional/?${queryString.stringify(newSearch)}`);
   }
 
   render() {
@@ -167,8 +173,8 @@ class SearchResults extends React.Component {
                   onClick: (e, handleOriginal) => {
                     const hash = rowInfo.original.hash;
                     const url = query.search
-                      ? `/document/general/${hash}/?search=${query.search}`
-                      : `/document/general/${hash}`;
+                      ? `/document/regional/${hash}/?search=${query.search}`
+                      : `/document/regional/${hash}`;
                     this.props.history.push(url);
                     if (handleOriginal) {
                       handleOriginal();
@@ -220,9 +226,9 @@ class SearchResults extends React.Component {
 
               <div className="flex">
                 <SelectPicker
-                  options={this.props.store.typeNames.map(s => ({ value: s, label: s }))}
-                  onChange={this.handleTypeNameChange}
-                  selected={query.type}
+                  options={this.props.store.publishers.map(s => ({ value: s, label: s }))}
+                  onChange={this.handlePublisherChange}
+                  selected={query.publisher}
                 />
               </div>
 

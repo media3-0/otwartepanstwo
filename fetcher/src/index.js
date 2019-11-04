@@ -1,17 +1,22 @@
 const async = require("async");
 const crypto = require("crypto");
 const fs = require("fs");
+const path = require("path");
 const knex = require("knex");
 const moment = require("moment");
 const pdfExtractor = require("pdf-text-extract");
 const request = require("request-promise");
 
 const logger = require("./logger");
-const runCrawlers = require("./run-crawlers");
+const createRunCrawlers = require("./run-crawlers");
 const updateSubscriptions = require("./update-subscriptions");
+const { parseEnvArray } = require("./utils");
 
 const IS_DEV = process.env.NODE_ENV === "development";
 const DOCUMENTS_TABLE = "documents";
+const REGIONAL_DOCUMENTS_TABLE = "documents_regional";
+const crawlersDir = `${__dirname}/crawlers`;
+const { STANDARD_ENTITY_SCHEMA, REGIONAL_ENTITY_SCHEMA } = require("./schema");
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -31,9 +36,9 @@ const createDB = () =>
       .catch(e => reject(e));
   });
 
-const readOneFile = path => {
+const readOneFile = filePath => {
   return new Promise((resolve, reject) => {
-    pdfExtractor(path, { splitPages: false, layout: "raw" }, (err, content) => {
+    pdfExtractor(filePath, { splitPages: false, layout: "raw" }, (err, content) => {
       if (err) {
         reject(err);
       } else {
@@ -77,7 +82,7 @@ const fetchAndParse = ({ url, hash }) => {
   });
 };
 
-const processCrawlers = async ({ db }) => {
+const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert }) => {
   const updateDate = moment().format("YYYY-MM-DD");
 
   const cargo = async.cargo(([item], callback) => {
@@ -86,7 +91,11 @@ const processCrawlers = async ({ db }) => {
       .update(item.url)
       .digest("hex");
 
-    db(DOCUMENTS_TABLE)
+    const extendedProps = itemProps.reduce((acc, val) => {
+      return Object.assign(acc, { [val[0]]: item[val[1]] || item[val[0]] });
+    }, {});
+
+    db(tableToInsert)
       .where({ hash })
       .then(rows => {
         const isNew = rows.length === 0;
@@ -98,17 +107,13 @@ const processCrawlers = async ({ db }) => {
             .then(parsedText => {
               logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
 
-              db(DOCUMENTS_TABLE)
+              db(tableToInsert)
                 .insert({
                   hash,
-                  url: item.url,
                   ["last_download"]: updateDate,
                   content: parsedText,
                   ["content_lower"]: parsedText.toLowerCase(),
-                  title: item.title,
-                  type: item.type,
-                  date: item.date,
-                  ["source_name"]: item.sourceName
+                  ...extendedProps
                 })
                 .then(() => {
                   logger.info(`${item.sourceName} - #${hash} put into db`);
@@ -122,7 +127,7 @@ const processCrawlers = async ({ db }) => {
         } else {
           logger.info(`#${hash} exists - updating`);
 
-          db(DOCUMENTS_TABLE)
+          db(tableToInsert)
             .where({ hash })
             .update({ ["last_download"]: updateDate })
             .then(() => {
@@ -187,12 +192,46 @@ const processCrawlers = async ({ db }) => {
   });
 };
 
+const processGeneralCrawlers = ({ db }) => {
+  const crawlersList = process.env.DEV_CRAWLERS ? parseEnvArray(process.env.DEV_CRAWLERS) : fs.readdirSync(crawlersDir);
+  const crawlersUrls = crawlersList.map(crawlerName => ({
+    name: crawlerName,
+    url: path.join(crawlersDir, "/", crawlerName)
+  }));
+  const runCrawlers = createRunCrawlers({ crawlersUrls, entitySchema: STANDARD_ENTITY_SCHEMA });
+  const itemProps = [["url"], ["title"], ["type"], ["date"], ["source_name", "sourceName"]];
+  const tableToInsert = DOCUMENTS_TABLE;
+  return processCrawlers({ db, runCrawlers, itemProps, tableToInsert });
+};
+
+const processRegionalCrawlers = ({ db }) => {
+  // const crawlersList = regionalList;
+
+  const runCrawlers = createRunCrawlers({
+    crawlersUrls: [{ name: "regional", url: `${__dirname}/crawlers-regional/index.js` }],
+    entitySchema: REGIONAL_ENTITY_SCHEMA
+  });
+  const tableToInsert = REGIONAL_DOCUMENTS_TABLE;
+  const itemProps = [
+    ["url"],
+    ["title"],
+    ["type"],
+    ["date"],
+    ["source_name", "sourceName"],
+    ["publisher"],
+    ["keywords"]
+  ];
+  return processCrawlers({ db, runCrawlers, itemProps, tableToInsert });
+};
+
 module.exports = async () => {
   logger.info(`Fetcher started at ${moment().toISOString()}`);
 
   const db = await createDB();
 
-  await processCrawlers({ db });
+  // await processGeneralCrawlers({ db });
+
+  await processRegionalCrawlers({ db });
 
   await updateSubscriptions({ db });
 

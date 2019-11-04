@@ -41,10 +41,17 @@ const removeEscapesFromString = str => str.replace(/\\"/g, '"');
 
 const formatFromDotToDash = str => str.replace(/\./g, "-");
 
+const formatFromDotToDashReverse = str =>
+  str
+    .split(".")
+    .reverse()
+    .join("-");
+
 module.exports = {
   parseEnvArray,
   simpleDOMListParser,
   simpleDOMGet,
   removeEscapesFromString,
-  formatFromDotToDash
+  formatFromDotToDash,
+  formatFromDotToDashReverse
 };

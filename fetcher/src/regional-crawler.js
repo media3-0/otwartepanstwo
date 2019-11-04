@@ -5,14 +5,13 @@ const async = require("async");
 
 const logger = require("./logger");
 
-const { formatFromDotToDash } = require("./utils");
+const { formatFromDotToDashReverse } = require("./utils");
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
-  console.log("H");
   const browserOpts = {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
@@ -70,14 +69,69 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
 
         const links = $(ITEM_SELECTOR)
           .map((i, d) => {
-            return $(d)
-              .find("a.subject")
-              .attr("href")
-              .trim();
+            return (
+              MAIN_URL +
+              $(d)
+                .find("a.subject")
+                .attr("href")
+                .trim()
+            );
           })
           .get();
-        console.log("...");
         console.log("LINKS", links);
+
+        async.mapLimit(
+          links,
+          1,
+          async link => {
+            console.log("LINK", link);
+            const docPage = await browser.newPage();
+            await docPage.goto(link, { waitUntil: "networkidle0" });
+            console.log("!!!!");
+
+            const docContent = await docPage.content();
+            const doc$ = cheerio.load(docContent);
+
+            const title = doc$(".lead.act__item-desc")
+              .text()
+              .trim();
+
+            const publisher = doc$("#positionSidePanel > div:nth-child(2) > dl > dd")
+              .text()
+              .trim();
+
+            const keywords = doc$(
+              "#main-content > div > div:nth-child(3) > div.row > div.col-md-9 > div.anim-opacity > div > a"
+            )
+              .map((i, d) =>
+                doc$(d)
+                  .text()
+                  .replace(/\s*\(.*?\)\s*/g, "")
+                  .trim()
+                  .toLowerCase()
+              )
+              .get();
+
+            const url =
+              MAIN_URL +
+              doc$(
+                "#main-content > div > div:nth-child(3) > div.row > div.col-md-9 > abc-act-attachments-list > div > div:nth-child(2) > div.nav-btns.nav-btns--primary > a:nth-child(1)"
+              ).attr("href");
+
+            const date = formatFromDotToDashReverse(
+              doc$("#positionSidePanel > div:nth-child(1) > ul > li:nth-child(4) > span").text()
+            );
+
+            const entity = { title, publisher, keywords, url, date, sourceName: SOURCE_NAME, ocr: false };
+
+            console.log(entity);
+
+            emitter.emit("entity", [entity]);
+
+            await docPage.close();
+          },
+          async (err, results) => {}
+        );
 
         // tu dalej
         // async.mapLimit(

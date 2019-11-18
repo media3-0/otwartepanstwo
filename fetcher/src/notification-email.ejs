@@ -2,8 +2,10 @@ Witaj,
 
 pojawiły się nowe dokumenty spełniające zasubskrybowane przez Ciebie kryteria wyszukiwania:
 <% data.forEach(({ searchPhrase, documentSource, lastNotifyFormatted }) => { %>
+http://otwartepanstwo.pl/documents/general/?dateFrom=2019%2F10%2F29&search=zarządzenie
 <% if (searchPhrase) { %>
-* <%= searchPhrase %>: <%= mainUrl %>?search="<%= searchPhrase %>"&dateFrom=<%= lastNotifyFormatted %>
+/?dateFrom=2019%2F10%2F29&page=1&search=zarządzenie&sortBy=date&sortDirection=DESC
+* <%= searchPhrase %>: <%= mainUrl %>/documents/general/?search=<%= searchPhrase %>&dateFrom=<%= lastNotifyFormatted %>/sortBy=date&sortDirection=DESC&page=1
 <% } else { %>
 * <%= documentSource %>: <%= mainUrl %>?sourceName=<%= encodeURI(documentSource) %>&dateFrom=<%= lastNotifyFormatted %>
 <% } %>

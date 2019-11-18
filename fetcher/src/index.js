@@ -15,6 +15,8 @@ const { parseEnvArray } = require("./utils");
 const IS_DEV = process.env.NODE_ENV === "development";
 const DOCUMENTS_TABLE = "documents";
 const REGIONAL_DOCUMENTS_TABLE = "documents_regional";
+const BULLETIN_DOCUMENTS_TABLE = "documents_bulletin";
+
 const crawlersDir = `${__dirname}/crawlers`;
 const { STANDARD_ENTITY_SCHEMA, REGIONAL_ENTITY_SCHEMA } = require("./schema");
 
@@ -224,14 +226,39 @@ const processRegionalCrawlers = ({ db }) => {
   return processCrawlers({ db, runCrawlers, itemProps, tableToInsert });
 };
 
+const processBulltin = ({ db }) => {
+  const runCrawlers = createRunCrawlers({
+    crawlersUrls: [{ name: "bulletin", url: `${__dirname}/crawlers-bulletin/index.js` }],
+    entitySchema: REGIONAL_ENTITY_SCHEMA
+  });
+
+  const tableToInsert = BULLETIN_DOCUMENTS_TABLE;
+
+  const itemProps = [
+    ["title"],
+    ["type"],
+    ["url"],
+    ["source_name", "sourceName"],
+    ["date"],
+    ["orderer_name", "ordererName"],
+    ["orderer_location", "ordererLocation"],
+    ["orderer_region", "ordererRegion"],
+    ["order_name", "orderName"],
+    ["ref_num", "refNum"]
+  ];
+  return processCrawlers({ db, runCrawlers, itemProps, tableToInsert });
+};
+
 module.exports = async () => {
   logger.info(`Fetcher started at ${moment().toISOString()}`);
 
   const db = await createDB();
 
+  await processBulltin({ db });
+
   // await processGeneralCrawlers({ db });
 
-  await processRegionalCrawlers({ db });
+  // await processRegionalCrawlers({ db });
 
   await updateSubscriptions({ db });
 

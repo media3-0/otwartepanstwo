@@ -127,9 +127,6 @@ const crawl = async (emitter, MAIN_URL, SOURCE_NAME, MAIN_URL_FIX) => {
           },
           async (err, results) => {}
         );
-
-        // tu dalej
-        // async.mapLimit(
       },
       async (err, results) => {
         await browser.close();

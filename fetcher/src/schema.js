@@ -24,8 +24,24 @@ const REGIONAL_ENTITY_SCHEMA = j.object().keys({
   keywords: j.array()
 });
 
+const BULLETIN_ENTITY_SCHEMA = j.object().keys({
+  title: j.string().required(),
+  type: j.string(),
+  sourceName: j.string().required(),
+  url: j.string().required(),
+  date: DATE_SCHEMA.required(),
+  updateDate: DATE_SCHEMA,
+  ocr: j.boolean(),
+  ordererName: j.string(),
+  ordererLocation: j.string(),
+  ordererRegion: j.string(),
+  orderName: j.string(),
+  refNum: j.string()
+});
+
 module.exports = {
   DATE_SCHEMA,
   STANDARD_ENTITY_SCHEMA,
-  REGIONAL_ENTITY_SCHEMA
+  REGIONAL_ENTITY_SCHEMA,
+  BULLETIN_ENTITY_SCHEMA
 };

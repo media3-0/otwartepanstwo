@@ -66,6 +66,7 @@ class App extends React.Component {
   }
 
   handleAuthentication(nextState) {
+    console.log(nextState);
     if (/access_token|id_token|error/.test(nextState.location.hash)) {
       this.auth.handleAuthentication();
     }
@@ -107,6 +108,8 @@ class App extends React.Component {
               render={props => {
                 const isAuth = this.auth.isAuthenticated();
                 const isAdmin = this.auth.isAdmin();
+                console.log(isAuth, isAdmin);
+
                 if (isAuth && isAdmin) {
                   return <DefaultLayout exact={true} admin path="/admin" content={<AdminHome />} {...props} />;
                 } else {

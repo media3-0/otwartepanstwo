@@ -55,11 +55,11 @@ const crawl = async (emitter, SOURCE_NAME) => {
     async.mapLimit(
       pureHtmlData,
       1,
-      async item => {
+      async (item, cb) => {
         const { btnToContentId, type, date, ordererName, ordererLocation, ordererRegion, orderName, refNum } = item;
         newPagePromise = new Promise(x => browser.once("targetcreated", target => x(target.page()))); // declare promise
 
-        await page.click("#" + btnToContentId);
+        await page.click("#" + item.btnToContentId);
 
         const newPage = await newPagePromise;
         const url = newPage.url();
@@ -71,18 +71,7 @@ const crawl = async (emitter, SOURCE_NAME) => {
           .trim()
           .replace(/\s\s+/gm, " ");
         await newPage.close();
-        return {
-          title: orderName,
-          url,
-          type,
-          date,
-          sourceName: SOURCE_NAME,
-          ordererName,
-          ordererLocation,
-          ordererRegion,
-          refNum,
-          body
-        };
+        return { title: orderName, url, type, sourceName: SOURCE_NAME, ordererLocation, ordererRegion, refNum, body };
       },
       (err, result) => {
         console.log("finished", result);

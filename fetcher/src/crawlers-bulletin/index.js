@@ -1,4 +1,3 @@
-const async = require("async");
 const { EventEmitter } = require("events");
 const crawl = require("../bulletin-crawler");
 

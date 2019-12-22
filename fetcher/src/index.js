@@ -84,7 +84,7 @@ const fetchAndParse = ({ url, hash }) => {
   });
 };
 
-const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert }) => {
+const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert, runFetchAndParse }) => {
   const updateDate = moment().format("YYYY-MM-DD");
 
   const cargo = async.cargo(([item], callback) => {
@@ -97,6 +97,20 @@ const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert }) =>
       return Object.assign(acc, { [val[0]]: item[val[1]] || item[val[0]] });
     }, {});
 
+    const insertIntoTable = content =>
+      db(tableToInsert)
+        .insert({
+          hash,
+          ["last_download"]: updateDate,
+          content,
+          ["content_lower"]: parsedText.toLowerCase(),
+          ...extendedProps
+        })
+        .then(() => {
+          logger.info(`${item.sourceName} - #${hash} put into db`);
+          callback();
+        });
+
     db(tableToInsert)
       .where({ hash })
       .then(rows => {
@@ -105,27 +119,21 @@ const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert }) =>
         if (isNew) {
           logger.info(`${item.sourceName} - #${hash} is new - fetching & parsing (${item.url})`);
 
-          fetchAndParse({ url: item.url, hash })
-            .then(parsedText => {
-              logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
+          if (runFetchAndParse) {
+            fetchAndParse({ url: item.url, hash })
+              .then(parsedText => {
+                logger.info(`${item.sourceName} - #${hash} downloaded & parsed `);
 
-              db(tableToInsert)
-                .insert({
-                  hash,
-                  ["last_download"]: updateDate,
-                  content: parsedText,
-                  ["content_lower"]: parsedText.toLowerCase(),
-                  ...extendedProps
-                })
-                .then(() => {
-                  logger.info(`${item.sourceName} - #${hash} put into db`);
-                  callback();
-                });
-            })
-            .catch(err => {
-              logger.error(`Fetch and parse error: ${err}`);
-              callback();
-            });
+                insertIntoTable(parsedText);
+              })
+              .catch(err => {
+                logger.error(`Fetch and parse error: ${err}`);
+                callback();
+              });
+          } else {
+            // This runs only on bulletin
+            insertIntoTable(item.body);
+          }
         } else {
           logger.info(`#${hash} exists - updating`);
 

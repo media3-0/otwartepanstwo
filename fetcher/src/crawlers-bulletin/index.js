@@ -3,6 +3,6 @@ const crawl = require("../bulletin-crawler");
 
 module.exports = () => {
   const emitter = new EventEmitter();
-  crawl(emitter, "https://searchbzp.uzp.gov.pl/Search.aspx", "Biuletyn zamówień publicznych");
+  crawl(emitter, "Biuletyn zamówień publicznych");
   return emitter;
 };

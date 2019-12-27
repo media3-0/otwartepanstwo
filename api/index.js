@@ -12,6 +12,7 @@ const simpleCrud = require("./simple-crud");
 
 const DOCUMENTS_TABLE = "documents";
 const REGIONAL_DOCUMENTS_TABLE = "documents_regional";
+const BULLETIN_DOCUMENTS_TABLE = "documents_bulletin";
 const SUBSCRIPTIONS_TABLE = "subscriptions";
 const PORT = process.env.PORT || 4000;
 
@@ -115,8 +116,21 @@ const init = async () => {
       });
   };
 
+  // getMeta
+  const getMeta = (db, fieldName) => (req, res) => {
+    db.distinct()
+      .pluck(fieldName)
+      .then(sources => {
+        res.json(toClient(sources));
+      });
+  };
+
   app.get("/general/type-names", getTypes(db(DOCUMENTS_TABLE)));
   app.get("/regional/type-names", getTypes(db(REGIONAL_DOCUMENTS_TABLE)));
+  app.get("/bulletin/type-names", getTypes(db(BULLETIN_DOCUMENTS_TABLE)));
+  app.get("/bulletin/orderer-names", getMeta(db(BULLETIN_DOCUMENTS_TABLE), "orderer_name"));
+  app.get("/bulletin/orderer-locations", getMeta(db(BULLETIN_DOCUMENTS_TABLE), "orderer_location"));
+  app.get("/bulletin/orderer-regions", getMeta(db(BULLETIN_DOCUMENTS_TABLE), "orderer_region"));
 
   // documents
   app.get("/general/documents/", (req, res) => {
@@ -230,7 +244,99 @@ const init = async () => {
     );
   });
 
-  //
+  // bulletin documents
+  app.get("/bulletin/documents", (req, res) => {
+    // const itemProps = [
+    //   ["title"],
+    //   ["type"],
+    //   ["url"],
+    //   ["source_name", "sourceName"],
+    //   ["date"],
+    //   ["orderer_name", "ordererName"],
+    //   ["orderer_location", "ordererLocation"],
+    //   ["orderer_region", "ordererRegion"],
+    //   ["ref_num", "refNum"],
+    //   ["content"]
+    // ];
+    const {
+      search,
+      dateFrom,
+      dateTo,
+      hash,
+      page,
+      perPage,
+      sortBy,
+      sortDirection,
+      type,
+      ordererName,
+      ordererLocation,
+      ordererRegion
+    } = req.query;
+
+    const fields = [
+      "title",
+      "date",
+      "last_download",
+      "source_name",
+      "hash",
+      "url",
+      "type",
+      "orderer_name",
+      "orderer_location",
+      "orderer_region",
+      "ref_num"
+    ];
+
+    let query = db(BULLETIN_DOCUMENTS_TABLE).select(...fields);
+
+    if (hash) {
+      query = query.where("hash", "=", hash);
+    }
+
+    if (dateFrom) {
+      query = query.where("date", ">", dateFrom);
+    }
+
+    if (dateTo) {
+      query = query.where("date", "<", dateTo);
+    }
+
+    if (search) {
+      query = query.where(db.raw(`content_lower LIKE '%${search}%'`));
+    }
+
+    if (sortBy) {
+      query = query.orderBy(sortBy, sortDirection);
+    }
+
+    if (type) {
+      query = query.where("type", "=", type);
+    }
+
+    if (ordererName) {
+      query = query.where("orderer_name", "=", ordererName);
+    }
+
+    if (ordererLocation) {
+      query = query.where("orderer_location", "=", ordererLocation);
+    }
+
+    if (ordererRegion) {
+      query = query.where("orderer_region", "=", ordererRegion);
+    }
+
+    // console.log("query: ", query.toString())
+
+    paginator(db, query, { page: page ? parseInt(page) : 1, perPage: perPage || 20 }).then(({ pagination, data }) =>
+      res.json(
+        toClient({
+          page: pagination.currentPage,
+          totalPages: pagination.lastPage,
+          data
+        })
+      )
+    );
+  });
 
   // subscriptions (protected api)
   app.get("/subscriptions", checkJwt, (req, res) => {

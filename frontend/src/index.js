@@ -12,6 +12,7 @@ const Auth = require("./services/auth");
 const Header = require("./header");
 const SearchResults = require("./search-results");
 const SearchRegionalResults = require("./search-regional-results");
+const SearchBulletinResults = require("./search-bulletin-results");
 
 const { Blog } = require("./blog");
 const { BlogPost } = require("./blog-post");
@@ -90,6 +91,7 @@ class App extends React.Component {
               noFooter
               content={<DocumentPreview regional />}
             />
+            <DefaultLayout exact={true} path="/documents/bulletin" content={<SearchBulletinResults />} />
 
             <DefaultLayout exact={true} path="/subscriptions" content={<Subscriptions />} />
 

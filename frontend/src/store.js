@@ -61,6 +61,14 @@ class Store {
   keywords = [];
   @observable
   publishers = [];
+
+  @observable
+  ordererNames = [];
+  @observable
+  ordererLocations = [];
+  @observable
+  ordererRegions = [];
+
   @observable
   totalPages = 0;
 
@@ -166,8 +174,43 @@ class Store {
     fetch("/api/general/type-names")
       .then(res => res.json())
       .then(typeNames => {
-        console.log(typeNames, typeNames);
         this.typeNames = typeNames.sort();
+      });
+  }
+
+  @action
+  fetchBulletinTypeNames() {
+    fetch("/api/bulletin/type-names")
+      .then(res => res.json())
+      .then(typeNames => {
+        this.typeNames = typeNames.sort();
+      });
+  }
+
+  @action
+  fetchBulletinOrdererNames() {
+    fetch("/api/bulletin/orderer-names")
+      .then(res => res.json())
+      .then(names => {
+        this.ordererNames = names.sort();
+      });
+  }
+
+  @action
+  fetchBulletinOrdererLocations() {
+    fetch("/api/bulletin/orderer-locations")
+      .then(res => res.json())
+      .then(names => {
+        this.ordererLocations = names.sort();
+      });
+  }
+
+  @action
+  fetchBulletinOrdererRegions() {
+    fetch("/api/bulletin/orderer-regions")
+      .then(res => res.json())
+      .then(names => {
+        this.ordererRegions = names.sort();
       });
   }
 
@@ -195,6 +238,24 @@ class Store {
       Object.entries(query).length > 0
         ? `/api/regional/documents/?${queryString.stringify(query)}`
         : "/api/regional/documents/";
+
+    this.fetching = true;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(response => {
+        this.documents = response.data;
+        this.totalPages = response.totalPages;
+        this.fetching = false;
+      });
+  }
+
+  @action
+  fetchBulletinDocuments(query) {
+    const url =
+      Object.entries(query).length > 0
+        ? `/api/bulletin/documents/?${queryString.stringify(query)}`
+        : "/api/bulletin/documents/";
 
     this.fetching = true;
 

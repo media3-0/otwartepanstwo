@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const { flatten } = require("lodash");
 const async = require("async");
 
 function sleep(ms) {
@@ -66,7 +65,7 @@ const crawl = async (emitter, SOURCE_NAME) => {
         await sleep(1000);
         const newContent = await newPage.content();
         const new$ = cheerio.load(newContent);
-        const body = new$("body")
+        const content = new$("body")
           .text()
           .trim()
           .replace(/\s\s+/gm, " ");
@@ -81,11 +80,12 @@ const crawl = async (emitter, SOURCE_NAME) => {
           ordererLocation,
           ordererRegion,
           refNum,
-          body
+          content
         };
       },
-      (err, result) => {
-        console.log("finished", result);
+      async (err, result) => {
+        emitter.emit("entity", result);
+        await browser.close();
       }
     );
   };

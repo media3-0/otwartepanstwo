@@ -36,7 +36,8 @@ const BULLETIN_ENTITY_SCHEMA = j.object().keys({
   ordererLocation: j.string(),
   ordererRegion: j.string(),
   orderName: j.string(),
-  refNum: j.string()
+  refNum: j.string(),
+  content: j.string()
 });
 
 module.exports = {

@@ -18,7 +18,7 @@ const REGIONAL_DOCUMENTS_TABLE = "documents_regional";
 const BULLETIN_DOCUMENTS_TABLE = "documents_bulletin";
 
 const crawlersDir = `${__dirname}/crawlers`;
-const { STANDARD_ENTITY_SCHEMA, REGIONAL_ENTITY_SCHEMA } = require("./schema");
+const { STANDARD_ENTITY_SCHEMA, REGIONAL_ENTITY_SCHEMA, BULLETIN_ENTITY_SCHEMA } = require("./schema");
 
 const createDB = () =>
   new Promise((resolve, reject) => {
@@ -103,7 +103,7 @@ const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert, runF
           hash,
           ["last_download"]: updateDate,
           content,
-          ["content_lower"]: parsedText.toLowerCase(),
+          ["content_lower"]: content.toLowerCase(),
           ...extendedProps
         })
         .then(() => {
@@ -132,7 +132,7 @@ const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert, runF
               });
           } else {
             // This runs only on bulletin
-            insertIntoTable(item.body);
+            insertIntoTable(item.content);
           }
         } else {
           logger.info(`#${hash} exists - updating`);
@@ -237,7 +237,7 @@ const processRegionalCrawlers = ({ db }) => {
 const processBulltin = ({ db }) => {
   const runCrawlers = createRunCrawlers({
     crawlersUrls: [{ name: "bulletin", url: `${__dirname}/crawlers-bulletin/index.js` }],
-    entitySchema: REGIONAL_ENTITY_SCHEMA
+    entitySchema: BULLETIN_ENTITY_SCHEMA
   });
 
   const tableToInsert = BULLETIN_DOCUMENTS_TABLE;
@@ -252,8 +252,10 @@ const processBulltin = ({ db }) => {
     ["orderer_location", "ordererLocation"],
     ["orderer_region", "ordererRegion"],
     ["order_name", "orderName"],
-    ["ref_num", "refNum"]
+    ["ref_num", "refNum"],
+    ["content"]
   ];
+
   return processCrawlers({ db, runCrawlers, itemProps, tableToInsert });
 };
 

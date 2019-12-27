@@ -29,6 +29,24 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     source_name TEXT
   );
 
+  CREATE TABLE IF NOT EXISTS documents_bulletin (
+    hash TEXT,
+    last_download DATE,
+    content TEXT,
+    content_lower TEXT,
+    date DATE,
+    title TEXT, 
+    type TEXT,
+    source_name TEXT,
+    url TEXT,
+    orderer_name TEXT,
+    orderer_location TEXT,
+    orderer_region TEXT,
+    order_name TEXT,
+    ref_num TEXT
+  );
+
+
   CREATE TABLE IF NOT EXISTS subscriptions (
     email TEXT,
     search_phrase TEXT,

@@ -78,10 +78,10 @@ class App extends React.Component {
       <Provider store={new Store()}>
         <Router history={history}>
           <div>
-            <DefaultLayout exact={true} path="/" content={<Blog />} />
-            <DefaultLayout exact={true} path="/articles/" content={<Blog />} />
-            <DefaultLayout exact={true} path="/articles/:year/:month" content={<Blog />} />
-            <DefaultLayout exact={true} path="/article/:id" content={<BlogPost />} />
+            <DefaultLayout exact={true} path="/" content={<SearchResults />} />
+            {/* <DefaultLayout exact={true} path="/articles/" content={<Blog />} /> */}
+            {/* <DefaultLayout exact={true} path="/articles/:year/:month" content={<Blog />} /> */}
+            {/* <DefaultLayout exact={true} path="/article/:id" content={<BlogPost />} /> */}
             <DefaultLayout exact={true} path="/documents/general" content={<SearchResults />} />
             <DefaultLayout exact={true} path="/document/general/:hash" noFooter content={<DocumentPreview />} />
             <DefaultLayout exact={true} path="/documents/regional" content={<SearchRegionalResults />} />

@@ -28,10 +28,6 @@ const columns = ({ search }) => {
     {
       Header: "Źródło",
       accessor: "sourceName"
-    },
-    {
-      Header: "Typ",
-      accessor: "type"
     }
   ];
 };
@@ -215,14 +211,6 @@ class SearchResults extends React.Component {
                   options={this.props.store.sourceNames.map(s => ({ value: s, label: s }))}
                   onChange={this.handleSourceNameChange}
                   selected={query.sourceName}
-                />
-              </div>
-
-              <div className="flex">
-                <SelectPicker
-                  options={this.props.store.typeNames.map(s => ({ value: s, label: s }))}
-                  onChange={this.handleTypeNameChange}
-                  selected={query.type}
                 />
               </div>
 

@@ -483,10 +483,12 @@ input:focus {
 }
 
 .select-picker-scroll {
-  height: 60vh;
+  height: 30vh;
   overflow: scroll;
   padding: 10px;
   border: 1px solid #f0f0f0;
+  margin: 10px 0;
+  width: 100%;
 }
 
 .select-item {

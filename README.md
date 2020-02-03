@@ -39,3 +39,8 @@ For development, list of active crawlers can be specified:
 DEV_CRAWLERS="abw.js|cba.js" ./scripts/start.dev.sh
 ```
 
+## prod run
+1. setup docker + docker-compose on your prod machine
+2. run `./scripts/build.prod.sh`
+3. run `./start.prod.sh`
+4. after updates, please stop docker (`./scripts/stop.prod.sh`), and run again from step 2.

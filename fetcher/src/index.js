@@ -132,7 +132,7 @@ const processCrawlers = async ({ db, runCrawlers, itemProps, tableToInsert, runF
               });
           } else {
             // This runs only on bulletin
-            insertIntoTable(item.content);
+            // insertIntoTable(item.content);
           }
         } else {
           logger.info(`#${hash} exists - updating`);
@@ -211,7 +211,7 @@ const processGeneralCrawlers = ({ db }) => {
   const runCrawlers = createRunCrawlers({ crawlersUrls, entitySchema: STANDARD_ENTITY_SCHEMA });
   const itemProps = [["url"], ["title"], ["type"], ["date"], ["source_name", "sourceName"]];
   const tableToInsert = DOCUMENTS_TABLE;
-  return processCrawlers({ db, runCrawlers, itemProps, tableToInsert });
+  return processCrawlers({ db, runCrawlers, itemProps, tableToInsert, runFetchAndParse: true });
 };
 
 const processRegionalCrawlers = ({ db }) => {

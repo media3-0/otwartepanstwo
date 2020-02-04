@@ -264,9 +264,9 @@ module.exports = async () => {
 
   const db = await createDB();
 
-  await processBulltin({ db });
+  // await processBulltin({ db });
 
-  // await processGeneralCrawlers({ db });
+  await processGeneralCrawlers({ db });
 
   // await processRegionalCrawlers({ db });
 

@@ -44,12 +44,6 @@ class Header extends React.Component {
                 <a className="mr2 f6" href="/documents/general">
                   Dokumenty
                 </a>
-                <a className="mr2 f6" href="/documents/regional">
-                  Regionalne
-                </a>
-                <a className="mr2 f6" href="/documents/bulletin">
-                  Biuletyn zamówień
-                </a>
                 <a className="mr2 f6" href="http://sady.otwartepanstwo.pl">
                   Sądy
                 </a>
